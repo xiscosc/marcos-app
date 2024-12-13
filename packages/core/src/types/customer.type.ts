@@ -1,6 +1,6 @@
 export type Customer = {
-  id: string;
-  storeId: string;
-  name: string;
-  phone: string;
+	id: string;
+	storeId: string;
+	name: string;
+	phone: string;
 };

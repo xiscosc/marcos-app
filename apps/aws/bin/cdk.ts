@@ -1,3 +1,3 @@
-import { MmSsApp } from "../lib/mmss.app.js";
+import { MmSsApp } from '../lib/mmss.app.js';
 
 new MmSsApp();
