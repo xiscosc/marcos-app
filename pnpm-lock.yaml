@@ -34,13 +34,13 @@ importers:
         version: link:../../packages/lambda-logic
       aws-cdk-lib:
         specifier: 2.161.1
-        version: 2.161.1(constructs@10.3.1)
+        version: 2.161.1(constructs@10.4.2)
       aws-lambda:
         specifier: ^1.0.7
         version: 1.0.7
       constructs:
-        specifier: 10.3.1
-        version: 10.3.1
+        specifier: 10.4.2
+        version: 10.4.2
       dotenv:
         specifier: ^16.4.5
         version: 16.4.7
@@ -1401,9 +1401,8 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
-  constructs@10.3.1:
-    resolution: {integrity: sha512-gTyTNR3iHOVnOk4cKPK6QHRrSZWT1nsnEMFnwLa094/w1L+CKToQel4v4oxnYHi4L07PBNm1p3Bt0WVZI4kgkg==}
-    engines: {node: '>= 18.12.0'}
+  constructs@10.4.2:
+    resolution: {integrity: sha512-wsNxBlAott2qg8Zv87q3eYZYgheb9lchtBfjHzzLHtXbttwSrHPs1NNQbBrmbb1YZvYg2+Vh0Dor76w4mFxJkA==}
 
   cosmiconfig@9.0.0:
     resolution: {integrity: sha512-itvL5h8RETACmOTFc4UfIyB2RfEHi71Ax6E/PivVxq9NseKbOWpeyHEOIbmAw1rs8Ak0VursQNww7lf7YtUwzg==}
@@ -4024,13 +4023,13 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  aws-cdk-lib@2.161.1(constructs@10.3.1):
+  aws-cdk-lib@2.161.1(constructs@10.4.2):
     dependencies:
       '@aws-cdk/asset-awscli-v1': 2.2.214
       '@aws-cdk/asset-kubectl-v20': 2.1.3
       '@aws-cdk/asset-node-proxy-agent-v6': 2.1.0
       '@aws-cdk/cloud-assembly-schema': 38.0.1
-      constructs: 10.3.1
+      constructs: 10.4.2
 
   aws-cdk@2.161.1:
     optionalDependencies:
@@ -4156,7 +4155,7 @@ snapshots:
 
   concat-map@0.0.1: {}
 
-  constructs@10.3.1: {}
+  constructs@10.4.2: {}
 
   cosmiconfig@9.0.0(typescript@5.7.2):
     dependencies:
