@@ -1,8 +1,9 @@
 {
-  "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
-  ],
-  "editor.formatOnSave": true
+	"eslint.workingDirectories": [
+		{
+			"mode": "auto"
+		}
+	],
+	"editor.formatOnSave": true,
+	"prettier.configPath": ".prettierrc"
 }
