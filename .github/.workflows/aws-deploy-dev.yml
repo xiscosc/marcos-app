@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Download Sharp Layer
-        run: curl -L https://github.com/pH200/sharp-layer/releases/latest/download/release-arm64.zip --output sharp-layer.zip
+        run: curl -L https://github.com/pH200/sharp-layer/releases/latest/download/release-arm64.zip --output apps/aws/sharp-layer.zip
 
       - name: Install
         run: pnpm i
