@@ -1,23 +1,23 @@
 {
-  "name": "mmss-app",
-  "private": true,
-  "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "sync-deps": "syncpack fix-mismatches",
-    "cdk": "pnpm run --prefix apps/aws cdk"
-  },
-  "devDependencies": {
-    "@tsconfig/node20": "20.1.4",
-    "prettier": "^3.2.5",
-    "syncpack": "^13.0.0",
-    "turbo": "^2.3.3",
-    "typescript": "^5.6.3"
-  },
-  "packageManager": "pnpm@9.15.0",
-  "engines": {
-    "node": ">=18"
-  }
+	"name": "mmss-app",
+	"private": true,
+	"scripts": {
+		"build": "turbo build",
+		"dev": "turbo dev",
+		"lint": "turbo lint",
+		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
+		"sync-deps": "syncpack fix-mismatches",
+		"cdk": "pnpm run --prefix apps/aws cdk"
+	},
+	"devDependencies": {
+		"@tsconfig/node20": "20.1.4",
+		"prettier": "^3.4.2",
+		"syncpack": "^13.0.0",
+		"turbo": "^2.3.3",
+		"typescript": "^5.6.3"
+	},
+	"packageManager": "pnpm@9.15.0",
+	"engines": {
+		"node": ">=18"
+	}
 }
