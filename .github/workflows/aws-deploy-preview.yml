@@ -1,5 +1,5 @@
-name: aws-deploy-dev
-run-name: Deploy to AWS DEV
+name: aws-deploy-preview
+run-name: Deploy to AWS PREVIEW
 on:
   workflow_dispatch:
   push:
@@ -11,7 +11,7 @@ env:
 
 jobs:
   deploy-dev:
-    environment: staging
+    environment: preview
     name: Deploy AWS DEV
     runs-on: ubuntu-latest
     steps:
@@ -41,19 +41,19 @@ jobs:
         run: pnpm cdk bootstrap
         env:
           CDK_ENV_NAME: dev
-          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS_DEV }}
-          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID_DEV }}
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
+          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
 
       - name: Diff stack
         run: pnpm cdk diff
         env:
           CDK_ENV_NAME: dev
-          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS_DEV }}
-          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID_DEV }}
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
+          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
 
       - name: Deploy stack
         run: pnpm cdk deploy --all --require-approval never
         env:
           CDK_ENV_NAME: dev
-          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS_DEV }}
-          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID_DEV }}
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
+          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
