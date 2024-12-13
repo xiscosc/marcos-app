@@ -14,14 +14,14 @@ export class CalculatedItemUtilities {
     width: number,
     height: number,
     pp: number,
-    ppDimensions?: PPDimensions
+    ppDimensions?: PPDimensions,
   ): OrderDimensions {
     const { totalWidth, totalHeight } =
       CalculatedItemUtilities.getTotalDimensions(
         width,
         height,
         pp,
-        ppDimensions
+        ppDimensions,
       );
 
     const workingWidth =
@@ -41,7 +41,7 @@ export class CalculatedItemUtilities {
   public static sortByPricingType(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     arr: any[],
-    path: (string | number)[] = ["type"]
+    path: (string | number)[] = ["type"],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any[] {
     const desiredOrder: PricingType[] = [
@@ -78,7 +78,7 @@ export class CalculatedItemUtilities {
     width: number,
     height: number,
     pp: number,
-    ppDimensions?: PPDimensions
+    ppDimensions?: PPDimensions,
   ): { totalWidth: number; totalHeight: number } {
     if (ppDimensions !== undefined) {
       const totalWidth = width + ppDimensions.left + ppDimensions.right;
@@ -98,26 +98,26 @@ export class CalculatedItemUtilities {
   }
 
   public static getUnitPriceWithoutDiscount(
-    calculatedItem: CalculatedItem
+    calculatedItem: CalculatedItem,
   ): number {
     return CalculatedItemUtilities.calculatePartsCost(
       calculatedItem.parts,
-      false
+      false,
     );
   }
 
   public static getUnitPriceWithDiscount(
-    calculatedItem: CalculatedItem
+    calculatedItem: CalculatedItem,
   ): number {
     return CalculatedItemUtilities.calculatePartsCost(
       calculatedItem.parts,
       true,
-      calculatedItem.discount
+      calculatedItem.discount,
     );
   }
 
   public static getTotalWithoutDiscount(
-    calculatedItem: CalculatedItem
+    calculatedItem: CalculatedItem,
   ): number {
     return (
       calculatedItem.quantity *
@@ -135,15 +135,15 @@ export class CalculatedItemUtilities {
   public static calculatePartsCost(
     parts: CalculatedItemPart[],
     applyDiscount: boolean,
-    discount: number = 0
+    discount: number = 0,
   ): number {
     const discountFactor = applyDiscount ? 1 - discount / 100 : 1;
     const prices = parts.map(
-      (p) => p.price * p.quantity * (p.discountAllowed ? discountFactor : 1)
+      (p) => p.price * p.quantity * (p.discountAllowed ? discountFactor : 1),
     );
     const total = prices.reduce(
       (accumulator, currentValue) => accumulator + currentValue,
-      0
+      0,
     );
     return Math.ceil(total * 100) / 100;
   }

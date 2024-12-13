@@ -20,7 +20,7 @@ export class ReportService {
       | ICoreConfiguration
       | ICoreConfigurationForAWSLambda,
     private orderAuditTrailService: OrderAuditTrailService,
-    private orderService: OrderService
+    private orderService: OrderService,
   ) {
     if (this.config.reportsBucket == null) {
       throw Error("reports bucket is mandatory");
@@ -32,7 +32,7 @@ export class ReportService {
   async generateAndStoreDailyReport(
     year: number,
     month: number,
-    day: number
+    day: number,
   ): Promise<DailyReport> {
     const today = DateTime.fromObject({
       day,
@@ -41,7 +41,7 @@ export class ReportService {
     });
     const entries =
       await this.orderAuditTrailService.getEntriesForDayWithoutDataType(
-        today.toJSDate()
+        today.toJSDate(),
       );
 
     const filteredEntries = entries
@@ -49,7 +49,7 @@ export class ReportService {
       .filter(
         (entry) =>
           (entry.oldValue == null || entry.oldValue == OrderStatus.QUOTE) &&
-          entry.newValue === OrderStatus.PENDING
+          entry.newValue === OrderStatus.PENDING,
       );
 
     const orderIds = [
@@ -57,7 +57,7 @@ export class ReportService {
     ];
     const orders = (
       await Promise.all(
-        orderIds.map((orderId) => this.orderService.getFullOrderById(orderId))
+        orderIds.map((orderId) => this.orderService.getFullOrderById(orderId)),
       )
     ).filter((order) => order != null);
 
@@ -72,7 +72,7 @@ export class ReportService {
         fullOrder.order.item.partsToCalculate.map((part) => ({
           id: part.id,
           count: part.quantity,
-        }))
+        })),
       )
       .flat();
 
@@ -107,7 +107,7 @@ export class ReportService {
     report.hash = hash.digest("hex");
     await this.storeToS3(
       report,
-      this.generateKeyForDailyReport(year, month, day)
+      this.generateKeyForDailyReport(year, month, day),
     );
     return report;
   }
@@ -115,10 +115,10 @@ export class ReportService {
   async getDailyReport(
     year: number,
     month: number,
-    day: number
+    day: number,
   ): Promise<DailyReport> {
     const reportFromS3 = await this.getFromS3(
-      this.generateKeyForDailyReport(year, month, day)
+      this.generateKeyForDailyReport(year, month, day),
     );
     return reportFromS3 == null
       ? { date: { year, month, day }, orders: [], items: [], hash: "" }
@@ -127,7 +127,7 @@ export class ReportService {
 
   async getWeeklyReport(year: number, week: number): Promise<WeeklyReport> {
     const reportFromS3 = await this.getFromS3(
-      this.generateKeyForWeeklyReport(year, week)
+      this.generateKeyForWeeklyReport(year, week),
     );
     return reportFromS3 == null
       ? { date: { year, week }, dailyReports: [] }
@@ -136,7 +136,7 @@ export class ReportService {
 
   async geMonthlyReport(year: number, month: number): Promise<MonthlyReport> {
     const reportFromS3 = await this.getFromS3(
-      this.generateKeyForMonthlyReport(year, month)
+      this.generateKeyForMonthlyReport(year, month),
     );
     return reportFromS3 == null
       ? { date: { year, month }, dailyReports: [] }
@@ -152,27 +152,27 @@ export class ReportService {
 
     const report: WeeklyReport = await this.getWeeklyReport(
       dailyReport.date.year,
-      weekNumber
+      weekNumber,
     );
     report.dailyReports = this.updateReports(report.dailyReports, dailyReport);
     await this.storeToS3(
       report,
-      this.generateKeyForWeeklyReport(dailyReport.date.year, weekNumber)
+      this.generateKeyForWeeklyReport(dailyReport.date.year, weekNumber),
     );
   }
 
   async upadateMonthlyReport(dailyReport: DailyReport) {
     const report: MonthlyReport = await this.geMonthlyReport(
       dailyReport.date.year,
-      dailyReport.date.month
+      dailyReport.date.month,
     );
     report.dailyReports = this.updateReports(report.dailyReports, dailyReport);
     await this.storeToS3(
       report,
       this.generateKeyForMonthlyReport(
         dailyReport.date.year,
-        dailyReport.date.month
-      )
+        dailyReport.date.month,
+      ),
     );
   }
 
@@ -187,14 +187,14 @@ export class ReportService {
   private generateKeyForDailyReport(
     year: number,
     month: number,
-    day: number
+    day: number,
   ): string {
     return `${this.config.storeId}/daily/${year}/${month}/${day}/report.json`;
   }
 
   private updateReports(
     reports: DailyReport[],
-    newReport: DailyReport
+    newReport: DailyReport,
   ): DailyReport[] {
     const hashes = new Set(reports.map((report) => report.hash));
     if (hashes.has(newReport.hash)) {
@@ -206,7 +206,7 @@ export class ReportService {
 
   private async storeToS3(
     report: DailyReport | WeeklyReport | MonthlyReport,
-    key: string
+    key: string,
   ) {
     const jsonString = JSON.stringify(report);
     const buffer = Buffer.from(jsonString, "utf-8");
@@ -215,17 +215,17 @@ export class ReportService {
       this.config.reportsBucket!,
       key,
       buffer,
-      "application/json"
+      "application/json",
     );
   }
 
   private async getFromS3(
-    key: string
+    key: string,
   ): Promise<DailyReport | WeeklyReport | MonthlyReport | undefined> {
     const result = await S3Util.getFileFromS3(
       this.s3Client,
       this.config.reportsBucket!,
-      key
+      key,
     );
     return result == null
       ? undefined

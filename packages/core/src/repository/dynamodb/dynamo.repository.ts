@@ -35,7 +35,7 @@ export abstract class DynamoRepository<T> {
   protected constructor(
     config: ICoreConfiguration | ICoreConfigurationForAWSLambda,
     private readonly table: string,
-    protected readonly primaryIndex: IPrimaryDynamoDbIndex
+    protected readonly primaryIndex: IPrimaryDynamoDbIndex,
   ) {
     this.logger = pino();
     if (!table) {
@@ -47,7 +47,7 @@ export abstract class DynamoRepository<T> {
         new DynamoDBClient(getClientConfiguration(config)),
         {
           marshallOptions: { removeUndefinedValues: true },
-        }
+        },
       );
     } catch (error: unknown) {
       this.logError("constructor", error);
@@ -60,14 +60,14 @@ export abstract class DynamoRepository<T> {
     partitionKeyValue: string | number,
     includeSortKey: boolean = false,
     sortKeyValue?: string | number,
-    descendent: boolean = true
+    descendent: boolean = true,
   ): Promise<T[]> {
     const queryParams = this.buildQueryForIndex(
       index,
       partitionKeyValue,
       includeSortKey,
       sortKeyValue,
-      descendent
+      descendent,
     );
 
     try {
@@ -82,14 +82,14 @@ export abstract class DynamoRepository<T> {
     index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
     partitionKeyValue: string | number,
     startKey?: Record<string, string | number>,
-    descendent: boolean = true
+    descendent: boolean = true,
   ): Promise<IPaginatedDtoResult<T>> {
     const queryParams = this.buildQueryForIndex(
       index,
       partitionKeyValue,
       false,
       undefined,
-      descendent
+      descendent,
     );
 
     try {
@@ -105,7 +105,7 @@ export abstract class DynamoRepository<T> {
     partitionKeyValue: string,
     sortKeyStartValue: string | number,
     sortKeyEndValue: string | number,
-    descendent: boolean = true
+    descendent: boolean = true,
   ): Promise<T[]> {
     if (index.sortKeyName == null) {
       return [];
@@ -116,7 +116,7 @@ export abstract class DynamoRepository<T> {
       partitionKeyValue,
       sortKeyStartValue,
       sortKeyEndValue,
-      descendent
+      descendent,
     );
     try {
       return this.executeQueryCommandWithoutPagination(params);
@@ -131,14 +131,14 @@ export abstract class DynamoRepository<T> {
     partitionKeyValue: string,
     query: string | number,
     queryFieldMap: Map<string, string>,
-    descendent: boolean = true
+    descendent: boolean = true,
   ): Promise<T[]> {
     const params = this.buildQueryForSearch(
       index,
       partitionKeyValue,
       queryFieldMap,
       query,
-      descendent
+      descendent,
     );
 
     try {
@@ -154,7 +154,7 @@ export abstract class DynamoRepository<T> {
     partitionKeyValue: string,
     query: string | number,
     queryField: string,
-    descendent: boolean = true
+    descendent: boolean = true,
   ): Promise<T[]> {
     const queryFieldMap = new Map([["#searchField", queryField]]);
     const params = this.buildQueryForSearch(
@@ -162,7 +162,7 @@ export abstract class DynamoRepository<T> {
       partitionKeyValue,
       queryFieldMap,
       query,
-      descendent
+      descendent,
     );
     try {
       return this.executeQueryCommandWithoutPagination(params);
@@ -175,7 +175,7 @@ export abstract class DynamoRepository<T> {
   protected async updateFields(
     partitionKeyValue: string,
     fieldMap: Map<string, string | number | ItemDto | boolean | undefined>,
-    sortKeyValue?: string | number
+    sortKeyValue?: string | number,
   ) {
     const key: { [x: string]: string | number } = {
       [this.primaryIndex.partitionKeyName]: partitionKeyValue,
@@ -242,7 +242,7 @@ export abstract class DynamoRepository<T> {
     partitionKeyValue: string,
     nestedAttributesMap: Map<string, string>,
     value: string | number | ItemDto | boolean | undefined,
-    sortKeyValue?: string | number
+    sortKeyValue?: string | number,
   ) {
     const key: { [x: string]: string | number } = {
       [this.primaryIndex.partitionKeyName]: partitionKeyValue,
@@ -341,7 +341,7 @@ export abstract class DynamoRepository<T> {
   }
 
   protected async batchDelete(
-    values: { partitionKey: string; sortKey?: string | number }[]
+    values: { partitionKey: string; sortKey?: string | number }[],
   ) {
     const deleteRequests = values.map((value) => {
       const key: {
@@ -377,7 +377,7 @@ export abstract class DynamoRepository<T> {
   }
 
   private async executeQueryCommandWithoutPagination(
-    params: QueryCommandInput
+    params: QueryCommandInput,
   ): Promise<T[]> {
     const results: T[] = [];
     let lastEvaluatedKey: Record<string, NativeAttributeValue> | undefined;
@@ -407,7 +407,7 @@ export abstract class DynamoRepository<T> {
 
   private async executeQueryCommandWithPagination(
     params: QueryCommandInput,
-    startKey?: Record<string, string | number>
+    startKey?: Record<string, string | number>,
   ): Promise<IPaginatedDtoResult<T>> {
     try {
       params.ExclusiveStartKey = startKey;
@@ -428,7 +428,7 @@ export abstract class DynamoRepository<T> {
   private async batchWrite(
     requests:
       | { PutRequest: { Item: Record<string, AttributeValue> } }[]
-      | { DeleteRequest: { Key: { [x: string]: string | number } } }[]
+      | { DeleteRequest: { Key: { [x: string]: string | number } } }[],
   ) {
     const params = {
       RequestItems: {
@@ -448,7 +448,7 @@ export abstract class DynamoRepository<T> {
     this.logger.error(
       `Error repo ${this.table}, partitionKey ${this.primaryIndex.partitionKeyName}, sortkey ${
         this.primaryIndex.sortKeyName
-      }, and function ${functionName}: ${(error as Error).toString()}`
+      }, and function ${functionName}: ${(error as Error).toString()}`,
     );
 
     if (otherInfo) {
@@ -481,7 +481,7 @@ export abstract class DynamoRepository<T> {
     partitionKeyValue: string | number,
     includeSortKey: boolean = false,
     sortKeyValue?: string | number,
-    descendent: boolean = true
+    descendent: boolean = true,
   ): QueryCommandInput {
     if (!includeSortKey) {
       return {
@@ -502,7 +502,7 @@ export abstract class DynamoRepository<T> {
     } else {
       if (index.sortKeyName == null || sortKeyValue == null) {
         throw Error(
-          `Sort key names | values are not compatible  ${index.sortKeyName} | ${sortKeyValue}`
+          `Sort key names | values are not compatible  ${index.sortKeyName} | ${sortKeyValue}`,
         );
       }
       return {
@@ -530,7 +530,7 @@ export abstract class DynamoRepository<T> {
     partitionKeyValue: string | number,
     sortKeyValueStartValue: string | number,
     sortKeyEndValue: string | number,
-    descendent: boolean = true
+    descendent: boolean = true,
   ): QueryCommandInput {
     if (index.sortKeyName == null) {
       throw Error(`Sort key is required`);
@@ -560,7 +560,7 @@ export abstract class DynamoRepository<T> {
     partitionKeyValue: string | number,
     searchFieldMap: Map<string, string>,
     searchValue: string | number,
-    descendent: boolean = true
+    descendent: boolean = true,
   ): QueryCommandInput {
     return {
       IndexName:
