@@ -14,7 +14,7 @@
     "@types/luxon": "^3.4.2",
     "@types/node": "^22.7.5",
     "aws-cdk": "2.161.1",
-    "esbuild": "0.19.11",
+    "esbuild": "0.24.0",
     "tsx": "4.19.2",
     "@repo/eslint-config": "workspace:*",
     "typescript": "^5.6.3"
