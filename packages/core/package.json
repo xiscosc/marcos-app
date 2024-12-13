@@ -1,45 +1,45 @@
 {
-  "name": "@marcsimolduressonsardina/core",
-  "version": "2.0.0",
-  "exports": {
-    "./util": "./src/utilities/index.ts",
-    "./type": "./src/types/index.ts",
-    "./service": "./src/service/index.ts",
-    "./dto": "./src/service/dto/order-creation.dto.ts",
-    "./db": "./src/repository/dynamodb/index.dynamodb.ts",
-    "./error": "./src/error/index.ts",
-    "./config": "./src/configuration/core-configuration.interface.ts",
-    "./data": "./src/data/mold-price.loader.ts"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "format": "prettier --write ."
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@smithy/types": "^3.5.0",
-    "@types/aws-lambda": "^8.10.145",
-    "@types/lodash": "^4.17.10",
-    "@types/luxon": "^3.4.2",
-    "@types/mime-types": "^2.1.4",
-    "@types/node": "^22.7.5",
-    "@types/uuid": "^10.0.0",
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "typescript": "^5.6.3"
-  },
-  "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.670.0",
-    "@aws-sdk/client-s3": "^3.668.0",
-    "@aws-sdk/lib-dynamodb": "^3.668.0",
-    "@aws-sdk/s3-request-presigner": "^3.668.0",
-    "lodash": "^4.17.21",
-    "luxon": "^3.5.0",
-    "mime-types": "^2.1.35",
-    "pino": "^9.4.0",
-    "uuid": "^10.0.0",
-    "xlsx": "^0.18.5"
-  }
+	"name": "@marcsimolduressonsardina/core",
+	"version": "2.0.0",
+	"exports": {
+		"./util": "./src/utilities/index.ts",
+		"./type": "./src/types/index.ts",
+		"./service": "./src/service/index.ts",
+		"./dto": "./src/service/dto/order-creation.dto.ts",
+		"./db": "./src/repository/dynamodb/index.dynamodb.ts",
+		"./error": "./src/error/index.ts",
+		"./config": "./src/configuration/core-configuration.interface.ts",
+		"./data": "./src/data/mold-price.loader.ts"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"format": "prettier --write ."
+	},
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@smithy/types": "^3.5.0",
+		"@types/aws-lambda": "^8.10.145",
+		"@types/lodash": "^4.17.10",
+		"@types/luxon": "^3.4.2",
+		"@types/mime-types": "^2.1.4",
+		"@types/node": "^22.7.5",
+		"@types/uuid": "^10.0.0",
+		"@repo/eslint-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"typescript": "^5.6.3"
+	},
+	"dependencies": {
+		"@aws-sdk/client-dynamodb": "^3.670.0",
+		"@aws-sdk/client-s3": "^3.668.0",
+		"@aws-sdk/lib-dynamodb": "^3.668.0",
+		"@aws-sdk/s3-request-presigner": "^3.668.0",
+		"lodash": "^4.17.21",
+		"luxon": "^3.5.0",
+		"mime-types": "^2.1.35",
+		"pino": "^9.4.0",
+		"uuid": "^11.0.3",
+		"xlsx": "^0.18.5"
+	}
 }

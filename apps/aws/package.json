@@ -1,33 +1,33 @@
 {
-  "name": "mmss-aws",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "cdk": "cdk",
-    "lint": "eslint .",
-    "format": "prettier --write ."
-  },
-  "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.670.0",
-    "@types/aws-lambda": "^8.10.145",
-    "@types/eslint": "9.6.1",
-    "@types/luxon": "^3.4.2",
-    "@types/node": "^22.7.5",
-    "aws-cdk": "2.161.1",
-    "esbuild": "0.24.0",
-    "tsx": "4.19.2",
-    "@repo/eslint-config": "workspace:*",
-    "typescript": "^5.6.3"
-  },
-  "type": "module",
-  "dependencies": {
-    "aws-cdk-lib": "2.161.1",
-    "aws-lambda": "^1.0.7",
-    "constructs": "10.3.1",
-    "dotenv": "^16.4.5",
-    "pino": "^9.4.0",
-    "source-map-support": "0.5.21",
-    "@marcsimolduressonsardina/core": "workspace:*",
-    "@marcsimolduressonsardina/lambda": "workspace:*"
-  }
+	"name": "mmss-aws",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"cdk": "cdk",
+		"lint": "eslint .",
+		"format": "prettier --write ."
+	},
+	"devDependencies": {
+		"@aws-sdk/client-dynamodb": "^3.670.0",
+		"@types/aws-lambda": "^8.10.145",
+		"@types/eslint": "9.6.1",
+		"@types/luxon": "^3.4.2",
+		"@types/node": "^22.7.5",
+		"aws-cdk": "^2.173.0",
+		"esbuild": "0.24.0",
+		"tsx": "4.19.2",
+		"@repo/eslint-config": "workspace:*",
+		"typescript": "^5.6.3"
+	},
+	"type": "module",
+	"dependencies": {
+		"aws-cdk-lib": "^2.173.0",
+		"aws-lambda": "^1.0.7",
+		"constructs": "^10.4.2",
+		"dotenv": "^16.4.5",
+		"pino": "^9.4.0",
+		"source-map-support": "0.5.21",
+		"@marcsimolduressonsardina/core": "workspace:*",
+		"@marcsimolduressonsardina/lambda": "workspace:*"
+	}
 }
