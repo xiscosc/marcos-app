@@ -1,0 +1,61 @@
+name: aws-deploy-dev
+run-name: Deploy to AWS DEV
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - preview
+
+env:
+  AWS_REGION: "eu-central-1"
+
+jobs:
+  deploy-dev:
+    environment: staging
+    name: Deploy AWS DEV
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+
+      - name: Download Sharp Layer
+        run: curl -L https://github.com/pH200/sharp-layer/releases/latest/download/release-arm64.zip --output sharp-layer.zip
+
+      - name: Install
+        run: pnpm i
+
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: "eu-central-1"
+
+      - name: Bootstrap
+        run: pnpm cdk bootstrap
+        env:
+          CDK_ENV_NAME: dev
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS_DEV }}
+          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID_DEV }}
+
+      - name: Diff stack
+        run: pnpm cdk diff
+        env:
+          CDK_ENV_NAME: dev
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS_DEV }}
+          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID_DEV }}
+
+      - name: Deploy stack
+        run: pnpm cdk deploy --all --require-approval never
+        env:
+          CDK_ENV_NAME: dev
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS_DEV }}
+          MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID_DEV }}
