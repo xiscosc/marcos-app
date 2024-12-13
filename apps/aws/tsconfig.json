@@ -1,0 +1,12 @@
+{
+  "extends": "@tsconfig/node20/tsconfig",
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": false,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "typeRoots": ["./node_modules/@types"],
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["lib/**/*", "bin/**/*", "test/**/*", "src/**/*"],
+  "exclude": ["node_modules", "cdk.out"]
+}

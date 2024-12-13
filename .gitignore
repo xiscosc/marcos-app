@@ -27,6 +27,10 @@ out/
 build
 dist
 
+# Aws
+.cdk
+.cdk.out
+
 
 # Debug
 npm-debug.log*

@@ -1,0 +1,11 @@
+{
+  "versionGroups": [
+    {
+      "dependencies": [
+        "@marcsimolduressonsardina/*",
+        "@repo/*"
+      ],
+      "isIgnored": true
+    }
+  ]
+}
