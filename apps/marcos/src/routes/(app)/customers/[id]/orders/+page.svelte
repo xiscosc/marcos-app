@@ -1,14 +1,13 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { IconSize, IconType } from '$lib/components/icon/icon.enum';
+	import { IconType } from '$lib/components/icon/icon.enum';
 	import Box from '$lib/components/Box.svelte';
 	import Button from '$lib/components/button/Button.svelte';
 	import { ButtonStyle } from '$lib/components/button/button.enum';
 	import OrderList from '$lib/components/order/OrderList.svelte';
-	import Icon from '$lib/components/icon/Icon.svelte';
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import { OrderStatus } from '@marcsimolduressonsardina/core/type';
 
 	interface Props {
 		data: PageData;
@@ -23,9 +22,13 @@
 		{orderTypeName} de {data.customer?.name}
 	</SimpleHeading>
 	{#await data.orders}
-		<Box>
-			<ProgressBar text={`Cargando ${orderTypeName.toLocaleLowerCase()}`} />
-		</Box>
+		<OrderList
+			orders={[]}
+			showCustomer={false}
+			loading={true}
+			loadingSize={5}
+			status={data.showQuotes ? OrderStatus.QUOTE : OrderStatus.PENDING}
+		/>
 	{:then orders}
 		{#if orders == null}
 			<Box title="Cliente no encontrado" icon={IconType.USER}>
@@ -41,7 +44,7 @@
 				<p class="text-md">El cliente no tiene {orderTypeName.toLocaleLowerCase()}</p>
 			</Box>
 		{:else}
-			<OrderList {orders} showCustomer={false} />
+			<OrderList {orders} showCustomer={false} loading={false} status={OrderStatus.PENDING} />
 		{/if}
 	{:catch error}
 		<Box>

@@ -107,9 +107,9 @@
 
 	{#if searchValue.length === 0}
 		{#await data.orders}
-			<ProgressBar text="Cargando listado" />
+			<OrderList orders={[]} loading={true} status={data.status} />
 		{:then fullOrders}
-			<OrderList orders={fullOrders} />
+			<OrderList orders={fullOrders} loading={false} status={data.status} />
 		{/await}
 	{/if}
 
@@ -117,9 +117,9 @@
 		{#if searchValue.length < 3}
 			<div class="w-full text-center">Escribe más de 3 carácteres</div>
 		{:else if loading}
-			<ProgressBar text="Buscando" />
+			<OrderList orders={[]} loading={true} status={data.status} loadingSize={5} />
 		{:else}
-			<OrderList orders={searchOrders} />
+			<OrderList orders={searchOrders} loading={false} status={data.status} />
 		{/if}
 	{/if}
 </div>
