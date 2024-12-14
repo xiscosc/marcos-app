@@ -65,6 +65,7 @@
 		</Popover.Trigger>
 		<Popover.Content class="w-auto p-0" align="start">
 			<RangeCalendar
+				locale={'es'}
 				bind:value
 				onStartValueChange={(v) => {
 					startDate = calendarDateToReportDate(v);
