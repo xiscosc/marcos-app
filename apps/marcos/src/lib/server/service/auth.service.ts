@@ -10,7 +10,8 @@ import {
 	LIST_PRICING_TABLE,
 	MOLD_PRICES_BUCKET,
 	ORDER_AUDIT_TRAIL_TABLE,
-	ORDER_TABLE
+	ORDER_TABLE,
+	REPORTS_BUCKET
 } from '$env/static/private';
 import type { CustomSession } from '$lib/type/api.type';
 import {
@@ -35,6 +36,7 @@ export class AuthService {
 			fileTable: FILE_TABLE,
 			listPricingTable: LIST_PRICING_TABLE,
 			orderAuditTrailTable: ORDER_AUDIT_TRAIL_TABLE,
+			reportsBucket: REPORTS_BUCKET,
 			orderTable: ORDER_TABLE,
 			credentials: {
 				accessKeyId: AWS_ACCESS_KEY_ID,

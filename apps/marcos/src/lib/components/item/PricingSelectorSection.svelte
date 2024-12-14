@@ -101,7 +101,7 @@
 	}
 
 	let selectedId: string | undefined = $state();
-	let extraInfo: number | undefined = $state();
+	let extraInfo: string | undefined = $state();
 	let pricesMap: Map<string, ListPriceWithMold> = $derived(generateMap(prices, extraPrices));
 	let keyFound = $derived(
 		locationIdForExtraPrices !== null &&
@@ -114,17 +114,12 @@
 		getNormalPrices(prices, extraPrices, keyFound, locationIdForExtraPrices)
 	);
 	let isButtonDisabled = $derived(selectedId == null);
-	let canBeAdded = $derived(!showExtraInfo || (extraInfo != null && String(extraInfo).length > 0));
+	let canBeAdded = $derived(!showExtraInfo || (extraInfo != null && extraInfo.length > 0));
 
 	function addFunction() {
 		if (!isButtonDisabled && selectedId != null) {
 			const element = pricesMap.get(selectedId)!;
-			addValue(
-				element.type,
-				element.id,
-				element.moldId,
-				showExtraInfo ? String(extraInfo) : undefined
-			);
+			addValue(element.type, element.id, element.moldId, showExtraInfo ? extraInfo : undefined);
 		}
 	}
 </script>
@@ -156,7 +151,7 @@
 		{#if showExtraInfo}
 			<div class="flex flex-col gap-2">
 				<Label for="extraInfoValue">Número:</Label>
-				<Input type="number" name="extraInfoValue" bind:value={extraInfo} success={added} />
+				<Input type="text" name="extraInfoValue" bind:value={extraInfo} success={added} />
 			</div>
 			<div class="w-full lg:col-span-2 lg:w-auto">
 				<Button

@@ -52,5 +52,8 @@ export enum IconType {
 	LEFT = 'left',
 	RIGHT = 'right',
 	LOGO = 'logo',
-	LOADING = 'loading'
+	LOADING = 'loading',
+	DASHBOARD = 'dashboard',
+	CHART_LINES = 'chart-lines',
+	CHART_BARS = 'chart-bars'
 }

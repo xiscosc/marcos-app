@@ -13,7 +13,7 @@ export async function handler(event: unknown): Promise<void> {
 			process.env.ORDER_TABLE,
 			process.env.CUSTOMER_TABLE,
 			process.env.REPORTS_BUCKET,
-			process.env.CALCULATED_ITEM_TABLE
+			process.env.CALCULATED_ITEM_ORDER_TABLE
 		);
 	} catch (err: unknown) {
 		if (err instanceof Error) {

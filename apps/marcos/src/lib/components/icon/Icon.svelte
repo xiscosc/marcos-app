@@ -41,7 +41,10 @@
 		ChevronLeft,
 		ChevronRight,
 		Ellipsis,
-		Phone
+		Phone,
+		ChartNoAxesCombined,
+		ChartPie,
+		ChartColumnBig
 	} from 'lucide-svelte';
 	import { IconSize, IconType } from '../icon/icon.enum';
 	import { siWhatsapp } from 'simple-icons';
@@ -202,4 +205,16 @@
 {/if}
 {#if type === IconType.LOADING}
 	<Ellipsis {size} />
+{/if}
+
+{#if type === IconType.DASHBOARD}
+	<ChartPie {size} />
+{/if}
+
+{#if type === IconType.CHART_LINES}
+	<ChartNoAxesCombined {size} />
+{/if}
+
+{#if type === IconType.CHART_BARS}
+	<ChartColumnBig {size} />
 {/if}

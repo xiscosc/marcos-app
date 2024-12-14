@@ -1,6 +1,7 @@
 import { ICoreConfigurationForAWSLambda } from '@marcsimolduressonsardina/core/config';
 import {
 	OrderAuditTrailService,
+	CustomerService,
 	OrderService,
 	ReportService
 } from '@marcsimolduressonsardina/core/service';
@@ -35,14 +36,20 @@ export async function lambdaGenerateReports(
 	};
 
 	const orderAuditTrailService = new OrderAuditTrailService(configuration);
-	const orderService = new OrderService(configuration, undefined, orderAuditTrailService);
-	const reportService = new ReportService(configuration, orderAuditTrailService, orderService);
-
-	const dailyReport = await reportService.generateAndStoreDailyReport(
-		DateTime.now().get('year'),
-		DateTime.now().get('month'),
-		DateTime.now().get('day')
+	const customerService = new CustomerService(configuration);
+	const orderService = new OrderService(configuration, customerService, orderAuditTrailService);
+	const reportService = new ReportService(
+		configuration,
+		orderAuditTrailService,
+		customerService,
+		orderService
 	);
+
+	const dailyReport = await reportService.generateAndStoreDailyReport({
+		year: DateTime.now().get('year'),
+		month: DateTime.now().get('month'),
+		day: DateTime.now().get('day')
+	});
 
 	await reportService.upadateWeeklyReport(dailyReport);
 	await reportService.upadateMonthlyReport(dailyReport);
