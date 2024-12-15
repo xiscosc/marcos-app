@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="flex transform items-center justify-between rounded-md border border-gray-300 bg-gray-200 p-4 hover:shadow-md"
+	class="flex transform items-center justify-between rounded-md border border-gray-300 bg-gray-100 p-4"
 >
 	<div class="flex items-center gap-1">
 		<Icon type={IconType.LOCATION} />
