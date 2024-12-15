@@ -5,9 +5,7 @@
 		"build": {
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": [".svelte-kit/**", ".vercel/**"]
-		},
-		"marcos#build": {
+			"outputs": [".svelte-kit/**", ".vercel/**"],
 			"env": [
 				"AWS_ACCESS_KEY_ID",
 				"AWS_SECRET_ACCESS_KEY",
