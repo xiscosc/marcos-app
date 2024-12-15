@@ -10,4 +10,4 @@
 	const calculatedItem = data.calculatedItem!;
 </script>
 
-<OrderPrint {order} {calculatedItem} print={true}></OrderPrint>
+<OrderPrint {order} {calculatedItem} print></OrderPrint>
