@@ -57,7 +57,7 @@
 	);
 </script>
 
-<Drawer.Root>
+<Drawer.Root autoFocus={false}>
 	<Drawer.Trigger class={classes} {disabled}>
 		{@render trigger()}
 	</Drawer.Trigger>

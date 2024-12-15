@@ -1049,7 +1049,7 @@
 					<div class="flex flex-col gap-2">
 						<Label for="otherQuantityElements">Cantidad</Label>
 						<Select.Root type="single" name="otherQuantityElements" bind:value={otherQuantity}>
-							<Select.Trigger success={addedOther}>
+							<Select.Trigger>
 								{otherQuantity}
 							</Select.Trigger>
 							<Select.Content>
