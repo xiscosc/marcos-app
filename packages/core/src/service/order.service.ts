@@ -130,9 +130,9 @@ export class OrderService {
 		await this.repository.storeOrders(newOrderDtos);
 	}
 
-	async getOrdersByCustomerId(customerId: string): Promise<FullOrder[] | null> {
+	async getOrdersByCustomerId(customerId: string): Promise<FullOrder[]> {
 		const customer = await this.customerService.getCustomerById(customerId);
-		if (customer === null) return null;
+		if (customer === null) return [];
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
 		const orders = this.processDtosFromRepository(orderDtos, customer).filter(
@@ -145,9 +145,9 @@ export class OrderService {
 	async getOrdersByCustomerIdAndStatus(
 		customerId: string,
 		status: OrderStatus
-	): Promise<FullOrder[] | null> {
+	): Promise<FullOrder[]> {
 		const customer = await this.customerService.getCustomerById(customerId);
-		if (customer === null) return null;
+		if (customer === null) return [];
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
 		const orders = this.processDtosFromRepository(orderDtos, customer).filter(

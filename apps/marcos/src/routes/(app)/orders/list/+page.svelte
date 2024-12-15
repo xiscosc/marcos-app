@@ -19,7 +19,7 @@
 	let { data }: Props = $props();
 	let searchValue = $state('');
 	let timer: NodeJS.Timeout;
-	let searchOrders: FullOrder[] = $state([]);
+	let searchOrders: Promise<FullOrder[]> | undefined = $state(undefined);
 	let loading = $state(false);
 
 	function getStatus(statusStr: string) {
@@ -62,9 +62,9 @@
 	const debounce = (v: string) => {
 		clearTimeout(timer);
 		loading = true;
-		searchOrders = [];
-		timer = setTimeout(async () => {
-			searchOrders = await search(v);
+		searchOrders = undefined;
+		timer = setTimeout(() => {
+			searchOrders = search(v);
 			loading = false;
 		}, 400);
 	};
@@ -106,20 +106,14 @@
 	</Box>
 
 	{#if searchValue.length === 0}
-		{#await data.orders}
-			<OrderList orders={[]} loading={true} status={data.status} />
-		{:then fullOrders}
-			<OrderList orders={fullOrders} loading={false} status={data.status} />
-		{/await}
+		<OrderList promiseOrders={data.orders} emptyMessage="EMPTY" />
 	{/if}
 
 	{#if searchValue.length > 0}
 		{#if searchValue.length < 3}
 			<div class="w-full text-center">Escribe más de 3 carácteres</div>
-		{:else if loading}
-			<OrderList orders={[]} loading={true} status={data.status} loadingSize={5} />
 		{:else}
-			<OrderList orders={searchOrders} loading={false} status={data.status} />
+			<OrderList promiseOrders={searchOrders} loadingCount={3} />
 		{/if}
 	{/if}
 </div>

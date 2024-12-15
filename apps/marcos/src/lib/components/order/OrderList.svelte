@@ -1,35 +1,49 @@
 <script lang="ts">
-	import { OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core/type';
+	import { type FullOrder } from '@marcsimolduressonsardina/core/type';
 	import OrderCard from './OrderCard.svelte';
 	import OrderSkeletonCard from './OrderSkeletonCard.svelte';
+	import Box from '../Box.svelte';
+	import { IconType } from '../icon/icon.enum';
 
 	interface Props {
-		orders: FullOrder[];
+		promiseOrders: Promise<FullOrder[]> | undefined;
+		emptyMessage?: 'NOT_FOUND' | 'EMPTY';
 		showCustomer?: boolean;
-		status: OrderStatus;
-		loading: boolean;
-		loadingSize?: number;
+		loadingCount?: number;
 	}
 
-	let { orders, status, showCustomer = true, loading = false, loadingSize = 15 }: Props = $props();
+	let {
+		promiseOrders,
+		showCustomer = true,
+		loadingCount = 15,
+		emptyMessage = 'NOT_FOUND'
+	}: Props = $props();
 </script>
 
-{#if loading}
-	<div class="flex w-full flex-col gap-3 md:hidden">
-		{#each Array(3) as _}
-			<OrderSkeletonCard {status}></OrderSkeletonCard>
-		{/each}
-	</div>
-
-	<div class="hidden w-full gap-3 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-		{#each Array(loadingSize) as _}
-			<OrderSkeletonCard {status}></OrderSkeletonCard>
-		{/each}
-	</div>
-{:else}
+{#snippet loading()}
 	<div class="flex w-full flex-col gap-3 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-		{#each orders as fullOrder}
-			<OrderCard {fullOrder} {showCustomer} />
+		{#each Array(loadingCount) as _}
+			<OrderSkeletonCard></OrderSkeletonCard>
 		{/each}
 	</div>
+{/snippet}
+
+{#if promiseOrders == null}
+	{@render loading()}
+{:else}
+	{#await promiseOrders}
+		{@render loading()}
+	{:then orders}
+		{#if orders.length === 0 && emptyMessage === 'NOT_FOUND'}
+			<Box title="Sin Resultados" icon={IconType.ALERT}>
+				<p class="text-md">No se han encontrado pedidos</p>
+			</Box>
+		{:else}
+			<div class="flex w-full flex-col gap-3 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+				{#each orders as fullOrder}
+					<OrderCard {fullOrder} {showCustomer} />
+				{/each}
+			</div>
+		{/if}
+	{/await}
 {/if}
