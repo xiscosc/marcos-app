@@ -72,7 +72,9 @@
 	{:then info}
 		<div class="space flex w-full flex-col gap-3">
 			{#if info.order == null || info.calculatedItem == null}
-				<span class="p-5 text-2xl text-red-700">Cliente o pedido no encontrado</span>
+				<Box icon={IconType.ALERT} title="Cliente o pedido no encontrado">
+					<p class="text-md">El cliente o pedido solicitado no existe, puede haber sido borrado.</p>
+				</Box>
 			{:else}
 				<OrderHeader
 					order={info.order}
