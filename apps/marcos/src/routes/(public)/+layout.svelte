@@ -2,7 +2,6 @@
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import type { Snippet } from 'svelte';
-	import '../../app.pcss';
 	interface Props {
 		children?: Snippet;
 	}

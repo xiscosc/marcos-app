@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import type { LayoutData } from './$types';
 	import { navigating } from '$app/stores';
 	import '../../app.pcss';
@@ -6,7 +8,8 @@
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import Box from '$lib/components/Box.svelte';
-	let isNavigating = false;
+	import type { Snippet } from 'svelte';
+	let isNavigating = $state(false);
 	const unsubscribe = navigating.subscribe(($navigating) => {
 		if ($navigating) {
 			isNavigating = true;
@@ -15,7 +18,15 @@
 		}
 	});
 
-	export let data: LayoutData;
+	injectSpeedInsights();
+	injectAnalytics();
+
+	interface Props {
+		data: LayoutData;
+		children?: Snippet;
+	}
+
+	let { data, children }: Props = $props();
 </script>
 
 <svelte:head>
@@ -62,7 +73,7 @@
 					<ProgressBar></ProgressBar>
 				</Box>
 			{:else}
-				<slot />
+				{@render children?.()}
 			{/if}
 		</div>
 	</main>

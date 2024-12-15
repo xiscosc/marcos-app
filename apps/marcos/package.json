@@ -46,6 +46,8 @@
 		"@sveltejs/adapter-vercel": "5.4.6",
 		"@sveltejs/kit": "2.7.3",
 		"@tailwindcss/forms": "0.5.7",
+		"@vercel/analytics": "^1.4.1",
+		"@vercel/speed-insights": "^1.1.0",
 		"chart.js": "^4.4.7",
 		"constructs": "^10.4.2",
 		"html5-qrcode": "2.3.8",
