@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import BottomSheet from '$lib/components/BottomSheet.svelte';
-	import { ButtonAction, ButtonStyle, ButtonText } from '$lib/components/button/button.enum';
+	import {
+		ButtonAction,
+		ButtonStyle,
+		ButtonText,
+		ButtonType
+	} from '$lib/components/button/button.enum';
 	import Button from '$lib/components/button/Button.svelte';
 	import {
 		PaymentStatus,
@@ -12,6 +17,7 @@
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
+	import * as Popover from '$lib/components/ui/popover';
 
 	interface Props {
 		order: Order;
@@ -22,6 +28,7 @@
 
 	let loading = $state(false);
 	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
+	let openPopover = $state(false);
 </script>
 
 {#snippet sheetTrigger()}
@@ -110,28 +117,37 @@
 
 		<Divider></Divider>
 
-		<form
-			method="post"
-			class="flex flex-col gap-2"
-			action="?/changePayment"
-			use:enhance={() => {
-				loading = true;
-				return async ({ update }) => {
-					await update();
-					loading = false;
-				};
-			}}
-		>
-			<input type="hidden" name="paymentStatus" value={PaymentStatus.PARTIALLY_PAID} />
-			<Input type="number" name="amount" required placeholder="Cantidad EUR" step="0.01" />
+		<Popover.Root>
+			<Popover.Trigger
+				class={`${ButtonType.DEFAULT} ${ButtonStyle.ORDER_FINISHED} ${ButtonText.WHITE}`}
+			>
+				<Button text="Pago a cuenta" icon={IconType.COINS} action={ButtonAction.TRIGGER}></Button>
+			</Popover.Trigger>
+			<Popover.Content>
+				<form
+					method="post"
+					class="flex flex-col gap-2"
+					action="?/changePayment"
+					use:enhance={() => {
+						loading = true;
+						return async ({ update }) => {
+							await update();
+							loading = false;
+						};
+					}}
+				>
+					<input type="hidden" name="paymentStatus" value={PaymentStatus.PARTIALLY_PAID} />
+					<Input type="number" name="amount" required placeholder="Cantidad EUR" step="0.01" />
 
-			<Button
-				text="Pago a cuenta"
-				icon={IconType.COINS}
-				style={ButtonStyle.ORDER_FINISHED}
-				action={ButtonAction.SUBMIT}
-			></Button>
-		</form>
+					<Button
+						text="Guardar pago a cuenta"
+						icon={IconType.COINS}
+						style={ButtonStyle.ORDER_FINISHED}
+						action={ButtonAction.SUBMIT}
+					></Button>
+				</form>
+			</Popover.Content>
+		</Popover.Root>
 	</div>
 {/snippet}
 
