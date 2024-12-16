@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import * as Drawer from '$lib/components/ui/drawer/index.js';
+	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import Icon from './icon/Icon.svelte';
 	import { IconType } from './icon/icon.enum';
 	import Progress from './ui/progress/progress.svelte';
@@ -57,23 +57,23 @@
 	);
 </script>
 
-<Drawer.Root autoFocus={false}>
-	<Drawer.Trigger class={classes} {disabled}>
+<Sheet.Root>
+	<Sheet.Trigger class={classes} {disabled}>
 		{@render trigger()}
-	</Drawer.Trigger>
-	<Drawer.Content>
+	</Sheet.Trigger>
+	<Sheet.Content side="bottom">
 		<div class="mx-auto flex w-full max-w-sm flex-col gap-2 p-4">
-			<Drawer.Header class="p-0">
-				<Drawer.Title class="text-xl">
+			<Sheet.Header class="p-0">
+				<Sheet.Title class="text-xl">
 					<div class="flex flex-row items-center justify-center gap-2 md:justify-start">
 						<Icon type={iconType}></Icon>
 						<span>{title}</span>
 					</div>
-				</Drawer.Title>
+				</Sheet.Title>
 				{#if !loading}
-					<Drawer.Description>{description}</Drawer.Description>
+					<Sheet.Description>{description}</Sheet.Description>
 				{/if}
-			</Drawer.Header>
+			</Sheet.Header>
 			<div>
 				{#if loading}
 					<div class="py-10">
@@ -84,5 +84,5 @@
 				{/if}
 			</div>
 		</div>
-	</Drawer.Content>
-</Drawer.Root>
+	</Sheet.Content>
+</Sheet.Root>
