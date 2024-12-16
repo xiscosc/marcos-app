@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Fuse from 'fuse.js';
 	import Spacer from './Spacer.svelte';
 	import { type ListPrice, type PricingType } from '@marcsimolduressonsardina/core/type';
 	import { formulasStringMap } from '$lib/shared/pricing.utilites';
@@ -34,10 +35,14 @@
 		autocompleteInput = '';
 	}
 
-	let filteredPrices = $derived(
-		autocompleteInput.length < 2
-			? []
-			: prices.filter((price) => price.id.includes(autocompleteInput))
+	const fuse = new Fuse(prices, {
+		keys: ['id', 'description'],
+		isCaseSensitive: false,
+		threshold: 0.1
+	});
+
+	let filteredPrices: ListPrice[] = $derived(
+		autocompleteInput.length < 2 ? [] : fuse.search(autocompleteInput).map((result) => result.item)
 	);
 </script>
 
