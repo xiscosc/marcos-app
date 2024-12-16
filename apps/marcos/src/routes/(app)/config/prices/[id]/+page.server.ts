@@ -93,7 +93,7 @@ export const actions = {
 			return setError(form, '', 'Error actualizando el item. Intente de nuevo.');
 		}
 
-		return redirect(302, `/config/prices/list?type=${listPrice.type}`);
+		redirect(302, `/config/prices/list?type=${listPrice.type}`);
 	},
 	async deletePrice({ locals, params }) {
 		const appUser = await AuthUtilities.checkAuth(locals, true);
@@ -101,6 +101,6 @@ export const actions = {
 		const pricingService = new PricingService(AuthService.generateConfiguration(appUser));
 		const listPrice = await getListPrice(id, pricingService);
 		await pricingService.deleteListPrices([listPrice]);
-		return redirect(302, `/config/prices/list?type=${listPrice.type}`);
+		redirect(302, `/config/prices/list?type=${listPrice.type}`);
 	}
 };

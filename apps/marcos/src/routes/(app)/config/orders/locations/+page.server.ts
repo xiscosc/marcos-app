@@ -24,6 +24,6 @@ export const actions: Actions = {
 		const locationsArray = JSON.parse(locations as string) as string[];
 		const configService = new ConfigService(AuthService.generateConfiguration(appUser));
 		await configService.storeLocationsList(locationsArray);
-		return redirect(302, '/config');
+		redirect(302, '/config');
 	}
 };

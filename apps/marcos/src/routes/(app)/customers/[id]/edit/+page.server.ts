@@ -48,6 +48,6 @@ export const actions = {
 			throw fail(500);
 		}
 
-		return redirect(302, `/customers/${existingCustomer.id}`);
+		redirect(302, `/customers/${existingCustomer.id}`);
 	}
 };

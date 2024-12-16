@@ -23,11 +23,11 @@ export const load = (async ({ params, locals }) => {
 	const order = await orderService.getOrderById(id);
 	const calculatedItem = await calculatedItemService.getCalculatedItem(id);
 	if (order == null || calculatedItem == null) {
-		return redirect(302, `/`);
+		redirect(302, `/`);
 	}
 
 	if (!OrderUtilities.isOrderTemp(order)) {
-		return redirect(302, `/orders/${id}`);
+		redirect(302, `/orders/${id}`);
 	}
 
 	const form = await superValidate(zod(linkCustomerSchema));
@@ -72,6 +72,6 @@ export const actions = {
 			}
 		}
 
-		return redirect(302, `/orders/${id}/files`);
+		redirect(302, `/orders/${id}/files`);
 	}
 };

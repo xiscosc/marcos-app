@@ -162,7 +162,7 @@ export class OrderCreationUtilities {
 
 			return setError(form, '', 'Error actualizando el pedido / presupuesto. Intente de nuevo.');
 		}
-		return redirect(302, `/orders/${orderId}`);
+		redirect(302, `/orders/${orderId}`);
 	}
 
 	static async handleCreateOrder(
@@ -207,9 +207,9 @@ export class OrderCreationUtilities {
 		}
 
 		if (customerId == null) {
-			return redirect(302, `/orders/${orderId}/link`);
+			redirect(302, `/orders/${orderId}/link`);
 		} else {
-			return redirect(302, `/orders/${orderId}/files`);
+			redirect(302, `/orders/${orderId}/files`);
 		}
 	}
 

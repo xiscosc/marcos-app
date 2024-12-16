@@ -32,10 +32,10 @@ export const actions = {
 		const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
 		const existingCustomer = await customerService.getCustomerByPhone(form.data.phone);
 		if (existingCustomer) {
-			return redirect(302, `/customers/${existingCustomer.id}`);
+			redirect(302, `/customers/${existingCustomer.id}`);
 		}
 
 		const ulrEscapedPhone = encodeURIComponent(form.data.phone);
-		return redirect(302, `/customers/new?phone=${ulrEscapedPhone}`);
+		redirect(302, `/customers/new?phone=${ulrEscapedPhone}`);
 	}
 };
