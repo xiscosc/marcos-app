@@ -8,8 +8,9 @@
 	import { IconSize, IconType } from '$lib/components/icon/icon.enum';
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import BottomSheet from '$lib/components/BottomSheet.svelte';
-	import { enhance, applyAction } from '$app/forms';
+	import { enhance } from '$app/forms';
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		data: PageData;
@@ -120,8 +121,8 @@
 							{loading}
 							title="Eliminar cliente"
 							description="Esta acción no se puede deshacer"
-							trigger={sheetTrigger}
-							action={sheetAction}
+							trigger={sheetTrigger as Snippet}
+							action={sheetAction as Snippet}
 							iconType={IconType.TRASH}
 							triggerStyle={ButtonStyle.DELETE}
 						></BottomSheet>
