@@ -35,7 +35,7 @@ export const actions = {
 				await customerService.deleteCustomerById(id);
 			}
 		} else {
-			throw error(403);
+			error(403);
 		}
 
 		redirect(303, `/`);

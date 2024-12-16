@@ -9,7 +9,7 @@ export const load = (async ({ locals, url }) => {
 	const searchQuery = url.searchParams.get('query') ?? undefined;
 	const linkOrderId = url.searchParams.get('linkOrderId') ?? undefined;
 	if (searchQuery == null) {
-		throw error(400);
+		error(400);
 	}
 
 	const decodedSearchQuery = atob(searchQuery);

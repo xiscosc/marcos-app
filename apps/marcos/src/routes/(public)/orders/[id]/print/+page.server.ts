@@ -12,7 +12,7 @@ export const load = (async ({ params, locals }) => {
 	const calculatedItemService = new CalculatedItemService(config);
 	const order = await orderService.getOrderById(id);
 	if (order == null) {
-		throw redirect(301, `/orders/${id}`);
+		redirect(301, `/orders/${id}`);
 	}
 
 	return {

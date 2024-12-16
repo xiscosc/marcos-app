@@ -5,6 +5,6 @@ import type { PageServerLoad } from './$types';
 export const load = (async () => {
 	const inMaintenance = MAINTENANCE_MODE === 'yes';
 	if (!inMaintenance) {
-		throw redirect(307, '/');
+		redirect(307, '/');
 	}
 }) satisfies PageServerLoad;

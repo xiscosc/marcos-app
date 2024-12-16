@@ -20,7 +20,7 @@ async function getListPrice(id: string, pricingService: PricingService): Promise
 	if (id == null) throw fail(400);
 	const pricing = await pricingService.getPriceListByInternalId(id);
 	if (pricing == null) {
-		throw redirect(302, '/config/prices/list');
+		redirect(302, '/config/prices/list');
 	}
 	return pricing;
 }

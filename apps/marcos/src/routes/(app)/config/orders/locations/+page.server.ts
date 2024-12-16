@@ -15,7 +15,7 @@ export const actions: Actions = {
 	saveLocations: async ({ locals, request }) => {
 		const appUser = await AuthUtilities.checkAuth(locals, true);
 		if (!appUser.priceManager) {
-			throw error(403);
+			error(403);
 		}
 
 		const formData = await request.formData();

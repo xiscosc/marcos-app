@@ -10,7 +10,7 @@ export const load = (async ({ params, locals }) => {
 	const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 	const order = await orderService.getOrderById(id);
 	if (order == null) {
-		throw redirect(303, '/');
+		redirect(303, '/');
 	}
 
 	return { orders: orderService.getOrdersOnSameDay(order) };
