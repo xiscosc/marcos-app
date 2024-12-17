@@ -15,7 +15,11 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '$lib/ui/ui.helper';
 	import Divider from '$lib/components/Divider.svelte';
-	import { OrderStatus, type CalculatedItem, type Order } from '@marcsimolduressonsardina/core/type';
+	import {
+		OrderStatus,
+		type CalculatedItem,
+		type Order
+	} from '@marcsimolduressonsardina/core/type';
 	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
 
 	interface Props {
@@ -82,9 +86,10 @@
 		</Form.Field>
 		<Button
 			action={ButtonAction.SUBMIT}
+			textType={ButtonText.NO_COLOR}
 			text="Cambiar a {orderStatusMap[OrderStatus.FINISHED]}"
 			icon={getStatusUIInfo(OrderStatus.FINISHED).statusIcon}
-			style={getStatusUIInfo(OrderStatus.FINISHED).colors}
+			style={getStatusUIInfo(OrderStatus.FINISHED, true).colors}
 		></Button>
 		<Divider hideOnDesktop={false}></Divider>
 	</form>
@@ -106,9 +111,10 @@
 		<input type="hidden" name="status" value={status} />
 		<Button
 			action={ButtonAction.SUBMIT}
+			textType={ButtonText.NO_COLOR}
 			text="Cambiar a {orderStatusMap[status]}"
 			icon={getStatusUIInfo(status).statusIcon}
-			style={getStatusUIInfo(status).colors}
+			style={getStatusUIInfo(status, true).colors}
 		></Button>
 	</form>
 {/snippet}

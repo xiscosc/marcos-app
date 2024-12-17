@@ -81,7 +81,8 @@
 				<Button
 					text="Pagado"
 					icon={IconType.DONE}
-					style={ButtonStyle.ORDER_PICKED_UP}
+					textType={ButtonText.NO_COLOR}
+					style={ButtonStyle.ORDER_PICKED_UP_VARIANT}
 					action={ButtonAction.SUBMIT}
 				></Button>
 			</form>
@@ -103,7 +104,8 @@
 				<Button
 					text="No pagado"
 					icon={IconType.NOT_DONE}
-					style={ButtonStyle.DELETE}
+					textType={ButtonText.NO_COLOR}
+					style={ButtonStyle.DELETE_VARIANT}
 					action={ButtonAction.SUBMIT}
 				></Button>
 			</form>
@@ -129,7 +131,8 @@
 			<Button
 				text="Pago a cuenta"
 				icon={IconType.COINS}
-				style={ButtonStyle.ORDER_FINISHED}
+				textType={ButtonText.NO_COLOR}
+				style={ButtonStyle.ORDER_FINISHED_VARIANT}
 				action={ButtonAction.SUBMIT}
 			></Button>
 		</form>
