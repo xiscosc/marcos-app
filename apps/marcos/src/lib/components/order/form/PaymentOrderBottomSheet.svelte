@@ -26,11 +26,11 @@
 </script>
 
 {#snippet sheetTrigger()}
-	{#if order.amountPayed === 0}
+	{#if totalOrder === 0 || order.amountPayed === totalOrder}
+		<Button text="Pagado" icon={IconType.DONE} action={ButtonAction.TRIGGER}></Button>
+	{:else if order.amountPayed === 0}
 		<Button text="Pendiente de pago" icon={IconType.NOT_DONE} action={ButtonAction.TRIGGER}
 		></Button>
-	{:else if order.amountPayed === totalOrder}
-		<Button text="Pagado" icon={IconType.DONE} action={ButtonAction.TRIGGER}></Button>
 	{:else}
 		<Button text="Parcialmente pagado" icon={IconType.NOT_DONE} action={ButtonAction.TRIGGER}
 		></Button>
@@ -39,7 +39,13 @@
 
 {#snippet sheetAction()}
 	<div class="flex flex-col gap-2">
-		{#if order.amountPayed > 0 && order.amountPayed !== totalOrder}
+		{#if totalOrder === 0}
+			<div
+				class="flex items-center justify-center rounded-lg border border-gray-800 p-2 text-lg font-bold text-gray-800"
+			>
+				<span> Pago no necesario </span>
+			</div>
+		{:else if order.amountPayed > 0 && order.amountPayed !== totalOrder}
 			<div class="flex flex-col rounded-lg border border-gray-800 p-2">
 				<div class="text-md flex items-center justify-center text-gray-800 line-through">
 					<span>{totalOrder.toFixed(2)} €</span>
@@ -88,7 +94,7 @@
 			</form>
 		{/if}
 
-		{#if order.amountPayed !== 0}
+		{#if order.amountPayed !== 0 && totalOrder !== 0}
 			<form
 				method="post"
 				action="?/changePayment"
@@ -113,29 +119,31 @@
 
 		<Divider></Divider>
 
-		<form
-			method="post"
-			class="flex flex-col gap-2"
-			action="?/changePayment"
-			use:enhance={() => {
-				loading = true;
-				return async ({ update }) => {
-					await update();
-					loading = false;
-				};
-			}}
-		>
-			<input type="hidden" name="paymentStatus" value={PaymentStatus.PARTIALLY_PAID} />
-			<Input type="number" name="amount" required placeholder="Cantidad EUR" step="0.01" />
+		{#if totalOrder !== 0}
+			<form
+				method="post"
+				class="flex flex-col gap-2"
+				action="?/changePayment"
+				use:enhance={() => {
+					loading = true;
+					return async ({ update }) => {
+						await update();
+						loading = false;
+					};
+				}}
+			>
+				<input type="hidden" name="paymentStatus" value={PaymentStatus.PARTIALLY_PAID} />
+				<Input type="number" name="amount" required placeholder="Cantidad EUR" step="0.01" />
 
-			<Button
-				text="Pago a cuenta"
-				icon={IconType.COINS}
-				textType={ButtonText.NO_COLOR}
-				style={ButtonStyle.ORDER_FINISHED_VARIANT}
-				action={ButtonAction.SUBMIT}
-			></Button>
-		</form>
+				<Button
+					text="Pago a cuenta"
+					icon={IconType.COINS}
+					textType={ButtonText.NO_COLOR}
+					style={ButtonStyle.ORDER_FINISHED_VARIANT}
+					action={ButtonAction.SUBMIT}
+				></Button>
+			</form>
+		{/if}
 	</div>
 {/snippet}
 
