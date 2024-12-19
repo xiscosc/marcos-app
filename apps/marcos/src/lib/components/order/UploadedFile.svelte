@@ -33,7 +33,7 @@
 			text="Eliminar"
 			icon={IconType.TRASH}
 			style={ButtonStyle.DELETE}
-			action={ButtonAction.SUBMIT}
+			action={ButtonAction.CLICK}
 			onClick={deleteFile}
 		/>
 	</div>
