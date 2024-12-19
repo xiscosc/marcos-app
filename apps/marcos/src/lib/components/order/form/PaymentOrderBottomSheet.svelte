@@ -39,87 +39,74 @@
 
 {#snippet sheetAction()}
 	<div class="flex flex-col gap-2">
-		{#if totalOrder === 0}
-			<div
-				class="flex items-center justify-center rounded-lg border border-gray-800 p-2 text-lg font-bold text-gray-800"
-			>
-				<span> Pago no necesario </span>
-			</div>
-		{:else if order.amountPayed > 0 && order.amountPayed !== totalOrder}
-			<div class="flex flex-col rounded-lg border border-gray-800 p-2">
-				<div class="text-md flex items-center justify-center text-gray-800 line-through">
-					<span>{totalOrder.toFixed(2)} €</span>
-				</div>
-				<div class="text-md flex items-center justify-center text-gray-800">
-					<span>{order.amountPayed.toFixed(2)} € pagado</span>
-				</div>
-				<div class="flex items-center justify-center text-lg font-bold text-gray-800">
-					<span>{(totalOrder - order.amountPayed).toFixed(2)} € pendiente</span>
-				</div>
-			</div>
-		{:else}
-			<div
-				class="flex items-center justify-center rounded-lg border border-gray-800 p-2 text-lg font-bold text-gray-800"
-			>
-				<span
-					>{totalOrder.toFixed(2)} € {order.amountPayed !== totalOrder
-						? 'pendiente'
-						: 'pagado'}</span
-				>
-			</div>
-		{/if}
-
-		<Divider></Divider>
-
-		{#if order.amountPayed !== totalOrder}
-			<form
-				method="post"
-				action="?/changePayment"
-				use:enhance={() => {
-					loading = true;
-					return async ({ update }) => {
-						await update();
-						loading = false;
-					};
-				}}
-			>
-				<input type="hidden" name="paymentStatus" value={PaymentStatus.FULLY_PAID} />
-				<Button
-					text="Pagado"
-					icon={IconType.DONE}
-					textType={ButtonText.NO_COLOR}
-					style={ButtonStyle.ORDER_PICKED_UP_VARIANT}
-					action={ButtonAction.SUBMIT}
-				></Button>
-			</form>
-		{/if}
-
-		{#if order.amountPayed !== 0 && totalOrder !== 0}
-			<form
-				method="post"
-				action="?/changePayment"
-				use:enhance={() => {
-					loading = true;
-					return async ({ update }) => {
-						await update();
-						loading = false;
-					};
-				}}
-			>
-				<input type="hidden" name="paymentStatus" value={PaymentStatus.UNPAID} />
-				<Button
-					text="No pagado"
-					icon={IconType.NOT_DONE}
-					textType={ButtonText.NO_COLOR}
-					style={ButtonStyle.DELETE_VARIANT}
-					action={ButtonAction.SUBMIT}
-				></Button>
-			</form>
-		{/if}
-
-		<Divider></Divider>
-
+		<div
+			class="flex flex-col items-center justify-center rounded-lg border-2 border-dotted border-gray-800 p-2 text-gray-800"
+		>
+			{#if totalOrder === 0}
+				<span class="text-lg font-bold"> Pago no necesario </span>
+			{:else if order.amountPayed > 0 && order.amountPayed !== totalOrder}
+				<span class="text-md line-through">{totalOrder.toFixed(2)} €</span>
+				<span class="text-md">{order.amountPayed.toFixed(2)} € pagado</span>
+				<span class="text-lg font-bold">
+					{(totalOrder - order.amountPayed).toFixed(2)} € pendiente
+				</span>
+			{:else}
+				<span class="text-lg font-bold">
+					{totalOrder.toFixed(2)} € {order.amountPayed !== totalOrder ? 'pendiente' : 'pagado'}
+				</span>
+			{/if}
+		</div>
 		{#if totalOrder !== 0}
+			<Divider></Divider>
+
+			{#if order.amountPayed !== totalOrder}
+				<form
+					method="post"
+					action="?/changePayment"
+					use:enhance={() => {
+						loading = true;
+						return async ({ update }) => {
+							await update();
+							loading = false;
+						};
+					}}
+				>
+					<input type="hidden" name="paymentStatus" value={PaymentStatus.FULLY_PAID} />
+					<Button
+						text="Pagado"
+						icon={IconType.DONE}
+						textType={ButtonText.NO_COLOR}
+						style={ButtonStyle.ORDER_PICKED_UP_VARIANT}
+						action={ButtonAction.SUBMIT}
+					></Button>
+				</form>
+			{/if}
+
+			{#if order.amountPayed !== 0}
+				<form
+					method="post"
+					action="?/changePayment"
+					use:enhance={() => {
+						loading = true;
+						return async ({ update }) => {
+							await update();
+							loading = false;
+						};
+					}}
+				>
+					<input type="hidden" name="paymentStatus" value={PaymentStatus.UNPAID} />
+					<Button
+						text="No pagado"
+						icon={IconType.NOT_DONE}
+						textType={ButtonText.NO_COLOR}
+						style={ButtonStyle.DELETE_VARIANT}
+						action={ButtonAction.SUBMIT}
+					></Button>
+				</form>
+			{/if}
+
+			<Divider></Divider>
+
 			<form
 				method="post"
 				class="flex flex-col gap-2"
