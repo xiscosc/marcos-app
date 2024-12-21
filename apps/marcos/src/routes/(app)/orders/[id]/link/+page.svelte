@@ -29,7 +29,6 @@
 		if (searchQuery.length === 0) {
 			customers = [];
 			loading = false;
-			firstTimeSearch = false;
 			return;
 		}
 

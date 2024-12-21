@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import Box from '$lib/components/Box.svelte';
 	import Button from '$lib/components/button/Button.svelte';
