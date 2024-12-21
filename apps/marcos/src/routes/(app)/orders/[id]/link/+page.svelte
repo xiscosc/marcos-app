@@ -4,11 +4,9 @@
 	import NewCustomer from '$lib/components/customer/NewCustomer.svelte';
 	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
 	import OrderElements from '$lib/components/order/OrderElements.svelte';
-	import Button from '$lib/components/button/Button.svelte';
 	import Box from '$lib/components/Box.svelte';
 	import { goto } from '$app/navigation';
 	import Banner from '$lib/components/Banner.svelte';
-	import { ButtonStyle } from '$lib/components/button/button.enum';
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import { Input } from '$lib/components/ui/input';
 	import type { Customer } from '@marcsimolduressonsardina/core/type';
@@ -20,6 +18,7 @@
 		data: PageData;
 	}
 
+	let timer: NodeJS.Timeout;
 	let { data }: Props = $props();
 	let firstTimeSearch = $state(true);
 	let loading = $state(false);
@@ -27,7 +26,13 @@
 	let customers = $state<Customer[]>([]);
 
 	async function searchCustomers() {
-		loading = true;
+		if (searchQuery.length === 0) {
+			customers = [];
+			loading = false;
+			firstTimeSearch = false;
+			return;
+		}
+
 		const response = await fetch('/api/customers/search', {
 			method: 'POST',
 			body: JSON.stringify({ query: searchQuery }),
@@ -38,9 +43,18 @@
 
 		const body: { customers: Customer[] } = await response.json();
 		customers = [...body.customers];
-		firstTimeSearch = false;
 		loading = false;
+		firstTimeSearch = false;
 	}
+
+	const debounce = () => {
+		clearTimeout(timer);
+		loading = true;
+		customers = [];
+		timer = setTimeout(() => {
+			searchCustomers();
+		}, 400);
+	};
 </script>
 
 <div class="flex flex-col gap-2">
@@ -64,18 +78,16 @@
 			<div class="flex flex-col gap-3">
 				<div>
 					<label class="block text-sm font-medium text-gray-700" for="phone">Nombre:</label>
-					<Input bind:value={searchQuery} id="name" required type="text" name="name" />
+					<Input
+						bind:value={searchQuery}
+						id="name"
+						required
+						type="text"
+						name="name"
+						placeholder="Nombre a buscar..."
+						onkeyup={() => debounce()}
+					/>
 				</div>
-
-				<Button
-					disabled={searchQuery.length === 0}
-					icon={IconType.SEARCH}
-					text="Buscar"
-					style={ButtonStyle.CUSTOMER}
-					onClick={() => {
-						searchCustomers();
-					}}
-				></Button>
 
 				{#if loading}
 					<ProgressBar text="Buscando clientes" />
@@ -90,7 +102,7 @@
 									type="button"
 								>
 									<Icon type={IconType.USER_PLUS} />
-									{customer.name} ({customer.phone})
+									<div class="text-sm">{customer.name}</div>
 								</button>
 								<Separator class="my-2 last:hidden" />
 							{/each}
