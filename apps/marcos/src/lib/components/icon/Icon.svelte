@@ -44,7 +44,9 @@
 		Phone,
 		ChartNoAxesCombined,
 		ChartPie,
-		ChartColumnBig
+		ChartColumnBig,
+		BadgePlus,
+		SearchX
 	} from 'lucide-svelte';
 	import { IconSize, IconType } from '../icon/icon.enum';
 	import { siWhatsapp } from 'simple-icons';
@@ -217,4 +219,12 @@
 
 {#if type === IconType.CHART_BARS}
 	<ChartColumnBig {size} />
+{/if}
+
+{#if type === IconType.ADD}
+	<BadgePlus {size} />
+{/if}
+
+{#if type === IconType.NOT_FOUND}
+	<SearchX {size} />
 {/if}
