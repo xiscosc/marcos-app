@@ -33,10 +33,10 @@
 
 <Box {title} {icon}>
 	<div>
-		{#if $submitting}
-			<ProgressBar />
-		{:else}
-			<form method="POST" use:enhance class="flex flex-col gap-2">
+		<form method="POST" use:enhance class="flex flex-col gap-2">
+			{#if $submitting}
+				<ProgressBar text={'Guardando cambios'} />
+			{:else}
 				<Form.Field {form} name="name">
 					<Form.Control>
 						{#snippet children({ props })}
@@ -61,7 +61,7 @@
 					style={ButtonStyle.NEUTRAL}
 					action={ButtonAction.SUBMIT}
 				></Button>
-			</form>
-		{/if}
+			{/if}
+		</form>
 	</div>
 </Box>

@@ -4,7 +4,6 @@
 	import Button from '$lib/components/button/Button.svelte';
 	import { ButtonStyle, ButtonText } from '$lib/components/button/button.enum';
 	import { IconType } from '$lib/components/icon/icon.enum';
-	import Icon from '$lib/components/icon/Icon.svelte';
 	import Box from '$lib/components/Box.svelte';
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 
@@ -26,10 +25,8 @@
 			{#each customers as customer}
 				<Button
 					textType={ButtonText.GRAY}
-					link={data.linkOrderId
-						? `/orders/${data.linkOrderId}/link/${customer.id}`
-						: `/customers/${customer.id}`}
-					text={(data.linkOrderId ? 'Vincular a ' : '') + customer.name}
+					link={`/customers/${customer.id}`}
+					text={customer.name}
 					icon={IconType.USER}
 					style={ButtonStyle.ORDER_GENERIC}
 				></Button>

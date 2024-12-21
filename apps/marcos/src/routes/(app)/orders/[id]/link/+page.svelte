@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import NewCustomer from '$lib/components/customer/NewCustomer.svelte';
 	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
 	import OrderElements from '$lib/components/order/OrderElements.svelte';
@@ -10,16 +11,35 @@
 	import { ButtonStyle } from '$lib/components/button/button.enum';
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import { Input } from '$lib/components/ui/input';
+	import type { Customer } from '@marcsimolduressonsardina/core/type';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import Icon from '$lib/components/icon/Icon.svelte';
+	import ProgressBar from '$lib/components/ProgressBar.svelte';
 
 	interface Props {
 		data: PageData;
 	}
 
 	let { data }: Props = $props();
+	let firstTimeSearch = $state(true);
+	let loading = $state(false);
 	let searchQuery = $state('');
+	let customers = $state<Customer[]>([]);
 
-	function triggerSearch() {
-		goto(`/customers/search-list?query=${btoa(searchQuery)}&linkOrderId=${data.order.id}`);
+	async function searchCustomers() {
+		loading = true;
+		const response = await fetch('/api/customers/search', {
+			method: 'POST',
+			body: JSON.stringify({ query: searchQuery }),
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		const body: { customers: Customer[] } = await response.json();
+		customers = [...body.customers];
+		firstTimeSearch = false;
+		loading = false;
 	}
 </script>
 
@@ -53,9 +73,36 @@
 					text="Buscar"
 					style={ButtonStyle.CUSTOMER}
 					onClick={() => {
-						triggerSearch();
+						searchCustomers();
 					}}
 				></Button>
+
+				{#if loading}
+					<ProgressBar text="Buscando clientes" />
+				{:else if !firstTimeSearch}
+					<ScrollArea class="h-72 rounded-md border lg:col-span-2">
+						<div class="p-4">
+							<h4 class="mb-4 text-sm font-medium leading-none">Clientes encontrados</h4>
+							{#each customers as customer}
+								<button
+									onclick={() => goto(`/orders/${data.order.id}/link/${customer.id}`)}
+									class="flexr-row flex w-full items-center gap-2 rounded-md p-2 hover:bg-gray-50"
+									type="button"
+								>
+									<Icon type={IconType.USER_PLUS} />
+									{customer.name} ({customer.phone})
+								</button>
+								<Separator class="my-2 last:hidden" />
+							{/each}
+							{#if customers.length === 0}
+								<div class="flex flex-row items-center gap-2 p-2">
+									<Icon type={IconType.NOT_FOUND} />
+									<span>No se encontraron resultados</span>
+								</div>
+							{/if}
+						</div>
+					</ScrollArea>
+				{/if}
 			</div>
 		</Box>
 

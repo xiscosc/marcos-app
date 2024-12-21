@@ -68,7 +68,11 @@ export const actions = {
 				customer = await customerService.createCustomer(form.data.name!, form.data.phone);
 				await orderService.addCustomerToTemporaryOrder(customer, order);
 			} else {
-				return setError(form, 'name', 'Name required');
+				return setError(
+					form,
+					'name',
+					'No existe cliente con ese número, rellene el nombre para crearlo'
+				);
 			}
 		}
 
