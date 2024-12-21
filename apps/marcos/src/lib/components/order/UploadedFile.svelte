@@ -3,11 +3,21 @@
 	import { ButtonAction, ButtonStyle } from '../button/button.enum';
 	import { IconType } from '../icon/icon.enum';
 
-	export let isVideo = false;
-	export let id = '';
-	export let fileName = '';
-	export let downloadUrl = '';
-	export let onDelete = async (id: string) => {};
+	interface Props {
+		isVideo?: boolean;
+		id?: string;
+		fileName?: string;
+		downloadUrl?: string;
+		onDelete?: any;
+	}
+
+	let {
+		isVideo = false,
+		id = '',
+		fileName = '',
+		downloadUrl = '',
+		onDelete = async (id: string) => {}
+	}: Props = $props();
 
 	async function deleteFile() {
 		await onDelete(id);
