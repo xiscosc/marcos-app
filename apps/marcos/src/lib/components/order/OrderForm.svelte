@@ -589,7 +589,6 @@
 		$form.description.length > 0 || $form.predefinedDescriptions.length > 0
 	);
 	let addedDiscount = $derived($form.discount !== '' && !isNaN(parseInt($form.discount)));
-	let numberDisconunt = $derived(!isNaN(parseInt($form.discount)) ? parseInt($form.discount) : 0);
 	let addedExteriorDimensions = $derived(
 		!exteriorDimensions || ($form.exteriorHeight != null && $form.exteriorWidth != null)
 	);

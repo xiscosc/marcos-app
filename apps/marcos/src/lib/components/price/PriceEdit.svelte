@@ -45,7 +45,7 @@
 		dataType: 'json'
 	});
 
-	const { form: formData, enhance, submitting, errors } = form;
+	const { form: formData, enhance, submitting } = form;
 
 	let maxD1Value: number | undefined = $state();
 	let maxD2Value: number | undefined = $state();
@@ -154,321 +154,334 @@
 	</SimpleHeading>
 
 	<Box>
-		{#if $submitting || formLoading}
-			<ProgressBar />
-		{:else}
-			<div class="flex flex-col gap-2">
-				<form
-					use:enhance
-					method="post"
-					action="?/createOrEdit"
-					class="flex w-full flex-col place-content-center gap-2 lg:grid lg:grid-cols-2"
-				>
-					<Spacer line={false} title={'Datos básicos'} />
+		<div class="flex flex-col gap-2">
+			<form use:enhance method="post" action="?/createOrEdit">
+				{#if $submitting}
+					<ProgressBar text="Guardando precio" />
+				{:else}
+					<div class="flex flex-col gap-2">
+						<div class="flex w-full flex-col place-content-center gap-2 lg:grid lg:grid-cols-2">
+							<Spacer line={false} title={'Datos básicos'} />
 
-					<Form.Field {form} name="id">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>ID:</Form.Label>
-								<Input
-									{...props}
-									bind:value={$formData.id}
-									disabled={isNew ? false : true}
-									type="text"
-								/>
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
+							<Form.Field {form} name="id">
+								<Form.Control>
+									{#snippet children({ props })}
+										<Form.Label>ID:</Form.Label>
+										<Input
+											{...props}
+											bind:value={$formData.id}
+											disabled={isNew ? false : true}
+											type="text"
+										/>
+									{/snippet}
+								</Form.Control>
+								<Form.FieldErrors />
+							</Form.Field>
 
-					<Form.Field {form} name="description">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>Descripción:</Form.Label>
-								<Input {...props} bind:value={$formData.description} type="text" />
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
+							<Form.Field {form} name="description">
+								<Form.Control>
+									{#snippet children({ props })}
+										<Form.Label>Descripción:</Form.Label>
+										<Input {...props} bind:value={$formData.description} type="text" />
+									{/snippet}
+								</Form.Control>
+								<Form.FieldErrors />
+							</Form.Field>
 
-					<Form.Field {form} name="type">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>Tipo:</Form.Label>
-								{#if !isNew && $formData.type === PricingType.MOLD}
-									<Select.Root type="single" name={props.name} disabled>
-										<Select.Trigger>Marco/Moldura</Select.Trigger>
-									</Select.Root>
-								{:else}
-									<Select.Root
-										type="single"
-										name={props.name}
-										bind:value={$formData.type}
-										disabled={!isNew}
-									>
-										<Select.Trigger
-											>{pricingTypesMap[$formData.type as EditablePricingTypes]}</Select.Trigger
-										>
-										<Select.Content>
-											{#each Object.entries(pricingTypesMap) as [p, label]}
-												<Select.Item value={p}>{label}</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
-								{/if}
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
-
-					<Form.Field {form} name="formula">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>Cómo calcular:</Form.Label>
-								{#if !isNew && $formData.type === PricingType.MOLD}
-									<Select.Root type="single" name={props.name} disabled>
-										<Select.Trigger>Marco/Moldura</Select.Trigger>
-									</Select.Root>
-								{:else}
-									<Select.Root
-										type="single"
-										name={props.name}
-										bind:value={$formData.formula}
-										onValueChange={handleFormulaChange}
-									>
-										<Select.Trigger
-											>{formulasMap[$formData.formula as PricingFormula]}</Select.Trigger
-										>
-										<Select.Content>
-											{#each Object.entries(formulasMap) as [p, label]}
-												<Select.Item value={p}>{label}</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
-								{/if}
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
-
-					<Spacer title={'Datos del precio'} />
-
-					{#if isAreaFit}
-						{#if $formData.formula === PricingFormula.FORMULA_FIT_AREA}
-							<div class="flex flex-col gap-2">
-								<Label for="d1">Dimensión máxima 1:</Label>
-								<Input type="number" step="0.01" name="d1" bind:value={maxD1Value} />
-							</div>
-
-							<div class="flex flex-col gap-2">
-								<Label for="d1">Dimensión máxima 2:</Label>
-								<Input type="number" step="0.01" name="d2" bind:value={maxD2Value} />
-							</div>
-
-							<div class="flex flex-row items-end gap-2 lg:col-span-2">
-								<div class="flex flex-1 flex-col gap-2">
-									<Label for="d1">Precio del trozo:</Label>
-									<Input type="number" step="0.01" name="piecePrice" bind:value={priceValue} />
-								</div>
-								<div class="flex-1">
-									<Button text="Añadir" icon={IconType.PLUS} onClick={handleAddArea}></Button>
-								</div>
-							</div>
-
-							{#if areas.length > 0}
-								<Spacer title={'Trozos añadidos'} />
-								<div class="flex flex-col gap-3 lg:col-span-2">
-									{#each areas as area}
-										<div class="flex flex-row justify-between">
-											<div class="flex flex-row gap-2">
-												<span class="flex items-center justify-center rounded-2xl bg-green-200 p-3"
-													><Icon type={IconType.RULER} /></span
+							<Form.Field {form} name="type">
+								<Form.Control>
+									{#snippet children({ props })}
+										<Form.Label>Tipo:</Form.Label>
+										{#if !isNew && $formData.type === PricingType.MOLD}
+											<Select.Root type="single" name={props.name} disabled>
+												<Select.Trigger>Marco/Moldura</Select.Trigger>
+											</Select.Root>
+										{:else}
+											<Select.Root
+												type="single"
+												name={props.name}
+												bind:value={$formData.type}
+												disabled={!isNew}
+											>
+												<Select.Trigger
+													>{pricingTypesMap[$formData.type as EditablePricingTypes]}</Select.Trigger
 												>
-												<span class="flex flex-col">
-													<span class="font-medium">Medidas ≤ {area.d1} x {area.d2}</span>
-													<span>{area.price.toFixed(2)} €</span>
-												</span>
-											</div>
-											<div>
-												<Button
-													text=""
-													icon={IconType.TRASH}
-													onClick={() => handleAreaDelete(area)}
-													style={ButtonStyle.SOFT_DELETE}
-												></Button>
-											</div>
-										</div>
-									{/each}
-								</div>
-							{/if}
-						{/if}
-						{#if $formData.formula === PricingFormula.FORMULA_FIT_AREA_M2}
-							<div class="lg:col-span-2">
-								<Banner
-									icon={IconType.QUESTION}
-									title="Área mayor o igual que (≥)"
-									colorName="blue"
-									text="No existe la posibilidad de introducir un precio del tipo mayor o igual que, todos
-							deben ser menor o igual que. Para solucionar este problema, introduzca un valor para
-							área máxima lo suficientemente grande para el último trozo (Área ≤ 200 m2)."
-								></Banner>
-							</div>
+												<Select.Content>
+													{#each Object.entries(pricingTypesMap) as [p, label]}
+														<Select.Item value={p}>{label}</Select.Item>
+													{/each}
+												</Select.Content>
+											</Select.Root>
+										{/if}
+									{/snippet}
+								</Form.Control>
+								<Form.FieldErrors />
+							</Form.Field>
 
-							<div class="flex flex-col gap-2">
-								<Label for="d1">Área máxima:</Label>
-								<Input type="number" step="0.01" name="m2" bind:value={maxM2Value} />
-							</div>
-
-							<div class="flex flex-col gap-2">
-								<Label for="d1">Precio del trozo:</Label>
-								<Input type="number" step="0.01" name="piecePrice" bind:value={priceValue} />
-							</div>
-
-							<div class="lg:col-span-2">
-								<Button text="Añadir" icon={IconType.PLUS} onClick={handleAddAreaM2} />
-							</div>
-							{#if areasM2.length > 0}
-								<Spacer title={'Trozos añadidos'} />
-								<div class="flex flex-col gap-3 lg:col-span-2">
-									{#each areasM2 as area}
-										<div class="flex flex-row justify-between">
-											<div class="flex flex-row gap-2">
-												<span class="flex items-center justify-center rounded-2xl bg-green-200 p-3"
-													><Icon type={IconType.RULER} /></span
+							<Form.Field {form} name="formula">
+								<Form.Control>
+									{#snippet children({ props })}
+										<Form.Label>Cómo calcular:</Form.Label>
+										{#if !isNew && $formData.type === PricingType.MOLD}
+											<Select.Root type="single" name={props.name} disabled>
+												<Select.Trigger>Marco/Moldura</Select.Trigger>
+											</Select.Root>
+										{:else}
+											<Select.Root
+												type="single"
+												name={props.name}
+												bind:value={$formData.formula}
+												onValueChange={handleFormulaChange}
+											>
+												<Select.Trigger
+													>{formulasMap[$formData.formula as PricingFormula]}</Select.Trigger
 												>
-												<span class="flex flex-col">
-													<span class="font-medium">Área ≤ {area.a} m2</span>
-													<span>{area.price.toFixed(2)} €</span>
-												</span>
-											</div>
-											<div>
-												<Button
-													text=""
-													icon={IconType.TRASH}
-													onClick={() => handleAreaM2Delete(area)}
-													style={ButtonStyle.SOFT_DELETE}
-												></Button>
-											</div>
+												<Select.Content>
+													{#each Object.entries(formulasMap) as [p, label]}
+														<Select.Item value={p}>{label}</Select.Item>
+													{/each}
+												</Select.Content>
+											</Select.Root>
+										{/if}
+									{/snippet}
+								</Form.Control>
+								<Form.FieldErrors />
+							</Form.Field>
+
+							<Spacer title={'Datos del precio'} />
+
+							{#if isAreaFit}
+								{#if $formData.formula === PricingFormula.FORMULA_FIT_AREA}
+									<div class="flex flex-col gap-2">
+										<Label for="d1">Dimensión máxima 1:</Label>
+										<Input type="number" step="0.01" name="d1" bind:value={maxD1Value} />
+									</div>
+
+									<div class="flex flex-col gap-2">
+										<Label for="d1">Dimensión máxima 2:</Label>
+										<Input type="number" step="0.01" name="d2" bind:value={maxD2Value} />
+									</div>
+
+									<div class="flex flex-row items-end gap-2 lg:col-span-2">
+										<div class="flex flex-1 flex-col gap-2">
+											<Label for="d1">Precio del trozo:</Label>
+											<Input type="number" step="0.01" name="piecePrice" bind:value={priceValue} />
 										</div>
-									{/each}
-								</div>
+										<div class="flex-1">
+											<Button text="Añadir" icon={IconType.PLUS} onClick={handleAddArea}></Button>
+										</div>
+									</div>
+
+									{#if areas.length > 0}
+										<Spacer title={'Trozos añadidos'} />
+										<div class="flex flex-col gap-3 lg:col-span-2">
+											{#each areas as area}
+												<div class="flex flex-row justify-between">
+													<div class="flex flex-row gap-2">
+														<span
+															class="flex items-center justify-center rounded-2xl bg-green-200 p-3"
+															><Icon type={IconType.RULER} /></span
+														>
+														<span class="flex flex-col">
+															<span class="font-medium">Medidas ≤ {area.d1} x {area.d2}</span>
+															<span>{area.price.toFixed(2)} €</span>
+														</span>
+													</div>
+													<div>
+														<Button
+															text=""
+															icon={IconType.TRASH}
+															onClick={() => handleAreaDelete(area)}
+															style={ButtonStyle.SOFT_DELETE}
+														></Button>
+													</div>
+												</div>
+											{/each}
+										</div>
+									{/if}
+								{/if}
+								{#if $formData.formula === PricingFormula.FORMULA_FIT_AREA_M2}
+									<div class="lg:col-span-2">
+										<Banner
+											icon={IconType.QUESTION}
+											title="Área mayor o igual que (≥)"
+											colorName="blue"
+											text="No existe la posibilidad de introducir un precio del tipo mayor o igual que, todos
+								deben ser menor o igual que. Para solucionar este problema, introduzca un valor para
+								área máxima lo suficientemente grande para el último trozo (Área ≤ 200 m2)."
+										></Banner>
+									</div>
+
+									<div class="flex flex-col gap-2">
+										<Label for="d1">Área máxima:</Label>
+										<Input type="number" step="0.01" name="m2" bind:value={maxM2Value} />
+									</div>
+
+									<div class="flex flex-col gap-2">
+										<Label for="d1">Precio del trozo:</Label>
+										<Input type="number" step="0.01" name="piecePrice" bind:value={priceValue} />
+									</div>
+
+									<div class="lg:col-span-2">
+										<Button text="Añadir" icon={IconType.PLUS} onClick={handleAddAreaM2} />
+									</div>
+									{#if areasM2.length > 0}
+										<Spacer title={'Trozos añadidos'} />
+										<div class="flex flex-col gap-3 lg:col-span-2">
+											{#each areasM2 as area}
+												<div class="flex flex-row justify-between">
+													<div class="flex flex-row gap-2">
+														<span
+															class="flex items-center justify-center rounded-2xl bg-green-200 p-3"
+															><Icon type={IconType.RULER} /></span
+														>
+														<span class="flex flex-col">
+															<span class="font-medium">Área ≤ {area.a} m2</span>
+															<span>{area.price.toFixed(2)} €</span>
+														</span>
+													</div>
+													<div>
+														<Button
+															text=""
+															icon={IconType.TRASH}
+															onClick={() => handleAreaM2Delete(area)}
+															style={ButtonStyle.SOFT_DELETE}
+														></Button>
+													</div>
+												</div>
+											{/each}
+										</div>
+									{/if}
+								{/if}
+							{:else}
+								<Form.Field {form} name="price" class="lg:col-span-2">
+									<Form.Control>
+										{#snippet children({ props })}
+											<Form.Label>Precio:</Form.Label>
+											<Input
+												type="number"
+												step="0.01"
+												name="priority"
+												bind:value={$formData.price}
+											/>
+										{/snippet}
+									</Form.Control>
+									<Form.FieldErrors />
+								</Form.Field>
+
+								<Form.Field {form} name="price">
+									<Form.Control>
+										{#snippet children({ props })}
+											<Form.Label>Alto máximo:</Form.Label>
+											<Input type="number" step="0.01" name="maxD1" bind:value={$formData.maxD1} />
+										{/snippet}
+									</Form.Control>
+									<Form.FieldErrors />
+								</Form.Field>
+
+								<Form.Field {form} name="price">
+									<Form.Control>
+										{#snippet children({ props })}
+											<Form.Label>Ancho Máximo:</Form.Label>
+											<Input type="number" step="0.01" name="maxD2" bind:value={$formData.maxD2} />
+										{/snippet}
+									</Form.Control>
+									<Form.FieldErrors />
+								</Form.Field>
 							{/if}
-						{/if}
-					{:else}
-						<Form.Field {form} name="price" class="lg:col-span-2">
-							<Form.Control>
-								{#snippet children({ props })}
-									<Form.Label>Precio:</Form.Label>
-									<Input type="number" step="0.01" name="priority" bind:value={$formData.price} />
-								{/snippet}
-							</Form.Control>
-							<Form.FieldErrors />
-						</Form.Field>
 
-						<Form.Field {form} name="price">
-							<Form.Control>
-								{#snippet children({ props })}
-									<Form.Label>Alto máximo:</Form.Label>
-									<Input type="number" step="0.01" name="maxD1" bind:value={$formData.maxD1} />
-								{/snippet}
-							</Form.Control>
-							<Form.FieldErrors />
-						</Form.Field>
+							<Spacer title={'Otros datos'} />
 
-						<Form.Field {form} name="price">
-							<Form.Control>
-								{#snippet children({ props })}
-									<Form.Label>Ancho Máximo:</Form.Label>
-									<Input type="number" step="0.01" name="maxD2" bind:value={$formData.maxD2} />
-								{/snippet}
-							</Form.Control>
-							<Form.FieldErrors />
-						</Form.Field>
-					{/if}
+							<Form.Field {form} name="priority">
+								<Form.Control>
+									{#snippet children({ props })}
+										<Form.Label>Prioridad (Cuanto más alto, antes saldrá en la lista):</Form.Label>
+										<Input type="number" step="1" name="priority" bind:value={$formData.priority} />
+									{/snippet}
+								</Form.Control>
+								<Form.FieldErrors />
+							</Form.Field>
 
-					<Spacer title={'Otros datos'} />
+							<Form.Field {form} name="minPrice">
+								<Form.Control>
+									{#snippet children({ props })}
+										<Form.Label>Precio mínimo:</Form.Label>
+										<Input
+											type="number"
+											step="0.01"
+											name="minPrice"
+											bind:value={$formData.minPrice}
+										/>
+									{/snippet}
+								</Form.Control>
+								<Form.FieldErrors />
+							</Form.Field>
 
-					<Form.Field {form} name="priority">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>Prioridad (Cuanto más alto, antes saldrá en la lista):</Form.Label>
-								<Input type="number" step="1" name="priority" bind:value={$formData.priority} />
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
+							<Form.Field {form} name="discountAllowed">
+								<Form.Control>
+									{#snippet children({ props })}
+										<div
+											class="flex h-10 flex-row items-center justify-between rounded-md border px-2"
+										>
+											<Form.Label>Descuento permitido</Form.Label>
+											<Switch bind:checked={$formData.discountAllowed} />
+										</div>
+									{/snippet}
+								</Form.Control>
+								<Form.FieldErrors />
+							</Form.Field>
 
-					<Form.Field {form} name="minPrice">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>Precio mínimo:</Form.Label>
-								<Input type="number" step="0.01" name="minPrice" bind:value={$formData.minPrice} />
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
-
-					<Form.Field {form} name="discountAllowed">
-						<Form.Control>
-							{#snippet children({ props })}
-								<div class="flex h-10 flex-row items-center justify-between rounded-md border px-2">
-									<Form.Label>Descuento permitido</Form.Label>
-									<Switch bind:checked={$formData.discountAllowed} />
-								</div>
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
-
-					<div class="lg:col-span-2">
-						<Button
-							text="Guardar"
-							icon={IconType.EDIT}
-							style={ButtonStyle.ORDER_GENERIC}
-							action={ButtonAction.SUBMIT}
-							textType={ButtonText.GRAY}
-						></Button>
+							<div class="lg:col-span-2">
+								<Button
+									text="Guardar"
+									icon={IconType.EDIT}
+									style={ButtonStyle.ORDER_GENERIC}
+									action={ButtonAction.SUBMIT}
+									textType={ButtonText.GRAY}
+								></Button>
+							</div>
+						</div>
 					</div>
-				</form>
-
-				{#if !isNew}
-					{#snippet sheetTrigger()}
-						<Button icon={IconType.TRASH} text="Eliminar precio" action={ButtonAction.TRIGGER}
-						></Button>
-					{/snippet}
-
-					{#snippet sheetAction()}
-						<form
-							class="w-full text-center"
-							method="post"
-							action="?/deletePrice"
-							use:sEnhance={() => {
-								formLoading = true;
-								return async ({ update }) => {
-									await update();
-								};
-							}}
-						>
-							<Button
-								icon={IconType.TRASH}
-								text="Confirmar"
-								style={ButtonStyle.DELETE}
-								action={ButtonAction.SUBMIT}
-							></Button>
-						</form>
-					{/snippet}
-
-					<BottomSheet
-						loading={formLoading}
-						title="Eliminar precio"
-						description="Esta acción no se puede desacer"
-						trigger={sheetTrigger}
-						action={sheetAction}
-						iconType={IconType.TRASH}
-						triggerStyle={ButtonStyle.DELETE}
-					></BottomSheet>
 				{/if}
-			</div>
-		{/if}
+			</form>
+
+			{#if !isNew && !$submitting}
+				{#snippet sheetTrigger()}
+					<Button icon={IconType.TRASH} text="Eliminar precio" action={ButtonAction.TRIGGER}
+					></Button>
+				{/snippet}
+
+				{#snippet sheetAction()}
+					<form
+						class="w-full text-center"
+						method="post"
+						action="?/deletePrice"
+						use:sEnhance={() => {
+							formLoading = true;
+							return async ({ update }) => {
+								await update();
+							};
+						}}
+					>
+						<Button
+							icon={IconType.TRASH}
+							text="Confirmar"
+							style={ButtonStyle.DELETE}
+							action={ButtonAction.SUBMIT}
+						></Button>
+					</form>
+				{/snippet}
+
+				<BottomSheet
+					loading={formLoading}
+					title="Eliminar precio"
+					description="Esta acción no se puede desacer"
+					trigger={sheetTrigger}
+					action={sheetAction}
+					iconType={IconType.TRASH}
+					triggerStyle={ButtonStyle.DELETE}
+				></BottomSheet>
+			{/if}
+		</div>
 	</Box>
 </div>

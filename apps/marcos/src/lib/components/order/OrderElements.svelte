@@ -1,7 +1,11 @@
 <script lang="ts">
 	import Box from '$lib/components/Box.svelte';
 	import { OrderUtilities } from '$lib/shared/order.utilities';
-	import { type CalculatedItem, type Order } from '@marcsimolduressonsardina/core/type';
+	import {
+		type CalculatedItem,
+		type CalculatedItemPart,
+		type Order
+	} from '@marcsimolduressonsardina/core/type';
 	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
 	import CartItem from '../item/CartItem.svelte';
 	import OrderPriceDetails from './OrderPriceDetails.svelte';
@@ -12,16 +16,29 @@
 	}
 
 	let { order, calculatedItem }: Props = $props();
+
+	const parts = $derived<CalculatedItemPart[]>(
+		CalculatedItemUtilities.sortByPricingType(
+			OrderUtilities.addPricingTypeToCalculatedParts(
+				order.item.partsToCalculate,
+				calculatedItem.parts
+			)
+		)
+	);
+	const discountNotAllowedPresent = $derived(parts.find((part) => !part.discountAllowed) != null);
 </script>
 
 <Box title="Elementos" collapsible>
-	{#if calculatedItem}
+	<div class="flex flex-col gap-2">
 		<div class="text-md space-y-2 text-gray-700">
-			{#each CalculatedItemUtilities.sortByPricingType(OrderUtilities.addPricingTypeToCalculatedParts(order.item.partsToCalculate, calculatedItem.parts)) as part}
+			{#each parts as part}
 				<CartItem {part} hideDeleteButton={true} />
 			{/each}
 		</div>
-	{/if}
+		{#if discountNotAllowedPresent}
+			<span class="text-xs text-gray-500">* Elementos con descuento no permitido</span>
+		{/if}
+	</div>
 </Box>
 
 {#if calculatedItem.quantity > 1 || calculatedItem.discount > 0}
