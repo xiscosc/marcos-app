@@ -30,6 +30,7 @@ import { CalculatedItemUtilities } from '../utilities/calculated-item.utilites';
 import { PricingType } from '../types/pricing.type';
 import { UserService } from './user.service';
 import { tempCustomerUuid, OrderUtilities, quoteDeliveryDate } from '../utilities/order.utilities';
+import { StaticUser } from '../types';
 
 export interface ISameDayOrderCounters {
 	finishedCount: number;
@@ -392,7 +393,8 @@ export class OrderService {
 			originalOrder.status,
 			originalOrder.location,
 			originalOrder.amountPayed,
-			originalOrder.notified
+			originalOrder.notified,
+			originalOrder.user
 		);
 
 		await Promise.all([
@@ -411,7 +413,8 @@ export class OrderService {
 		originalOrderStatus?: OrderStatus,
 		originalLocation?: string,
 		originalAmountPayed?: number,
-		originalNotified?: boolean
+		originalNotified?: boolean,
+		originalUser?: StaticUser
 	): Promise<{ order: Order; calculatedItem: CalculatedItem }> {
 		const order: Order = {
 			id: originalId ?? uuidv4(),
@@ -419,7 +422,7 @@ export class OrderService {
 			customer: dto.customer,
 			createdAt: originalCreationDate ?? new Date(),
 			storeId: this.config.storeId,
-			user: this.config.user,
+			user: originalUser ?? this.config.user,
 			amountPayed: originalAmountPayed ?? 0,
 			status: originalOrderStatus ?? (dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING),
 			hasArrow: dto.hasArrow,
