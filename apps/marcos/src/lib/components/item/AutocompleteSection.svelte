@@ -5,11 +5,9 @@
 	import { formulasStringMap } from '$lib/shared/pricing.utilites';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import Button from '../button/Button.svelte';
 	import { IconType } from '../icon/icon.enum';
 	import Label from '../ui/label/label.svelte';
 	import Input from '../ui/input/input.svelte';
-	import { ButtonAction, ButtonStyle, ButtonText } from '../button/button.enum';
 	import { PricingUtilites } from '@marcsimolduressonsardina/core/util';
 	import Icon from '../icon/Icon.svelte';
 

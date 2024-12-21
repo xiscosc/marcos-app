@@ -46,7 +46,11 @@
 		ChartPie,
 		ChartColumnBig,
 		BadgePlus,
-		SearchX
+		SearchX,
+		Percent,
+		Tag,
+		TicketPercent,
+		ChevronsUpDown
 	} from 'lucide-svelte';
 	import { IconSize, IconType } from '../icon/icon.enum';
 	import { siWhatsapp } from 'simple-icons';
@@ -227,4 +231,20 @@
 
 {#if type === IconType.NOT_FOUND}
 	<SearchX {size} />
+{/if}
+
+{#if type === IconType.DISCOUNT}
+	<Percent {size} />
+{/if}
+
+{#if type === IconType.TICKET}
+	<Tag {size} />
+{/if}
+
+{#if type === IconType.TICKET_DISCOUNT}
+	<TicketPercent {size} />
+{/if}
+
+{#if type === IconType.COLLAPSE}
+	<ChevronsUpDown {size} />
 {/if}

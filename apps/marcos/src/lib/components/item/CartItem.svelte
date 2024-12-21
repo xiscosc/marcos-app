@@ -22,14 +22,24 @@
 
 <div class="flex flex-row justify-between">
 	<div class="flex flex-row items-center gap-4">
-		<span class="rounded-sm border bg-green-100 p-2 text-gray-800 shadow-sm"
-			><Icon type={IconType.CART} /></span
+		<span
+			class="relative flex flex-row items-center gap-1 rounded-sm border bg-green-100 p-2 text-gray-800 shadow-sm"
 		>
-		<div class="flex flex-col">
-			<span class="font-semibold">
+			<div class="relative">
+				<Icon type={IconType.CART} />
+			</div>
+			{#if part.quantity > 1}
+				<span
+					class="absolute -right-1 -top-1 rounded-full bg-gray-800 px-1.5 text-sm font-medium text-white"
+				>
+					{part.quantity}
+				</span>
+			{/if}
+		</span>
+		<div class="flex flex-col text-sm">
+			<span class="font-medium">
 				{part.description}
 				{part.floating ? '(Flot)' : ''}
-				{part.quantity > 1 ? `x ${part.quantity}` : ''}
 			</span>
 			<span>{(part.price * part.quantity).toFixed(2)} €</span>
 		</div>

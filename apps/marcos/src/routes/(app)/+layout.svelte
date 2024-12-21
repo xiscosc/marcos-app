@@ -67,7 +67,7 @@
 
 	<!-- Scrollable Content Block filling remaining space -->
 	<main class="flex-1 overflow-y-auto p-2">
-		<div class="mx-auto w-full px-1 md:px-2 md:pt-2 lg:px-4">
+		<div class="mx-auto w-full px-1 pb-3 md:px-2 md:pb-0 md:pt-2 lg:px-4">
 			{#if isNavigating}
 				<Box>
 					<ProgressBar></ProgressBar>

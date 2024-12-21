@@ -57,5 +57,9 @@ export enum IconType {
 	DASHBOARD = 'dashboard',
 	CHART_LINES = 'chart-lines',
 	CHART_BARS = 'chart-bars',
-	NOT_FOUND = 'not-found'
+	NOT_FOUND = 'not-found',
+	DISCOUNT = 'discount',
+	TICKET = 'ticket',
+	TICKET_DISCOUNT = 'ticket-discount',
+	COLLAPSE = 'collapse'
 }
