@@ -25,14 +25,20 @@
 			)
 		)
 	);
-	const discountNotAllowedPresent = $derived(parts.find((part) => !part.discountAllowed) != null);
+	const discountNotAllowedPresent = $derived(
+		parts.find((part) => !part.discountAllowed) != null && calculatedItem.discount > 0
+	);
 </script>
 
 <Box title="Elementos" collapsible>
 	<div class="flex flex-col gap-2">
 		<div class="text-md space-y-2 text-gray-700">
 			{#each parts as part}
-				<CartItem {part} hideDeleteButton={true} />
+				<CartItem
+					{part}
+					hideDeleteButton={true}
+					showNoDiscountAllowed={calculatedItem.discount > 0}
+				/>
 			{/each}
 		</div>
 		{#if discountNotAllowedPresent}
@@ -49,6 +55,7 @@
 		unitPriceWithDiscount={CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)}
 		totalWithoutDiscount={CalculatedItemUtilities.getTotalWithoutDiscount(calculatedItem)}
 		totalWithDiscount={CalculatedItemUtilities.getTotal(calculatedItem)}
+		alertItemsWitouthDiscount={discountNotAllowedPresent}
 		collapsed={false}
 	></OrderPriceDetails>
 {/if}

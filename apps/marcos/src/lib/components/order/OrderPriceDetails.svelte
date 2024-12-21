@@ -12,6 +12,7 @@
 		totalWithoutDiscount: number;
 		totalWithDiscount: number;
 		collapsed?: boolean;
+		alertItemsWitouthDiscount?: boolean;
 	}
 
 	let {
@@ -21,7 +22,8 @@
 		unitPriceWithDiscount,
 		totalWithoutDiscount,
 		totalWithDiscount,
-		collapsed = true
+		collapsed = true,
+		alertItemsWitouthDiscount = false
 	}: Props = $props();
 </script>
 
@@ -49,6 +51,13 @@
 					title="Descuento aplicado"
 					value={`${discount}%`}
 				/>
+				{#if alertItemsWitouthDiscount}
+					<OrderInfoStep
+						iconType={IconType.ALERT}
+						title="Aviso sobre el descuento"
+						value="El pedido incluye elementos que no permiten descuento"
+					/>
+				{/if}
 			{/if}
 			{#if quantity > 1}
 				<OrderInfoStep

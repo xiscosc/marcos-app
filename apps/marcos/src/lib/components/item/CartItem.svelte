@@ -10,14 +10,18 @@
 		partToDelete?: any;
 		deleteExtraPart?: (partToDelete: any) => void;
 		hideDeleteButton?: boolean;
+		showNoDiscountAllowed?: boolean;
 	}
 
 	let {
 		part,
 		partToDelete = {},
 		deleteExtraPart = (p: any) => {},
-		hideDeleteButton = false
+		hideDeleteButton = false,
+		showNoDiscountAllowed = false
 	}: Props = $props();
+
+	let noDiscountAllowed = $derived(!part.discountAllowed && showNoDiscountAllowed);
 </script>
 
 <div class="flex flex-row justify-between">
@@ -38,7 +42,7 @@
 		</span>
 		<div class="flex flex-col text-sm">
 			<span class="font-medium">
-				{part.description}{part.discountAllowed ? '' : '*'}
+				{part.description}{noDiscountAllowed ? '*' : ''}
 				{part.floating ? '(Flot)' : ''}
 			</span>
 			<span>{(part.price * part.quantity).toFixed(2)} €</span>

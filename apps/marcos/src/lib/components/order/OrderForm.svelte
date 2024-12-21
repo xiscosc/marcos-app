@@ -638,6 +638,14 @@
 		)
 	);
 
+	let orderedItems = $derived<TempParts>(
+		CalculatedItemUtilities.sortByPricingType([...partsToCalulatePreview], ['pre', 'type'])
+	);
+	let discountActive = $derived($form.discount !== '' && parseInt($form.discount) > 0);
+	let isDiscountNotAllowedPresent = $derived(
+		orderedItems.find((part) => !part.post.discountAllowed) != null && discountActive
+	);
+
 	$effect(() => {
 		updatePP(
 			asymetricPP,
@@ -690,7 +698,12 @@
 {#snippet cartItemList(parts: TempParts)}
 	<div class="flex flex-col gap-2 lg:col-span-2">
 		{#each parts as part}
-			<CartItem part={part.post} partToDelete={part} deleteExtraPart={deletePrecalculatedPreview} />
+			<CartItem
+				part={part.post}
+				partToDelete={part}
+				deleteExtraPart={deletePrecalculatedPreview}
+				showNoDiscountAllowed={discountActive}
+			/>
 		{/each}
 	</div>
 {/snippet}
@@ -1191,10 +1204,13 @@
 				</Box>
 
 				<Box title="Elementos añadidos" collapsible>
-					{@render cartItemList(
-						CalculatedItemUtilities.sortByPricingType([...partsToCalulatePreview], ['pre', 'type'])
-					)}
-					{@render cartItemExtraList(extraParts)}
+					<div class="flex flex-col gap-2">
+						{@render cartItemList(orderedItems)}
+						{@render cartItemExtraList(extraParts)}
+						{#if isDiscountNotAllowedPresent}
+							<span class="text-xs text-gray-500">* Elementos con descuento no permitido</span>
+						{/if}
+					</div>
 				</Box>
 
 				<div class="flex flex-col gap-2 lg:col-span-2">
@@ -1205,6 +1221,7 @@
 						unitPriceWithDiscount={totalPerUnit}
 						{totalWithoutDiscount}
 						totalWithDiscount={total}
+						alertItemsWitouthDiscount={isDiscountNotAllowedPresent}
 					></OrderPriceDetails>
 					{#if missingReasons.length > 0}
 						<Box title={'Rellene todos los campos'} icon={IconType.LIST}>
