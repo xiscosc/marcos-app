@@ -23,14 +23,14 @@
 <div class="flex flex-row justify-between">
 	<div class="flex flex-row items-center gap-4">
 		<span
-			class="relative flex flex-row items-center gap-1 rounded-sm border bg-green-100 p-2 text-gray-800 shadow-sm"
+			class="relative flex flex-row items-center gap-1 rounded-sm border bg-gray-900 p-2 text-white shadow-sm"
 		>
 			<div class="relative">
 				<Icon type={IconType.CART} />
 			</div>
 			{#if part.quantity > 1}
 				<span
-					class="absolute -right-1 -top-1 rounded-full bg-gray-800 px-1.5 text-sm font-medium text-white"
+					class="absolute -right-1 -top-1 rounded-full border border-red-800 bg-red-500 px-1.5 text-sm font-medium text-white"
 				>
 					{part.quantity}
 				</span>
@@ -38,7 +38,7 @@
 		</span>
 		<div class="flex flex-col text-sm">
 			<span class="font-medium">
-				{part.description}
+				{part.description}{part.discountAllowed ? '' : '*'}
 				{part.floating ? '(Flot)' : ''}
 			</span>
 			<span>{(part.price * part.quantity).toFixed(2)} €</span>

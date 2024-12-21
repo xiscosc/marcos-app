@@ -14,7 +14,7 @@
 	let { order, calculatedItem }: Props = $props();
 </script>
 
-<Box title="Elementos">
+<Box title="Elementos" collapsible>
 	{#if calculatedItem}
 		<div class="text-md space-y-2 text-gray-700">
 			{#each CalculatedItemUtilities.sortByPricingType(OrderUtilities.addPricingTypeToCalculatedParts(order.item.partsToCalculate, calculatedItem.parts)) as part}
@@ -32,5 +32,6 @@
 		unitPriceWithDiscount={CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)}
 		totalWithoutDiscount={CalculatedItemUtilities.getTotalWithoutDiscount(calculatedItem)}
 		totalWithDiscount={CalculatedItemUtilities.getTotal(calculatedItem)}
+		collapsed={false}
 	></OrderPriceDetails>
 {/if}

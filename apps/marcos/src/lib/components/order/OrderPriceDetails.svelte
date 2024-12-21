@@ -2,6 +2,7 @@
 	import Box from '../Box.svelte';
 	import { IconType } from '../icon/icon.enum';
 	import Icon from '../icon/Icon.svelte';
+	import OrderInfoStep from './OrderInfoStep.svelte';
 
 	interface Props {
 		quantity: number;
@@ -10,6 +11,7 @@
 		unitPriceWithDiscount: number;
 		totalWithoutDiscount: number;
 		totalWithDiscount: number;
+		collapsed?: boolean;
 	}
 
 	let {
@@ -18,52 +20,60 @@
 		unitPriceWithoutDiscount,
 		unitPriceWithDiscount,
 		totalWithoutDiscount,
-		totalWithDiscount
+		totalWithDiscount,
+		collapsed = true
 	}: Props = $props();
 </script>
 
-{#snippet priceDetail(iconType: IconType, text: string, isTotal = false)}
-	<div class="flex flex-row items-center justify-start gap-2">
-		<span
-			class="flex flex-row items-center gap-1 rounded-sm border bg-gray-800 p-2 text-white shadow-sm"
-		>
-			<Icon type={iconType} />
-		</span>
-		<span class="text-md font-medium" class:text-xl={isTotal} class:font-semibold={isTotal}
-			>{text}</span
-		>
-	</div>
+{#snippet total()}
+	<OrderInfoStep
+		iconType={IconType.COINS}
+		title="Total"
+		value={`${totalWithDiscount.toFixed(2)}€`}
+	/>
 {/snippet}
 
-<Box title="Detalles del precio" collapsible={true}>
-	<div class="flex flex-col gap-2">
-		{#if quantity > 1}
-			{@render priceDetail(IconType.ORDER_DEFAULT, `${quantity} unidades`)}
-		{/if}
-		{#if discount > 0}
-			{@render priceDetail(IconType.DISCOUNT, `${discount}% descuento aplicado`)}
-		{/if}
-		{#if quantity > 1}
-			{@render priceDetail(IconType.TICKET, `${unitPriceWithoutDiscount.toFixed(2)}€ por unidad`)}
-			{#if discount > 0}
-				{@render priceDetail(
-					IconType.TICKET_DISCOUNT,
-					`${unitPriceWithDiscount.toFixed(2)}€ por unidad con descuento`
-				)}
+{#if discount > 0 || quantity > 1}
+	<Box title="Detalles del precio" collapsible {collapsed} nonCollapsibleContent={total}>
+		<div class="flex flex-col gap-2">
+			{#if quantity > 1}
+				<OrderInfoStep
+					iconType={IconType.ORDER_DEFAULT}
+					title="Unidades"
+					value={quantity.toString()}
+				/>
 			{/if}
-		{/if}
+			{#if discount > 0}
+				<OrderInfoStep
+					iconType={IconType.DISCOUNT}
+					title="Descuento aplicado"
+					value={`${discount}%`}
+				/>
+			{/if}
+			{#if quantity > 1}
+				<OrderInfoStep
+					iconType={IconType.TICKET}
+					title={`Precio por unidad ${discount > 0 ? 'sin descuento' : ''}`}
+					value={`${unitPriceWithoutDiscount.toFixed(2)}€`}
+				/>
+				{#if discount > 0}
+					<OrderInfoStep
+						iconType={IconType.TICKET_DISCOUNT}
+						title="Precio por unidad con descuento"
+						value={`${unitPriceWithDiscount.toFixed(2)}€`}
+					/>
+				{/if}
+			{/if}
 
-		{#if discount > 0}
-			{@render priceDetail(
-				IconType.ORDER_QUOTE,
-				`${totalWithoutDiscount.toFixed(2)}€ total sin descuento`
-			)}
-		{/if}
-
-		{@render priceDetail(
-			IconType.COINS,
-			`${totalWithDiscount.toFixed(2)}€ total`,
-			discount > 0 || quantity > 1
-		)}
-	</div>
-</Box>
+			{#if discount > 0}
+				<OrderInfoStep
+					iconType={IconType.ORDER_QUOTE}
+					title="Total sin descuento"
+					value={`${totalWithoutDiscount.toFixed(2)}€`}
+				/>
+			{/if}
+		</div>
+	</Box>
+{:else}
+	<Box title="Detalles del precio" children={total} />
+{/if}

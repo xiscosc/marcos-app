@@ -1187,18 +1187,15 @@
 								<Label for="hasArrow"><Icon type={IconType.DOWN} /></Label>
 								<Switch name="hasArrow" bind:checked={$form.hasArrow} />
 							</div>
-
-							<Spacer title={'Elementos añadidos'} />
-
-							{@render cartItemList(
-								CalculatedItemUtilities.sortByPricingType(
-									[...partsToCalulatePreview],
-									['pre', 'type']
-								)
-							)}
-							{@render cartItemExtraList(extraParts)}
 						</div>
 					{/await}
+				</Box>
+
+				<Box title="Elementos añadidos" collapsible>
+					{@render cartItemList(
+						CalculatedItemUtilities.sortByPricingType([...partsToCalulatePreview], ['pre', 'type'])
+					)}
+					{@render cartItemExtraList(extraParts)}
 				</Box>
 
 				<div class="flex flex-col gap-2 lg:col-span-2">

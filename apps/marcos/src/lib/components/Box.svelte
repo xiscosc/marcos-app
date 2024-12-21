@@ -8,10 +8,19 @@
 		title?: string | undefined;
 		icon?: IconType;
 		collapsible?: boolean;
+		collapsed?: boolean;
+		nonCollapsibleContent?: Snippet;
 		children?: Snippet;
 	}
 
-	let { title = undefined, icon, children, collapsible = false }: Props = $props();
+	let {
+		title = undefined,
+		icon,
+		children,
+		collapsible = false,
+		collapsed = false,
+		nonCollapsibleContent = undefined
+	}: Props = $props();
 </script>
 
 <div class="h-100 flex flex-1 flex-col gap-4 rounded-md border border-gray-300 bg-white p-4">
@@ -31,7 +40,7 @@
 			{@render children?.()}
 		</div>
 	{:else}
-		<Collapsible.Root class="flex flex-col gap-4" open={true}>
+		<Collapsible.Root class="flex flex-col gap-4" open={!collapsed}>
 			<Collapsible.Trigger>
 				{#if title}
 					<div class="flex flex-row items-center justify-between">
@@ -52,5 +61,7 @@
 				{@render children?.()}
 			</Collapsible.Content>
 		</Collapsible.Root>
+
+		{@render nonCollapsibleContent?.()}
 	{/if}
 </div>
