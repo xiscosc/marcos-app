@@ -52,16 +52,10 @@
 			/>
 		{/if}
 
-		<OrderInfoStep
-			iconType={IconType.EYE}
-			title="Descripción"
-			value={order.item.description}
-			freeText
-		/>
+		<OrderInfoStep iconType={IconType.EYE} title="Descripción" value={order.item.description} />
 		<OrderInfoStep
 			iconType={IconType.LIST}
 			title="Observaciones"
-			freeText
 			value={order.item.observations}
 			valueList={order.item.predefinedObservations}
 		/>

@@ -25,7 +25,7 @@
 </script>
 
 <div
-	class="mx-auto flex w-full flex-col overflow-hidden rounded-md border border-gray-300 md:max-w-md"
+	class="mx-auto flex w-full flex-col overflow-hidden rounded-md border border-gray-50 md:max-w-md"
 >
 	<div
 		class={`rounded-t-md p-2 text-white ${
@@ -129,13 +129,13 @@
 			</div>
 		</div>
 
-		<div class="text-1 m-1 rounded-md border border-gray-300 bg-neutral-50 px-2 py-2">
+		<div class="text-1 m-1 rounded-md border border-gray-50 bg-neutral-50 px-2 py-2">
 			{order.item.description}
 		</div>
 	</div>
 
 	<!-- Footer Section -->
-	<div class="flex items-center justify-between border-t border-gray-300 bg-neutral-50 p-3">
+	<div class="flex items-center justify-between bg-neutral-50 p-3">
 		<div>
 			{#if order.status === OrderStatus.FINISHED && order.notified}
 				<div

@@ -3,6 +3,7 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import Icon from './icon/Icon.svelte';
 	import { IconSize, IconType } from './icon/icon.enum';
+	import Separator from './ui/separator/separator.svelte';
 
 	interface Props {
 		title?: string | undefined;
@@ -23,7 +24,7 @@
 	}: Props = $props();
 </script>
 
-<div class="h-100 flex flex-1 flex-col gap-4 rounded-md border border-gray-300 bg-white p-4">
+<div class="h-100 flex flex-1 flex-col gap-4 rounded-md border border-gray-50 bg-white p-4">
 	{#if !collapsible}
 		{#if title}
 			<div class="flex items-center gap-3">
@@ -58,7 +59,12 @@
 				{/if}
 			</Collapsible.Trigger>
 			<Collapsible.Content>
-				{@render children?.()}
+				<div class="flex flex-col gap-3">
+					{@render children?.()}
+					{#if nonCollapsibleContent}
+						<Separator />
+					{/if}
+				</div>
 			</Collapsible.Content>
 		</Collapsible.Root>
 

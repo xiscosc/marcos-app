@@ -5,7 +5,7 @@ export enum ButtonStyle {
 	ORDER_FINISHED_VARIANT = 'bg-amber-100 text-amber-700 hover:bg-amber-200 focus:bg-amber-200 border border-amber-700',
 	DELETE = 'bg-red-700 hover:bg-red-800 focus:ring-red-800',
 	DELETE_VARIANT = 'bg-red-100 text-red-700 hover:bg-red-200 focus:bg-red-200 border border-red-700',
-	SOFT_DELETE = 'bg-indigo-300 hover:bg-indigo-400 focus:ring-indigo-400',
+	SOFT_DELETE = 'bg-gray-300 hover:bg-gray-400 focus:ring-gray-400',
 	ORDER_PENDING = 'bg-blue-600 hover:bg-blue-700 focus:bg-blue-500 ',
 	ORDER_PENDING_VARIANT = 'bg-blue-100 text-blue-700 hover:bg-blue-200 focus:bg-blue-200 border border-blue-700 ',
 	ORDER_QUOTE = 'bg-purple-600 hover:bg-purple-700 focus:bg-purple-500',

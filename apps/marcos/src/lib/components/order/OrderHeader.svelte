@@ -39,7 +39,7 @@
 	</div>
 {/snippet}
 
-<div class="overflow-hidden rounded-md border border-gray-300">
+<div class="overflow-hidden rounded-md border border-gray-50">
 	<div
 		class={`flex items-center justify-between px-3 py-2 text-white ${
 			getStatusUIInfoWithPaymentInfo(order.status, payed).staticColor

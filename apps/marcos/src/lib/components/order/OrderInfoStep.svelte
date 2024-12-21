@@ -7,21 +7,20 @@
 		title: string;
 		value: string;
 		valueList?: string[];
-		freeText?: boolean;
 	}
 
-	let { iconType, title, value, valueList = undefined, freeText = false }: Props = $props();
+	let { iconType, title, value, valueList = undefined }: Props = $props();
 </script>
 
-<div class="flex w-full flex-col gap-2 rounded-md border border-gray-300 bg-gray-50 px-2 py-1">
+<div class="flex w-full flex-col gap-2 rounded-md border border-gray-100 bg-gray-50 px-2 py-1">
 	<div class="flex flex-row items-center justify-start gap-2">
-		<div class="rounded-full bg-gray-800 p-2 text-white">
+		<div class="rounded-full border border-gray-100 bg-white p-2 text-gray-900">
 			<Icon type={iconType} />
 		</div>
 		<div class="flex flex-col gap-1 text-sm">
-			<span>{title}</span>
+			<span class="font-medium">{title}</span>
 			{#if value.length > 0}
-				<span class:font-medium={!freeText}>{value}</span>
+				<span>{value}</span>
 			{/if}
 		</div>
 	</div>
