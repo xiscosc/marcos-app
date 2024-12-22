@@ -27,6 +27,8 @@
 	}
 
 	let { data, children }: Props = $props();
+	const headerBackgroundClasses =
+		data.envName === 'prod' ? 'bg-white/90 border-gray-50' : 'bg-red-500/80 border-red-500/80';
 </script>
 
 <svelte:head>
@@ -34,9 +36,7 @@
 </svelte:head>
 <div class="flex min-h-screen flex-col bg-[#F7F5F2]">
 	<header
-		class:bg-white={data.envName === 'prod'}
-		class:bg-red-500={data.envName !== 'prod'}
-		class="sticky top-0 z-20 flex items-center justify-between border-b border-gray-300 p-3"
+		class={`sticky top-0 z-20 flex items-center justify-between border-b p-3 backdrop-blur ${headerBackgroundClasses}`}
 	>
 		<div class="flex items-center">
 			<a href="/" class="text-black">
@@ -47,7 +47,7 @@
 		<!-- Absolutely Centered Logo -->
 		<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
 			{#if data.envName !== 'prod'}
-				<span class="text-xl font-semibold"> ENTORNO DE PRUEBAS ({data.envName}) </span>
+				<span class="text-md font-semibold"> ENTORNO DE PRUEBAS ({data.envName}) </span>
 			{:else}
 				<Icon type={IconType.LOGO} />
 			{/if}
