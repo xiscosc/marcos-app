@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
-	import { OrderUtilities, type LocationOrderSchema } from '$lib/shared/order.utilities';
+	import {
+		OrderUtilities,
+		type LocationOrderSchema,
+		type StatusOrderSchema
+	} from '$lib/shared/order.utilities';
 	import Button from '../button/Button.svelte';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '$lib/ui/ui.helper';
 	import {
 		CalculatedItemUtilities,
 		OrderUtilities as CoreOrderUtilities
 	} from '@marcsimolduressonsardina/core/util';
-	import { ButtonStyle, ButtonText } from '../button/button.enum';
+	import { ButtonAction, ButtonStyle, ButtonText } from '../button/button.enum';
 	import Icon from '../icon/Icon.svelte';
 	import { IconType } from '../icon/icon.enum';
 	import type { Infer, SuperValidated } from 'sveltekit-superforms';
@@ -19,15 +23,17 @@
 		type CalculatedItem,
 		type Order
 	} from '@marcsimolduressonsardina/core/type';
+	import CustomerDetails from '../customer/CustomerDetails.svelte';
+	import BottomSheet from '../BottomSheet.svelte';
 	interface Props {
 		order: Order;
 		locationForm: SuperValidated<Infer<LocationOrderSchema>>;
-		statusLocationForm: SuperValidated<Infer<LocationOrderSchema>>;
+		statusForm: SuperValidated<Infer<StatusOrderSchema>>;
 		locations: string[];
 		calculatedItem: CalculatedItem;
 	}
 
-	let { order, calculatedItem, locationForm, locations, statusLocationForm }: Props = $props();
+	let { order, calculatedItem, locationForm, locations, statusForm }: Props = $props();
 	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
 	const payed = order.amountPayed === totalOrder;
 </script>
@@ -37,6 +43,14 @@
 		<Icon type={IconType.CLOCK} />
 		<span>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}</span>
 	</div>
+{/snippet}
+
+{#snippet customerTrigger()}
+	<Button text={order.customer.name} icon={IconType.USER} action={ButtonAction.TRIGGER}></Button>
+{/snippet}
+
+{#snippet customerAction()}
+	<CustomerDetails customer={order.customer}></CustomerDetails>
 {/snippet}
 
 <div class="overflow-hidden rounded-md border border-gray-50">
@@ -60,19 +74,18 @@
 
 	<div class="space-y-1 bg-white px-2 py-4">
 		{#if !CoreOrderUtilities.isOrderTemp(order)}
-			<Button
-				style={ButtonStyle.CUSTOMER_VARIANT}
-				textType={ButtonText.NO_COLOR}
-				text={order.customer.name}
-				icon={IconType.USER}
-				link={`/customers/${order.customer.id}`}
-			></Button>
+			<BottomSheet
+				trigger={customerTrigger}
+				action={customerAction}
+				triggerStyle={ButtonStyle.CUSTOMER_VARIANT}
+				triggerTextType={ButtonText.NO_COLOR}
+			></BottomSheet>
 		{/if}
 
 		{#if order.status !== OrderStatus.QUOTE}
 			<PaymentOrderBottomSheet {order} {calculatedItem}></PaymentOrderBottomSheet>
 
-			<StatusOrderBottomSheet {order} {locations} data={statusLocationForm} {calculatedItem}
+			<StatusOrderBottomSheet {order} {locations} data={statusForm} {calculatedItem}
 			></StatusOrderBottomSheet>
 
 			{#if order.status === OrderStatus.FINISHED}

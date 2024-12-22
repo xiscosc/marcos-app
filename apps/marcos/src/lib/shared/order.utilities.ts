@@ -257,7 +257,22 @@ export const locationOrderSchema = z.object({
 	location: z.string().min(1, { message: 'La ubicación no puede estar vacía' })
 });
 
+export const statusOrderSchema = z
+	.object({
+		status: z.enum([OrderStatus.FINISHED, OrderStatus.PENDING, OrderStatus.PICKED_UP] as [
+			string,
+			...string[]
+		]),
+		location: z.string().optional()
+	})
+	.refine((data) => data.location != null || data.status !== OrderStatus.FINISHED.toString(), {
+		message: 'La ubicación es obligatoria para pedidos finalizados',
+		path: ['location']
+	});
+
 export type LocationOrderSchema = typeof locationOrderSchema;
+
+export type StatusOrderSchema = typeof statusOrderSchema;
 
 export const orderPublicIdSchema = z.object({
 	id: z

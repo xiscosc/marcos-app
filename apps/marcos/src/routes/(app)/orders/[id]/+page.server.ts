@@ -16,9 +16,13 @@ import {
 	type Order
 } from '@marcsimolduressonsardina/core/type';
 import { AuthService } from '$lib/server/service/auth.service';
-import { superValidate } from 'sveltekit-superforms';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { locationOrderSchema, promoteOrderSchema } from '$lib/shared/order.utilities';
+import {
+	locationOrderSchema,
+	promoteOrderSchema,
+	statusOrderSchema
+} from '$lib/shared/order.utilities';
 
 async function setOrderStatus(
 	status: OrderStatus,
@@ -80,10 +84,8 @@ async function loadData(
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const promoteForm = await superValidate(zod(promoteOrderSchema), { id: 'promote-order-form' });
-	const locationForm = await superValidate(zod(locationOrderSchema), { id: 'location-order-form' });
-	const statusLocationForm = await superValidate(zod(locationOrderSchema), {
-		id: 'status-location-order-form'
-	});
+	const locationForm = await superValidate(zod(locationOrderSchema));
+	const statusForm = await superValidate(zod(statusOrderSchema));
 
 	const { id } = params;
 	return {
@@ -91,7 +93,7 @@ export const load = (async ({ params, locals }) => {
 		isPriceManager: appUser.priceManager,
 		promoteForm,
 		locationForm,
-		statusLocationForm
+		statusForm
 	};
 }) satisfies PageServerLoad;
 
@@ -146,9 +148,16 @@ export const actions = {
 		};
 	},
 	async changeOrderStatus({ request, locals, params }) {
-		const formData = await request.formData();
-		const newStatus = formData.get('status') as OrderStatus;
-		await setOrderStatus(newStatus, params, locals);
+		const form = await superValidate(request, zod(statusOrderSchema));
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		const newStatus = form.data.status as OrderStatus;
+		await setOrderStatus(newStatus, params, locals, form.data.location);
+		return {
+			form
+		};
 	},
 	async changePayment({ request, locals, params }) {
 		const formData = await request.formData();

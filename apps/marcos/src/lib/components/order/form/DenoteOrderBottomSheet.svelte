@@ -4,6 +4,7 @@
 	import { ButtonAction, ButtonStyle } from '$lib/components/button/button.enum';
 	import Button from '$lib/components/button/Button.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
+	import BottomSheetLoading from '$lib/components/BottomSheetLoading.svelte';
 
 	let sheetLoading = $state(false);
 
@@ -23,8 +24,12 @@
 
 {#snippet sheetActionDenote()}
 	<form use:enhance={enhanceSheetForm} class="w-full" method="post" action="?/denote">
-		<Button text="Convertir en presupuesto" icon={IconType.EDIT} action={ButtonAction.SUBMIT}
-		></Button>
+		{#if sheetLoading}
+			<BottomSheetLoading />
+		{:else}
+			<Button text="Convertir en presupuesto" icon={IconType.EDIT} action={ButtonAction.SUBMIT}
+			></Button>
+		{/if}
 	</form>
 {/snippet}
 
@@ -35,6 +40,5 @@ precios y fotos del pedido. Se eliminarán pagos a cuenta y fecha de entrega."
 	trigger={sheetTriggerDenote}
 	action={sheetActionDenote}
 	iconType={IconType.ORDER_QUOTE}
-	loading={sheetLoading}
 	triggerStyle={ButtonStyle.ORDER_QUOTE}
 ></BottomSheet>

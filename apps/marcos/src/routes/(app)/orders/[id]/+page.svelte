@@ -43,22 +43,10 @@
 {#snippet loadingSection(sectionName: string)}
 	<Box title={sectionName}>
 		<div class="flex flex-col gap-2">
-			<div class="flex flex-row justify-between">
-				<Skeleton class="h-4 w-64" />
-				<Skeleton class="h-4 w-16" />
-			</div>
-			<div class="flex flex-row justify-between">
-				<Skeleton class="h-4 w-64" />
-				<Skeleton class="h-4 w-16" />
-			</div>
-			<div class="flex flex-row justify-between">
-				<Skeleton class="h-4 w-64" />
-				<Skeleton class="h-4 w-16" />
-			</div>
-			<div class="flex flex-row justify-between">
-				<Skeleton class="h-4 w-64" />
-				<Skeleton class="h-4 w-16" />
-			</div>
+			<Skeleton class="h-12 w-full" />
+			<Skeleton class="h-12 w-full" />
+			<Skeleton class="h-12 w-full" />
+			<Skeleton class="h-12 w-full" />
 		</div>
 	</Box>
 {/snippet}
@@ -81,7 +69,7 @@
 					calculatedItem={info.calculatedItem}
 					locations={info.locations}
 					locationForm={data.locationForm}
-					statusLocationForm={data.statusLocationForm}
+					statusForm={data.statusForm}
 				></OrderHeader>
 
 				{#if !formLoading}

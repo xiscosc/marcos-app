@@ -23,7 +23,6 @@
 	import Button from '../button/Button.svelte';
 	import { ButtonAction, ButtonStyle, ButtonText, ButtonType } from '../button/button.enum';
 	import { IconType } from '../icon/icon.enum';
-	import Icon from '../icon/Icon.svelte';
 	import Banner from '../Banner.svelte';
 	import SimpleHeading from '../SimpleHeading.svelte';
 	import Input from '../ui/input/input.svelte';
@@ -33,6 +32,8 @@
 	import Label from '../ui/label/label.svelte';
 	import BottomSheet from '../BottomSheet.svelte';
 	import { fitFormulas, type EditablePricingTypes } from '@marcsimolduressonsardina/core/util';
+	import BottomSheetLoading from '../BottomSheetLoading.svelte';
+	import Step from '../Step.svelte';
 
 	interface Props {
 		data: SuperValidated<Infer<LisPriceSchemaEdit | LisPriceSchemaNew>>;
@@ -276,26 +277,13 @@
 										<Spacer title={'Trozos añadidos'} />
 										<div class="flex flex-col gap-3 lg:col-span-2">
 											{#each areas as area}
-												<div class="flex flex-row justify-between">
-													<div class="flex flex-row gap-2">
-														<span
-															class="flex items-center justify-center rounded-2xl bg-green-200 p-3"
-															><Icon type={IconType.RULER} /></span
-														>
-														<span class="flex flex-col">
-															<span class="font-medium">Medidas ≤ {area.d1} x {area.d2}</span>
-															<span>{area.price.toFixed(2)} €</span>
-														</span>
-													</div>
-													<div>
-														<Button
-															text=""
-															icon={IconType.TRASH}
-															onClick={() => handleAreaDelete(area)}
-															style={ButtonStyle.SOFT_DELETE}
-														></Button>
-													</div>
-												</div>
+												<Step
+													icon={IconType.RULER}
+													title="Medidas ≤ {area.d1} x {area.d2}"
+													subtitle="{area.price.toFixed(2)} €"
+													showDelete={true}
+													deleteFunction={() => handleAreaDelete(area)}
+												/>
 											{/each}
 										</div>
 									{/if}
@@ -329,26 +317,13 @@
 										<Spacer title={'Trozos añadidos'} />
 										<div class="flex flex-col gap-3 lg:col-span-2">
 											{#each areasM2 as area}
-												<div class="flex flex-row justify-between">
-													<div class="flex flex-row gap-2">
-														<span
-															class="flex items-center justify-center rounded-2xl bg-green-200 p-3"
-															><Icon type={IconType.RULER} /></span
-														>
-														<span class="flex flex-col">
-															<span class="font-medium">Área ≤ {area.a} m2</span>
-															<span>{area.price.toFixed(2)} €</span>
-														</span>
-													</div>
-													<div>
-														<Button
-															text=""
-															icon={IconType.TRASH}
-															onClick={() => handleAreaM2Delete(area)}
-															style={ButtonStyle.SOFT_DELETE}
-														></Button>
-													</div>
-												</div>
+												<Step
+													icon={IconType.RULER}
+													title="Área ≤ {area.a} m2"
+													subtitle="{area.price.toFixed(2)} €"
+													showDelete={true}
+													deleteFunction={() => handleAreaM2Delete(area)}
+												/>
 											{/each}
 										</div>
 									{/if}
@@ -463,17 +438,20 @@
 							};
 						}}
 					>
-						<Button
-							icon={IconType.TRASH}
-							text="Confirmar"
-							style={ButtonStyle.DELETE}
-							action={ButtonAction.SUBMIT}
-						></Button>
+						{#if formLoading}
+							<BottomSheetLoading />
+						{:else}
+							<Button
+								icon={IconType.TRASH}
+								text="Confirmar"
+								style={ButtonStyle.DELETE}
+								action={ButtonAction.SUBMIT}
+							></Button>
+						{/if}
 					</form>
 				{/snippet}
 
 				<BottomSheet
-					loading={formLoading}
 					title="Eliminar precio"
 					description="Esta acción no se puede desacer"
 					trigger={sheetTrigger}
