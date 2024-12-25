@@ -41,7 +41,7 @@
 {#if order.status === OrderStatus.FINISHED}
 	{#if order.notified || whatsAppNotified}
 		<div
-			class="flex w-full flex-row items-center justify-center gap-2 rounded-sm border-2 border-green-700 bg-white"
+			class="flex w-full flex-row items-center justify-center gap-2 rounded-sm border-2 border-green-700 bg-white py-1"
 		>
 			<div class="flex items-center rounded-full bg-green-100 px-2 py-1 text-green-700">
 				<Icon type={IconType.SENT} />
