@@ -27,8 +27,10 @@
 	}
 
 	let { data, children }: Props = $props();
-	const headerBackgroundClasses =
-		data.envName === 'prod' ? 'bg-white/90 border-gray-50' : 'bg-red-500/80 border-red-500/80';
+	let onTesting = $state(data.envName !== 'prod');
+	let headerBackgroundClasses = $derived(
+		!onTesting ? 'bg-white/90 border-gray-50' : 'bg-red-500/80 border-red-500/80'
+	);
 </script>
 
 <svelte:head>
@@ -46,7 +48,7 @@
 
 		<!-- Absolutely Centered Logo -->
 		<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
-			{#if data.envName !== 'prod'}
+			{#if onTesting}
 				<span class="text-md font-semibold"> ENTORNO DE PRUEBAS ({data.envName}) </span>
 			{:else}
 				<Icon type={IconType.LOGO} />

@@ -51,7 +51,8 @@
 		Tag,
 		TicketPercent,
 		ChevronsUpDown,
-		UserPen
+		UserPen,
+		FileText
 	} from 'lucide-svelte';
 	import { IconSize, IconType } from '../icon/icon.enum';
 	import { siWhatsapp } from 'simple-icons';
@@ -252,4 +253,8 @@
 
 {#if type === IconType.WORKER}
 	<UserPen {size} />
+{/if}
+
+{#if type === IconType.DOCUMENT}
+	<FileText {size} />
 {/if}

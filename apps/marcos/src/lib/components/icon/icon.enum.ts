@@ -62,5 +62,6 @@ export enum IconType {
 	TICKET = 'ticket',
 	TICKET_DISCOUNT = 'ticket-discount',
 	COLLAPSE = 'collapse',
-	WORKER = 'worker'
+	WORKER = 'worker',
+	DOCUMENT = 'document'
 }

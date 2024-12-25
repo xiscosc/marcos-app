@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { ButtonStyle, ButtonText, ButtonType } from './button/button.enum';
 	import Button from './button/Button.svelte';
 	import { IconType } from './icon/icon.enum';
@@ -10,6 +11,7 @@
 		subtitle: string;
 		icon: IconType;
 		deleteFunction?: () => void;
+		otherAction?: Snippet;
 		showDelete?: boolean;
 		textList?: string[];
 	}
@@ -21,6 +23,7 @@
 		deleteFunction = () => {},
 		showDelete = false,
 		quantity = 0,
+		otherAction = undefined,
 		textList = []
 	}: Props = $props();
 </script>
@@ -40,13 +43,14 @@
 					</span>
 				{/if}
 			</div>
-			<div class="flex flex-col gap-1 text-sm">
-				<span class="font-medium"> {title} </span>
-				<span>{subtitle} </span>
+			<div class="flex flex-col gap-1 pr-1 text-sm">
+				<span class="line-clamp-1 font-medium">{title}</span>
+				<span class="line-clamp-2">{subtitle}</span>
 			</div>
 		</div>
-		{#if showDelete}
-			<div class="flex flex-row items-center">
+		<div class="flex flex-row items-center gap-1">
+			{@render otherAction?.()}
+			{#if showDelete}
 				<Button
 					icon={IconType.TRASH}
 					buttonType={ButtonType.DEFAULT}
@@ -55,8 +59,8 @@
 					style={ButtonStyle.SOFT_DELETE}
 					onClick={() => deleteFunction()}
 				></Button>
-			</div>
-		{/if}
+			{/if}
+		</div>
 	</div>
 
 	{#if textList.length > 0}
