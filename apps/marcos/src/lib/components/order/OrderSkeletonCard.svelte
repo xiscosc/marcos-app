@@ -4,9 +4,17 @@
 	import Skeleton from '../ui/skeleton/skeleton.svelte';
 </script>
 
-<div
-	class="mx-auto flex w-full flex-col overflow-hidden rounded-md border border-gray-300 md:max-w-md"
->
+{#snippet infoPiece(icon: IconType, title: string)}
+	<div class="flex flex-col">
+		<div class="flex items-center gap-2 text-gray-600">
+			<Icon type={icon} />
+			<span>{title}</span>
+		</div>
+		<Skeleton class="h-5 w-28 rounded-md bg-gray-100" />
+	</div>
+{/snippet}
+
+<div class="mx-auto flex w-full flex-col overflow-hidden rounded-md md:max-w-md">
 	<div class={`rounded-t-md bg-gray-400 p-2 text-white`}>
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-2 space-x-1 rounded-lg px-3 py-1 pr-2 text-sm">
@@ -20,50 +28,22 @@
 	</div>
 
 	<div class="flex flex-1 flex-col bg-white p-1 text-sm">
-		<div class="flex flex-1 flex-row justify-between">
-			<div class="space-y-3 p-3 text-sm">
-				<div>
-					<div class="flex items-center gap-2 text-gray-600">
-						<Icon type={IconType.CLOCK} />
-						<span>Fecha</span>
-					</div>
-					<Skeleton class="h-5 w-28 rounded-md bg-gray-100" />
-				</div>
-
-				<div>
-					<div class="flex items-center gap-2 text-gray-600">
-						<Icon type={IconType.USER} />
-						<span>Cliente</span>
-					</div>
-					<Skeleton class="h-5 w-28 rounded-md bg-gray-100" />
-				</div>
-
-				<div>
-					<div class="flex items-center gap-2 text-gray-600">
-						<Icon type={IconType.TRUCK} />
-						<span>Recogida</span>
-					</div>
-					<Skeleton class="h-5 w-28 rounded-md bg-gray-100" />
-				</div>
-			</div>
-			<div class="space-y-3 p-3 text-sm">
-				<div>
-					<div class="flex items-center gap-2 text-gray-600">
-						<Icon type={IconType.COINS} />
-						<span>Pagado</span>
-					</div>
-					<Skeleton class="h-5 w-12 rounded-md bg-gray-100" />
-				</div>
-			</div>
+		<div class="grid flex-1 auto-rows-max grid-cols-2 items-start gap-2 p-3">
+			{@render infoPiece(IconType.CLOCK, 'Fecha')}
+			{@render infoPiece(IconType.USER, 'Cliente')}
+			{@render infoPiece(IconType.TRUCK, 'Recogida')}
+			{@render infoPiece(IconType.COINS, 'Pagado')}
+			{@render infoPiece(IconType.RULER, 'Medidas')}
+			{@render infoPiece(IconType.MOLD, 'Moldura')}
 		</div>
 
-		<div class="text-1 m-1 rounded-md border border-gray-300 bg-neutral-50 px-2 py-2">
+		<div class="text-1 m-1 mt-6 rounded-md border border-gray-300 bg-neutral-50 px-2 py-2">
 			<Skeleton class="h-5 w-full rounded-md bg-white" />
 		</div>
 	</div>
 
 	<!-- Footer Section -->
-	<div class="flex items-center justify-end border-t border-gray-300 bg-neutral-50 p-3">
+	<div class="flex items-center justify-end bg-white p-3">
 		<Skeleton class="h-8 w-20 rounded-md " />
 	</div>
 </div>

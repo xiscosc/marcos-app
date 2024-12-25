@@ -22,7 +22,21 @@
 	const calculatedItem = fullOrder.calculatedItem;
 	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
 	const payed = order.amountPayed === totalOrder;
+	let measures = $derived(`${order.item.height}x${order.item.width} cm`);
+	let mold = $derived(OrderUtilities.getFirstMoldDescriptionFromOrder(order, calculatedItem));
 </script>
+
+{#snippet infoPiece(icon: IconType, title: string, value: string, redText: boolean = false)}
+	<div class="flex flex-col">
+		<div class="flex items-center gap-2 text-gray-600">
+			<Icon type={icon} />
+			<span>{title}</span>
+		</div>
+		<div class="font-semibold" class:text-red-600={redText}>
+			{value}
+		</div>
+	</div>
+{/snippet}
 
 <div
 	class="mx-auto flex w-full flex-col overflow-hidden rounded-md border border-gray-50 md:max-w-md"
@@ -47,86 +61,53 @@
 	</div>
 
 	<div class="flex flex-1 flex-col bg-white p-1 text-sm">
-		<div class="flex flex-1 flex-row justify-between">
-			<div class="space-y-3 p-3 text-sm">
-				<div>
-					<div class="flex items-center gap-2 text-gray-600">
-						<Icon type={IconType.CLOCK} />
-						<span>Fecha</span>
-					</div>
-					<div class="font-semibold">
-						{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
-					</div>
-				</div>
+		<div class="grid flex-1 auto-rows-max grid-cols-2 items-start gap-2 p-3">
+			{@render infoPiece(
+				IconType.CLOCK,
+				'Fecha',
+				DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')
+			)}
 
-				{#if showCustomer && !CoreOrderUtilities.isOrderTemp(order)}
-					<div>
-						<div class="flex items-center gap-2 text-gray-600">
-							<Icon type={IconType.USER} />
-							<span>Cliente</span>
-						</div>
-						<div class="font-semibold">
-							{order.customer.name}
-						</div>
-					</div>
-				{/if}
+			{#if showCustomer && !CoreOrderUtilities.isOrderTemp(order)}
+				{@render infoPiece(IconType.USER, 'Cliente', order.customer.name)}
+			{/if}
 
-				{#if CoreOrderUtilities.isOrderTemp(order)}
-					<div>
-						<div class="flex items-center gap-2 text-gray-600">
-							<Icon type={IconType.USER} />
-							<span>Cliente</span>
-						</div>
-						<div class="text-red-600' font-semibold">
-							{order.status === OrderStatus.QUOTE
-								? 'Presupuesto sin vincular'
-								: 'Pedido sin vincular'}
-						</div>
-					</div>
-				{/if}
+			{#if CoreOrderUtilities.isOrderTemp(order)}
+				{@render infoPiece(
+					IconType.USER,
+					'Cliente',
+					order.status === OrderStatus.QUOTE ? 'Presupuesto sin vincular' : 'Pedido sin vincular',
+					true
+				)}
+			{/if}
 
-				{#if order.status !== OrderStatus.QUOTE}
-					<div>
-						<div class="flex items-center gap-2 text-gray-600">
-							<Icon type={IconType.TRUCK} />
-							<span>Recogida</span>
-						</div>
-						<div class="font-semibold">
-							{#if order.item.instantDelivery}
-								Al momento
-							{:else}
-								{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
-							{/if}
-						</div>
-					</div>
-				{/if}
-			</div>
-			<div class="space-y-3 p-3 text-sm">
-				<div>
-					<div class="flex items-center gap-2 text-gray-600">
-						<Icon type={IconType.COINS} />
-						<span>Pagado</span>
-					</div>
-					<div class="font-semibold">
-						{#if payed}
-							Sí
-						{:else}
-							No
-						{/if}
-					</div>
-				</div>
-				{#if order.status === OrderStatus.FINISHED}
-					<div>
-						<div class="flex items-center gap-2 text-gray-600">
-							<Icon type={IconType.LOCATION} />
-							<span>Ubicación</span>
-						</div>
-						<div class="font-semibold">
-							{order.location.length === 0 ? 'Sin ubicación' : order.location}
-						</div>
-					</div>
-				{/if}
-			</div>
+			{#if order.status !== OrderStatus.QUOTE}
+				{@render infoPiece(
+					IconType.TRUCK,
+					'Recogida',
+					order.item.instantDelivery
+						? 'Al momento'
+						: DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')
+				)}
+			{/if}
+
+			{#if order.status !== OrderStatus.QUOTE}
+				{@render infoPiece(
+					IconType.COINS,
+					'Pagado',
+					order.amountPayed === totalOrder ? 'Sí' : 'No'
+				)}
+			{/if}
+
+			{#if order.status === OrderStatus.FINISHED}
+				{@render infoPiece(IconType.LOCATION, 'Ubicación', order.location)}
+			{/if}
+
+			{@render infoPiece(IconType.RULER, 'Medidas', measures)}
+
+			{#if mold}
+				{@render infoPiece(IconType.MOLD, 'Moldura', mold)}
+			{/if}
 		</div>
 
 		<div class="text-1 m-1 rounded-md border border-gray-50 bg-neutral-50 px-2 py-2">
@@ -135,7 +116,7 @@
 	</div>
 
 	<!-- Footer Section -->
-	<div class="flex items-center justify-between bg-neutral-50 p-3">
+	<div class="flex items-center justify-between bg-white p-3">
 		<div>
 			{#if order.status === OrderStatus.FINISHED && order.notified}
 				<div

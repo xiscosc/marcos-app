@@ -85,6 +85,26 @@ export class OrderUtilities {
 		return `${OrderUtilities.formatNumber(totalHeight)}x${OrderUtilities.formatNumber(totalWidth)} cm`;
 	}
 
+	public static getFirstMoldDescriptionFromOrder(
+		order: Order,
+		calculatedItem: CalculatedItem
+	): string | undefined {
+		const ids = order.item.partsToCalculate
+			.filter((p) => p.type === PricingType.MOLD)
+			.filter((p) => !customerMoldIds.includes(p.id))
+			.map((p) => p.id);
+
+		if (ids.length === 0) {
+			return undefined;
+		}
+
+		const molds = calculatedItem.parts
+			.filter((p) => ids.indexOf(p.priceId) > -1)
+			.map((p) => p.description);
+
+		return molds.length === 0 ? undefined : molds[0];
+	}
+
 	public static getWhatsappTicketText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
 		return `Su pedido \`\`\`${OrderUtilities.getOrderPublicId(order)}\`\`\` ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
@@ -157,6 +177,8 @@ export class OrderUtilities {
 		return num;
 	}
 }
+
+export const customerMoldIds = ['2_MARCO DEL CLIENTE', '1_SIN MARCO'];
 
 export const discountMap: Record<string, number> = {
 	'0': 0,
