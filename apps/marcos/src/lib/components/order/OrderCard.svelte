@@ -110,7 +110,7 @@
 			{/if}
 		</div>
 
-		<div class="text-1 m-1 rounded-md border border-gray-50 bg-neutral-50 px-2 py-2">
+		<div class="text-1 m-1 rounded-md border border-gray-100 bg-gray-50 px-2 py-2">
 			{order.item.description}
 		</div>
 	</div>

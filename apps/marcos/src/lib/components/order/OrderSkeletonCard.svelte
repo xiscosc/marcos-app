@@ -37,7 +37,7 @@
 			{@render infoPiece(IconType.MOLD, 'Moldura')}
 		</div>
 
-		<div class="text-1 m-1 mt-6 rounded-md border border-gray-300 bg-neutral-50 px-2 py-2">
+		<div class="text-1 m-1 mt-6 rounded-md border border-gray-100 bg-gray-50 px-2 py-2">
 			<Skeleton class="h-5 w-full rounded-md bg-white" />
 		</div>
 	</div>
