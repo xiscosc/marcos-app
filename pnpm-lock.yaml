@@ -181,12 +181,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      embla-carousel-auto-height:
-        specifier: ^8.5.1
-        version: 8.5.1(embla-carousel@8.5.1)
-      embla-carousel-svelte:
-        specifier: ^8.5.1
-        version: 8.5.1(svelte@5.14.0)
       esbuild:
         specifier: 0.24.0
         version: 0.24.0
@@ -2122,24 +2116,6 @@ packages:
 
   electron-to-chromium@1.5.73:
     resolution: {integrity: sha512-8wGNxG9tAG5KhGd3eeA0o6ixhiNdgr0DcHWm85XPCphwZgD1lIEoi6t3VERayWao7SF7AAZTw6oARGJeVjH8Kg==}
-
-  embla-carousel-auto-height@8.5.1:
-    resolution: {integrity: sha512-pH0LlCEX6D2uNf0zuEHPL14YCnlJK+xIlhjcWNy53TG+9qDPgUUwBLBoAdbWro+8/MzqzVf+kHDgsy25jkzu4g==}
-    peerDependencies:
-      embla-carousel: 8.5.1
-
-  embla-carousel-reactive-utils@8.5.1:
-    resolution: {integrity: sha512-n7VSoGIiiDIc4MfXF3ZRTO59KDp820QDuyBDGlt5/65+lumPHxX2JLz0EZ23hZ4eg4vZGUXwMkYv02fw2JVo/A==}
-    peerDependencies:
-      embla-carousel: 8.5.1
-
-  embla-carousel-svelte@8.5.1:
-    resolution: {integrity: sha512-sCQDCn+kyuLUysXFRCTboSTslI0LUV5OhVqBAXnSphJ/mYdlbYfMhk03MGck+Mogdgpf9zYrBocp2uF6qUBNAw==}
-    peerDependencies:
-      svelte: ^3.49.0 || ^4.0.0 || ^5.0.0
-
-  embla-carousel@8.5.1:
-    resolution: {integrity: sha512-JUb5+FOHobSiWQ2EJNaueCNT/cQU9L6XWBbWmorWPQT9bkbk+fhsuLr8wWrzXKagO3oWszBO7MSx+GfaRk4E6A==}
 
   emoji-regex@10.4.0:
     resolution: {integrity: sha512-EC+0oUMY1Rqm4O6LLrgjtYDvcVYTy7chDnM4Q7030tP4Kwj3u/pR6gP9ygnp2CJMK5Gq+9Q2oqmrFJAz01DXjw==}
@@ -5860,22 +5836,6 @@ snapshots:
   effect@3.6.5: {}
 
   electron-to-chromium@1.5.73: {}
-
-  embla-carousel-auto-height@8.5.1(embla-carousel@8.5.1):
-    dependencies:
-      embla-carousel: 8.5.1
-
-  embla-carousel-reactive-utils@8.5.1(embla-carousel@8.5.1):
-    dependencies:
-      embla-carousel: 8.5.1
-
-  embla-carousel-svelte@8.5.1(svelte@5.14.0):
-    dependencies:
-      embla-carousel: 8.5.1
-      embla-carousel-reactive-utils: 8.5.1(embla-carousel@8.5.1)
-      svelte: 5.14.0
-
-  embla-carousel@8.5.1: {}
 
   emoji-regex@10.4.0: {}
 

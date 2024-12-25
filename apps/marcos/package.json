@@ -22,8 +22,6 @@
 		"autoprefixer": "^10.4.16",
 		"bits-ui": "1.0.0-next.74",
 		"clsx": "^2.1.1",
-		"embla-carousel-svelte": "^8.5.1",
-		"embla-carousel-auto-height": "^8.5.1",
 		"esbuild": "0.24.0",
 		"formsnap": "^2.0.0-next.1",
 		"lucide-svelte": "^0.468.0",
