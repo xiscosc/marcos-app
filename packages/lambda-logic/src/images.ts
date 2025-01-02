@@ -41,18 +41,18 @@ async function processImage(record: S3EventRecord, fileService: FileService) {
 
 	const optimizedImage = await sharp(originalImageData.content)
 		.resize(FileService.optimizedImageSize)
-		.avif(FileService.optimizedImageQuality)
+		.webp(FileService.optimizedImageQuality)
 		.toBuffer();
 	const thumbnail = await sharp(originalImageData.content)
 		.resize(FileService.thumbnailImageSize)
-		.avif()
+		.webp()
 		.toBuffer();
 
 	const types: OptmizationAndThumbnailTypeInfo = {
-		optimizedContentType: 'image/avif',
-		thumbnailContentType: 'image/avif',
-		optimizedExtension: '.avif',
-		thumbnailExtension: '.avif'
+		optimizedContentType: 'image/webp',
+		thumbnailContentType: 'image/webp',
+		optimizedExtension: '.webp',
+		thumbnailExtension: '.webp'
 	};
 
 	await fileService.storeOptimizations(
