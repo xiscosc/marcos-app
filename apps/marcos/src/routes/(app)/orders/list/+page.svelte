@@ -10,6 +10,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		data: PageData;
@@ -19,7 +20,11 @@
 	let searchValue = $state('');
 	let timer: NodeJS.Timeout;
 	let searchOrders: Promise<FullOrder[]> | undefined = $state(undefined);
+	let listOrders: Promise<FullOrder[]> | undefined = $state(undefined);
+	let paginatedListOrders: Promise<FullOrder[]> | undefined = $state(undefined);
 	let loading = $state(false);
+	let lastKey: Record<string, string | number> | undefined = $state();
+	let paginationAvailable = $derived(searchValue.length === 0 && lastKey != null);
 
 	function getStatus(statusStr: string) {
 		const status = statusStr as OrderStatus;
@@ -28,6 +33,35 @@
 			return `Listado de ${name}s`;
 		} else {
 			return `Pedidos ${name}s`;
+		}
+	}
+	async function getList(): Promise<FullOrder[]> {
+		if (data.priceManager) {
+			const response = await fetch('/api/orders/list', {
+				method: 'POST',
+				body: JSON.stringify({ lastKey, status: data.status }),
+				headers: {
+					'content-type': 'application/json'
+				}
+			});
+
+			const body: { orders: FullOrder[]; nextKey?: Record<string, string | number> } =
+				await response.json();
+			lastKey = body.nextKey;
+			return body.orders.map((fo) => ({
+				calculatedItem: fo.calculatedItem,
+				order: {
+					...fo.order,
+					item: {
+						...fo.order.item,
+						deliveryDate: new Date(fo.order.item.deliveryDate)
+					},
+					createdAt: new Date(fo.order.createdAt)
+				}
+			}));
+		} else {
+			lastKey = undefined;
+			return [];
 		}
 	}
 
@@ -67,6 +101,10 @@
 			loading = false;
 		}, 400);
 	};
+
+	onMount(async () => {
+		listOrders = getList();
+	});
 </script>
 
 <div class="space flex w-full flex-col gap-4">
@@ -105,7 +143,15 @@
 	</Box>
 
 	{#if searchValue.length === 0}
-		<OrderList promiseOrders={data.orders} emptyMessage="EMPTY" />
+		<OrderList
+			promiseOrders={listOrders}
+			newPromiseOrders={paginatedListOrders}
+			emptyMessage="EMPTY"
+			{paginationAvailable}
+			paginationFunction={() => {
+				paginatedListOrders = getList();
+			}}
+		/>
 	{/if}
 
 	{#if searchValue.length > 0}

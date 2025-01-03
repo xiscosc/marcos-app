@@ -38,6 +38,11 @@ export interface ISameDayOrderCounters {
 	totalCount: number;
 }
 
+interface PaginatedOrders {
+	orders: FullOrder[];
+	nextKey?: Record<string, string | number>;
+}
+
 export class OrderService {
 	private repository: OrderRepositoryDynamoDb;
 	private customerService: CustomerService;
@@ -92,6 +97,24 @@ export class OrderService {
 			)
 		);
 		return this.getFullOrders(orders);
+	}
+
+	async getOrdersByStatusPaginated(
+		status: OrderStatus,
+		nextKey?: Record<string, string | number>
+	): Promise<PaginatedOrders> {
+		const paginatedDtoResult = await this.repository.getOrdersByStatusPaginated(status, nextKey);
+		const customerIds = paginatedDtoResult.elements.map((dto) => dto.customerUuid);
+		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
+		customerMap.set(tempCustomerUuid, OrderService.getTempCustomer(this.config.storeId));
+		const orders = paginatedDtoResult.elements.map((o) =>
+			OrderService.fromDto(
+				o,
+				customerMap.get(o.customerUuid) ?? OrderService.getTempCustomer(this.config.storeId)
+			)
+		);
+		const fullOrders = await this.getFullOrders(orders);
+		return { orders: fullOrders, nextKey: paginatedDtoResult.endKey };
 	}
 
 	async findOrdersByStatus(status: OrderStatus, query: string): Promise<FullOrder[]> {

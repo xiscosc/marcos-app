@@ -7,6 +7,7 @@ import {
 } from '../../configuration/core-configuration.interface';
 
 import type { OrderDto } from '../dto/order.dto';
+import { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
 import { DynamoRepository } from './dynamo.repository';
 import { OrderDynamoDbIndex } from './index.dynamodb';
 
@@ -39,6 +40,19 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 	public async getOrdersByStatus(status: string): Promise<OrderDto[]> {
 		const dtos = await this.getByIndex(OrderDynamoDbIndex.statusIndex, status);
 		return this.filterByStoreIdAndDeleted(dtos) as OrderDto[];
+	}
+
+	public async getOrdersByStatusPaginated(
+		status: string,
+		lastOrderPaginationKey?: Record<string, string | number>
+	): Promise<IPaginatedDtoResult<OrderDto>> {
+		const paginationResult = await this.getByIndexPaginated(
+			OrderDynamoDbIndex.statusIndex,
+			status,
+			lastOrderPaginationKey
+		);
+		const filteredDtos = this.filterByStoreIdAndDeleted(paginationResult.elements) as OrderDto[];
+		return { ...paginationResult, elements: filteredDtos };
 	}
 
 	public async findOrdersByStatus(status: string, query: string): Promise<OrderDto[]> {
