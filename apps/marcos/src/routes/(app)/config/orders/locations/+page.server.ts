@@ -15,7 +15,7 @@ export const actions: Actions = {
 	saveLocations: async ({ locals, request }) => {
 		const appUser = await AuthUtilities.checkAuth(locals, true);
 		if (!appUser.priceManager) {
-			throw error(403);
+			error(403);
 		}
 
 		const formData = await request.formData();
@@ -24,6 +24,6 @@ export const actions: Actions = {
 		const locationsArray = JSON.parse(locations as string) as string[];
 		const configService = new ConfigService(AuthService.generateConfiguration(appUser));
 		await configService.storeLocationsList(locationsArray);
-		return redirect(302, '/config');
+		redirect(302, '/config');
 	}
 };

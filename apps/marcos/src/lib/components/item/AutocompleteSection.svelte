@@ -1,13 +1,15 @@
 <script lang="ts">
+	import Fuse from 'fuse.js';
 	import Spacer from './Spacer.svelte';
 	import { type ListPrice, type PricingType } from '@marcsimolduressonsardina/core/type';
 	import { formulasStringMap } from '$lib/shared/pricing.utilites';
-	import Button from '../button/Button.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { IconType } from '../icon/icon.enum';
 	import Label from '../ui/label/label.svelte';
 	import Input from '../ui/input/input.svelte';
-	import { ButtonAction, ButtonStyle, ButtonText } from '../button/button.enum';
 	import { PricingUtilites } from '@marcsimolduressonsardina/core/util';
+	import Icon from '../icon/Icon.svelte';
 
 	interface Props {
 		sectionTitle: string;
@@ -34,10 +36,14 @@
 		autocompleteInput = '';
 	}
 
-	let filteredPrices = $derived(
-		autocompleteInput.length < 2
-			? []
-			: prices.filter((price) => price.id.includes(autocompleteInput))
+	const fuse = new Fuse(prices, {
+		keys: ['id', 'description'],
+		isCaseSensitive: false,
+		threshold: 0.1
+	});
+
+	let filteredPrices: ListPrice[] = $derived(
+		autocompleteInput.length < 2 ? [] : fuse.search(autocompleteInput).map((result) => result.item)
 	);
 </script>
 
@@ -51,21 +57,27 @@
 		success={added}
 	/>
 </div>
-<div
-	class="flex max-h-64 flex-col gap-2 overflow-y-auto rounded-sm p-1 lg:col-span-2"
-	class:border={autocompleteInput.length >= 2}
->
-	{#each filteredPrices as price}
-		<Button
-			text={getSelectLabel(price)}
-			icon={IconType.PLUS}
-			style={ButtonStyle.ORDER_GENERIC_VARIANT}
-			action={ButtonAction.CLICK}
-			textType={ButtonText.GRAY}
-			onClick={() => addFunction(price.id)}
-		></Button>
-	{/each}
-	{#if filteredPrices.length === 0 && autocompleteInput.length > 2}
-		<p class="text-center text-sm font-medium">No se encontraron resultados</p>
-	{/if}
-</div>
+{#if autocompleteInput.length >= 2}
+	<ScrollArea class="h-72 rounded-md border lg:col-span-2">
+		<div class="p-4">
+			<h4 class="mb-4 text-sm font-medium leading-none">Búsqueda de marcos / molduras</h4>
+			{#each filteredPrices as price}
+				<button
+					class="flexr-row flex w-full items-center gap-2 rounded-md p-2 hover:bg-gray-50"
+					onclick={() => addFunction(price.id)}
+					type="button"
+				>
+					<Icon type={IconType.ADD} />
+					{getSelectLabel(price)}
+				</button>
+				<Separator class="my-2 last:hidden" />
+			{/each}
+			{#if filteredPrices.length === 0}
+				<div class="flex flex-row items-center gap-2 p-2">
+					<Icon type={IconType.NOT_FOUND} />
+					<span>No se encontraron resultados</span>
+				</div>
+			{/if}
+		</div>
+	</ScrollArea>
+{/if}

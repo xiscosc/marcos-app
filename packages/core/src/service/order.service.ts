@@ -30,11 +30,17 @@ import { CalculatedItemUtilities } from '../utilities/calculated-item.utilites';
 import { PricingType } from '../types/pricing.type';
 import { UserService } from './user.service';
 import { tempCustomerUuid, OrderUtilities, quoteDeliveryDate } from '../utilities/order.utilities';
+import { StaticUser } from '../types';
 
 export interface ISameDayOrderCounters {
 	finishedCount: number;
 	pendingCount: number;
 	totalCount: number;
+}
+
+interface PaginatedOrders {
+	orders: FullOrder[];
+	nextKey?: Record<string, string | number>;
 }
 
 export class OrderService {
@@ -93,6 +99,24 @@ export class OrderService {
 		return this.getFullOrders(orders);
 	}
 
+	async getOrdersByStatusPaginated(
+		status: OrderStatus,
+		nextKey?: Record<string, string | number>
+	): Promise<PaginatedOrders> {
+		const paginatedDtoResult = await this.repository.getOrdersByStatusPaginated(status, nextKey);
+		const customerIds = paginatedDtoResult.elements.map((dto) => dto.customerUuid);
+		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
+		customerMap.set(tempCustomerUuid, OrderService.getTempCustomer(this.config.storeId));
+		const orders = paginatedDtoResult.elements.map((o) =>
+			OrderService.fromDto(
+				o,
+				customerMap.get(o.customerUuid) ?? OrderService.getTempCustomer(this.config.storeId)
+			)
+		);
+		const fullOrders = await this.getFullOrders(orders);
+		return { orders: fullOrders, nextKey: paginatedDtoResult.endKey };
+	}
+
 	async findOrdersByStatus(status: OrderStatus, query: string): Promise<FullOrder[]> {
 		const orderDtos = await this.repository.findOrdersByStatus(
 			status,
@@ -130,9 +154,9 @@ export class OrderService {
 		await this.repository.storeOrders(newOrderDtos);
 	}
 
-	async getOrdersByCustomerId(customerId: string): Promise<FullOrder[] | null> {
+	async getOrdersByCustomerId(customerId: string): Promise<FullOrder[]> {
 		const customer = await this.customerService.getCustomerById(customerId);
-		if (customer === null) return null;
+		if (customer === null) return [];
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
 		const orders = this.processDtosFromRepository(orderDtos, customer).filter(
@@ -145,9 +169,9 @@ export class OrderService {
 	async getOrdersByCustomerIdAndStatus(
 		customerId: string,
 		status: OrderStatus
-	): Promise<FullOrder[] | null> {
+	): Promise<FullOrder[]> {
 		const customer = await this.customerService.getCustomerById(customerId);
-		if (customer === null) return null;
+		if (customer === null) return [];
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
 		const orders = this.processDtosFromRepository(orderDtos, customer).filter(
@@ -392,7 +416,8 @@ export class OrderService {
 			originalOrder.status,
 			originalOrder.location,
 			originalOrder.amountPayed,
-			originalOrder.notified
+			originalOrder.notified,
+			originalOrder.user
 		);
 
 		await Promise.all([
@@ -411,7 +436,8 @@ export class OrderService {
 		originalOrderStatus?: OrderStatus,
 		originalLocation?: string,
 		originalAmountPayed?: number,
-		originalNotified?: boolean
+		originalNotified?: boolean,
+		originalUser?: StaticUser
 	): Promise<{ order: Order; calculatedItem: CalculatedItem }> {
 		const order: Order = {
 			id: originalId ?? uuidv4(),
@@ -419,7 +445,7 @@ export class OrderService {
 			customer: dto.customer,
 			createdAt: originalCreationDate ?? new Date(),
 			storeId: this.config.storeId,
-			user: this.config.user,
+			user: originalUser ?? this.config.user,
 			amountPayed: originalAmountPayed ?? 0,
 			status: originalOrderStatus ?? (dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING),
 			hasArrow: dto.hasArrow,

@@ -52,6 +52,6 @@ export const actions = {
 			return setError(form, 'id', 'Order not found');
 		}
 
-		return redirect(303, `/orders/${filteredOrders[0].order.id}`);
+		redirect(303, `/orders/${filteredOrders[0].order.id}`);
 	}
 };

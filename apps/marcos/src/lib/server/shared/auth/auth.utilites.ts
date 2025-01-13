@@ -11,12 +11,12 @@ export class AuthUtilities {
 	): Promise<AppUser> {
 		const inMaintenance = MAINTENANCE_MODE === 'yes';
 		if (inMaintenance) {
-			throw redirect(307, '/maintenance');
+			redirect(307, '/maintenance');
 		}
 
 		const session = (await locals.auth()) as CustomSession;
 		const appUser = AuthService.generateUserFromAuth(session);
-		if (!appUser) throw redirect(303, '/auth/signin?callbackUrl=/');
+		if (!appUser) redirect(303, '/auth/signin?callbackUrl=/');
 		if (checkPricing) {
 			AuthUtilities.checkCanEditPricing(appUser);
 		}
@@ -25,7 +25,7 @@ export class AuthUtilities {
 
 	public static checkCanEditPricing(user: AppUser) {
 		if (!user.priceManager) {
-			throw redirect(303, '/');
+			redirect(303, '/');
 		}
 	}
 }

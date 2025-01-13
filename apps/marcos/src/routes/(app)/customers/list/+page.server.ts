@@ -5,7 +5,7 @@ import type { PageServerLoad } from './$types';
 export const load = (async ({ locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	if (!appUser.priceManager) {
-		throw error(403);
+		error(403);
 	}
 
 	return {};

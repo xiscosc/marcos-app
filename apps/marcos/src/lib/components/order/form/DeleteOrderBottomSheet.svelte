@@ -4,6 +4,7 @@
 	import { ButtonAction, ButtonStyle } from '$lib/components/button/button.enum';
 	import Button from '$lib/components/button/Button.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
+	import BottomSheetLoading from '@/components/BottomSheetLoading.svelte';
 	import { OrderStatus, type Order } from '@marcsimolduressonsardina/core/type';
 
 	let sheetLoading = $state(false);
@@ -33,12 +34,16 @@
 
 {#snippet sheetActionDelete()}
 	<form class="w-full" method="post" action="?/deleteOrder" use:enhance={enhanceSheetForm}>
-		<Button
-			icon={IconType.TRASH}
-			text="Confirmar"
-			style={ButtonStyle.DELETE}
-			action={ButtonAction.SUBMIT}
-		></Button>
+		{#if sheetLoading}
+			<BottomSheetLoading />
+		{:else}
+			<Button
+				icon={IconType.TRASH}
+				text="Confirmar"
+				style={ButtonStyle.DELETE}
+				action={ButtonAction.SUBMIT}
+			></Button>
+		{/if}
 	</form>
 {/snippet}
 
@@ -48,6 +53,5 @@
 	trigger={sheetTriggerDelete}
 	action={sheetActionDelete}
 	iconType={IconType.TRASH}
-	loading={sheetLoading}
 	triggerStyle={ButtonStyle.DELETE}
 ></BottomSheet>

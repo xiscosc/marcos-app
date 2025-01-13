@@ -44,7 +44,15 @@
 		Phone,
 		ChartNoAxesCombined,
 		ChartPie,
-		ChartColumnBig
+		ChartColumnBig,
+		BadgePlus,
+		SearchX,
+		Percent,
+		Tag,
+		TicketPercent,
+		ChevronsUpDown,
+		UserPen,
+		FileText
 	} from 'lucide-svelte';
 	import { IconSize, IconType } from '../icon/icon.enum';
 	import { siWhatsapp } from 'simple-icons';
@@ -217,4 +225,36 @@
 
 {#if type === IconType.CHART_BARS}
 	<ChartColumnBig {size} />
+{/if}
+
+{#if type === IconType.ADD}
+	<BadgePlus {size} />
+{/if}
+
+{#if type === IconType.NOT_FOUND}
+	<SearchX {size} />
+{/if}
+
+{#if type === IconType.DISCOUNT}
+	<Percent {size} />
+{/if}
+
+{#if type === IconType.TICKET}
+	<Tag {size} />
+{/if}
+
+{#if type === IconType.TICKET_DISCOUNT}
+	<TicketPercent {size} />
+{/if}
+
+{#if type === IconType.COLLAPSE}
+	<ChevronsUpDown {size} />
+{/if}
+
+{#if type === IconType.WORKER}
+	<UserPen {size} />
+{/if}
+
+{#if type === IconType.DOCUMENT}
+	<FileText {size} />
 {/if}

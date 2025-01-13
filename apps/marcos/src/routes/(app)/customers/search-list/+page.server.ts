@@ -7,13 +7,12 @@ import { AuthService } from '$lib/server/service/auth.service';
 export const load = (async ({ locals, url }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const searchQuery = url.searchParams.get('query') ?? undefined;
-	const linkOrderId = url.searchParams.get('linkOrderId') ?? undefined;
 	if (searchQuery == null) {
-		throw error(400);
+		error(400);
 	}
 
 	const decodedSearchQuery = atob(searchQuery);
 	const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
 	const customers = customerService.searchCustomers(decodedSearchQuery);
-	return { customers, decodedSearchQuery, linkOrderId };
+	return { customers, decodedSearchQuery };
 }) satisfies PageServerLoad;

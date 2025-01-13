@@ -41,16 +41,12 @@
 {#if order.status === OrderStatus.FINISHED}
 	{#if order.notified || whatsAppNotified}
 		<div
-			class={`rounded-lg bg-gradient-to-r p-1 text-white ${getStatusUIInfo(OrderStatus.PICKED_UP).gradientClasses}`}
+			class="flex w-full flex-row items-center justify-center gap-2 rounded-sm border-2 border-green-700 bg-white py-1"
 		>
-			<div
-				class="flex flex-row items-center justify-center space-x-3 rounded-md bg-white p-2 shadow-inner md:p-1"
-			>
-				<div class="flex items-center rounded-full bg-green-100 px-2 py-1 text-green-600">
-					<Icon type={IconType.SENT} />
-				</div>
-				<h3 class="text-md font-semibold text-green-600">Cliente avisado</h3>
+			<div class="flex items-center rounded-full bg-green-100 px-2 py-1 text-green-700">
+				<Icon type={IconType.SENT} />
 			</div>
+			<span class="text-md font-semibold text-green-700">Cliente avisado</span>
 		</div>
 	{/if}
 	{#if counters.totalCount === 1}

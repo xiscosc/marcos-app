@@ -23,11 +23,11 @@ export const load = (async ({ params, locals }) => {
 	const order = await orderService.getOrderById(id);
 	const calculatedItem = await calculatedItemService.getCalculatedItem(id);
 	if (order == null || calculatedItem == null) {
-		return redirect(302, `/`);
+		redirect(302, `/`);
 	}
 
 	if (!OrderUtilities.isOrderTemp(order)) {
-		return redirect(302, `/orders/${id}`);
+		redirect(302, `/orders/${id}`);
 	}
 
 	const form = await superValidate(zod(linkCustomerSchema));
@@ -68,10 +68,14 @@ export const actions = {
 				customer = await customerService.createCustomer(form.data.name!, form.data.phone);
 				await orderService.addCustomerToTemporaryOrder(customer, order);
 			} else {
-				return setError(form, 'name', 'Name required');
+				return setError(
+					form,
+					'name',
+					'No existe cliente con ese número, rellene el nombre para crearlo'
+				);
 			}
 		}
 
-		return redirect(302, `/orders/${id}/files`);
+		redirect(302, `/orders/${id}/files`);
 	}
 };

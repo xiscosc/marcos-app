@@ -1,30 +1,31 @@
 <script lang="ts">
 	import { Toaster, toast } from 'svelte-sonner';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import Box from '$lib/components/Box.svelte';
 	import Button from '$lib/components/button/Button.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import Banner from '$lib/components/Banner.svelte';
 	import { Input } from '$lib/components/ui/input';
+	import Progress from '$lib/components/ui/progress/progress.svelte';
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 
 	let files: FileList | undefined = $state();
 	let loadingText = $state('');
 	let loading = $state(false);
+	let loadingProgress = $state(0);
 
 	async function loadFile() {
 		if (validFile() && files != null) {
 			const { filename, url } = await getUploadParams();
 			const file = files![0];
-			loadingText = 'Cargando archivo...';
 			loading = true;
+			loadingText = 'Cargando archivo...';
+			animateToFull(0, 20, 'Procesando archivo...');
 			const uploadResult = await uploadToS3(url, file);
 			if (uploadResult) {
-				loadingText = 'Procesando archivo...';
+				animateToFull(20, 85, 'Extrayendo precios...');
 				const processingResult = await startProcessing(filename);
-				cleanUpload();
+				animateToFull(85, 100, 'Carga completa', true);
 				if (processingResult) {
-					loadingText = '';
 					toast.success('Precios actualizados correctamente');
 				}
 			} else {
@@ -33,8 +34,28 @@
 		}
 	}
 
+	function animateToFull(
+		start: number,
+		end: number,
+		finishText: string,
+		finishLoading: boolean = false
+	) {
+		loadingProgress = start; // Reset progress
+		const interval = setInterval(() => {
+			loadingProgress += 1; // Increment progress
+			if (loadingProgress >= end) {
+				clearInterval(interval); // Stop animation at 100%
+				loadingText = finishText;
+				if (finishLoading) {
+					cleanUpload();
+				}
+			}
+		}, 85); // Adjust the speed (20ms for smoother animation)
+	}
+
 	function cleanUpload() {
 		files = undefined;
+		loadingText = '';
 		loading = false;
 	}
 
@@ -127,7 +148,10 @@
 				class="flex w-full flex-col place-content-center items-center justify-center space-y-4 px-2 py-4"
 			>
 				{#if loading}
-					<ProgressBar text={loadingText} />
+					<div class="flex w-full flex-col items-center gap-2">
+						<span class="font-medium">{loadingText}</span>
+						<Progress value={loadingProgress} />
+					</div>
 				{:else}
 					<Input id="moldFile" type="file" bind:files />
 					<Button text="Cargar archivo excel" icon={IconType.EXCEL} onClick={loadFile}></Button>

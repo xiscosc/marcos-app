@@ -9,6 +9,7 @@ export enum IconSize {
 export enum IconType {
 	SEARCH = 'search',
 	CLOSE = 'close',
+	ADD = 'add',
 	PLUS = 'plus',
 	MINUS = 'minus',
 	TRUCK = 'truck',
@@ -55,5 +56,12 @@ export enum IconType {
 	LOADING = 'loading',
 	DASHBOARD = 'dashboard',
 	CHART_LINES = 'chart-lines',
-	CHART_BARS = 'chart-bars'
+	CHART_BARS = 'chart-bars',
+	NOT_FOUND = 'not-found',
+	DISCOUNT = 'discount',
+	TICKET = 'ticket',
+	TICKET_DISCOUNT = 'ticket-discount',
+	COLLAPSE = 'collapse',
+	WORKER = 'worker',
+	DOCUMENT = 'document'
 }

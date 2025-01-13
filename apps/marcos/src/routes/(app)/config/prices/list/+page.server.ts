@@ -2,7 +2,7 @@ import type { PageServerLoad } from './$types';
 import { PricingHelper } from '$lib/server/shared/pricing/pricing.helper';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service';
-import type { PricingType } from '@marcsimolduressonsardina/core/type';
+import { PricingType } from '@marcsimolduressonsardina/core/type';
 import { PricingService } from '@marcsimolduressonsardina/core/service';
 
 function getPricingType(value?: string): PricingType {

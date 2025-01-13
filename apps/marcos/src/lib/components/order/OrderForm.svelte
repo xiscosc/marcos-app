@@ -42,6 +42,7 @@
 		otherExtraId,
 		PricingUtilites
 	} from '@marcsimolduressonsardina/core/util';
+	import OrderPriceDetails from './OrderPriceDetails.svelte';
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 
@@ -588,7 +589,6 @@
 		$form.description.length > 0 || $form.predefinedDescriptions.length > 0
 	);
 	let addedDiscount = $derived($form.discount !== '' && !isNaN(parseInt($form.discount)));
-	let numberDisconunt = $derived(!isNaN(parseInt($form.discount)) ? parseInt($form.discount) : 0);
 	let addedExteriorDimensions = $derived(
 		!exteriorDimensions || ($form.exteriorHeight != null && $form.exteriorWidth != null)
 	);
@@ -636,6 +636,14 @@
 			addedPPMeaseures,
 			addedFloatingDistance
 		)
+	);
+
+	let orderedItems = $derived<TempParts>(
+		CalculatedItemUtilities.sortByPricingType([...partsToCalulatePreview], ['pre', 'type'])
+	);
+	let discountActive = $derived($form.discount !== '' && parseInt($form.discount) > 0);
+	let isDiscountNotAllowedPresent = $derived(
+		orderedItems.find((part) => !part.post.discountAllowed) != null && discountActive
 	);
 
 	$effect(() => {
@@ -690,7 +698,12 @@
 {#snippet cartItemList(parts: TempParts)}
 	<div class="flex flex-col gap-2 lg:col-span-2">
 		{#each parts as part}
-			<CartItem part={part.post} partToDelete={part} deleteExtraPart={deletePrecalculatedPreview} />
+			<CartItem
+				part={part.post}
+				partToDelete={part}
+				deleteExtraPart={deletePrecalculatedPreview}
+				showNoDiscountAllowed={discountActive}
+			/>
 		{/each}
 	</div>
 {/snippet}
@@ -718,514 +731,517 @@
 		{/if}
 	</SimpleHeading>
 
-	{#if $submitting}
-		<ProgressBar text={'Guardando'} />
-	{:else}
-		<Box>
-			{#await data.pricing}
-				<ProgressBar text={'Cargando precios'} />
-			{:then pricing}
-				<form
-					use:enhance
-					method="post"
-					class="flex w-full flex-col gap-2 lg:grid lg:grid-cols-2 lg:items-end"
-				>
-					<Spacer title={'Datos de la obra'} line={false} />
+	<form use:enhance method="post">
+		<div class="flex flex-col gap-2">
+			{#if $submitting}
+				<Box>
+					<ProgressBar text={'Guardando'} />
+				</Box>
+			{:else}
+				<Box>
+					{#await data.pricing}
+						<ProgressBar text={'Cargando precios'} />
+					{:then pricing}
+						<div class="flex w-full flex-col gap-2 lg:grid lg:grid-cols-2 lg:items-end">
+							<Spacer title={'Datos de la obra'} line={false} />
 
-					<div class="flex flex-col gap-2">
-						<Label for="height">Alto (cm):</Label>
-						<Input
-							type="number"
-							step="0.01"
-							name="height"
-							onchange={() => handleDimensionsChangeEvent()}
-							bind:value={$form.height}
-							success={$form.height > 10}
-							error={$errors.height ? true : false}
-						/>
-					</div>
+							<div class="flex flex-col gap-2">
+								<Label for="height">Alto (cm):</Label>
+								<Input
+									type="number"
+									step="0.01"
+									name="height"
+									onchange={() => handleDimensionsChangeEvent()}
+									bind:value={$form.height}
+									success={$form.height > 10}
+									error={$errors.height ? true : false}
+								/>
+							</div>
 
-					<div class="flex flex-col gap-2">
-						<Label for="width">Ancho (cm):</Label>
-						<Input
-							type="number"
-							step="0.01"
-							name="width"
-							onchange={() => handleDimensionsChangeEvent()}
-							bind:value={$form.width}
-							success={$form.width > 10}
-							error={$errors.width ? true : false}
-						/>
-					</div>
+							<div class="flex flex-col gap-2">
+								<Label for="width">Ancho (cm):</Label>
+								<Input
+									type="number"
+									step="0.01"
+									name="width"
+									onchange={() => handleDimensionsChangeEvent()}
+									bind:value={$form.width}
+									success={$form.width > 10}
+									error={$errors.width ? true : false}
+								/>
+							</div>
 
-					<PricingSelectorSection
-						sectionTitle={'PP / Fondo'}
-						label={'Tipo'}
-						prices={pricing.ppPrices}
-						addValue={addFromPricingSelector}
-						showExtraInfo={true}
-						added={addedPP}
-					/>
-
-					<div class="flex flex-1 flex-col gap-2">
-						<Label for="pp">Medida PP (cm):</Label>
-						<Input
-							type="number"
-							step="0.01"
-							name="pp"
-							onchange={() => handleDimensionsChangeEvent()}
-							bind:value={$form.pp}
-							success={addedPPMeaseures}
-							disabled={asymetricPP}
-							error={$errors.pp ? true : false}
-						/>
-					</div>
-
-					<div
-						class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
-					>
-						<Label for="pp">PP Asimétrico</Label>
-						<Switch
-							name="ppAsymetric"
-							bind:checked={asymetricPP}
-							onchange={() => handleDimensionsChangeEvent()}
-						/>
-					</div>
-
-					{#if asymetricPP}
-						<Spacer title={'Medidas PP (cm)'} />
-
-						<div class="flex flex-col gap-2">
-							<Label for="upPP">Arriba:</Label>
-							<Input
-								type="number"
-								step="0.01"
-								name="upPP"
-								onchange={() => handleDimensionsChangeEvent()}
-								bind:value={upPP}
-								success={addedPPMeaseures}
-							/>
-						</div>
-
-						<div class="flex flex-col gap-2">
-							<Label for="downPP">Abajo:</Label>
-							<Input
-								type="number"
-								step="0.01"
-								name="downPP"
-								onchange={() => handleDimensionsChangeEvent()}
-								bind:value={downPP}
-								success={addedPPMeaseures}
-							/>
-						</div>
-
-						<div class="flex flex-col gap-2">
-							<Label for="leftPP">Izquierda:</Label>
-							<Input
-								type="number"
-								step="0.01"
-								name="leftPP"
-								onchange={() => handleDimensionsChangeEvent()}
-								bind:value={leftPP}
-								success={addedPPMeaseures}
-							/>
-						</div>
-
-						<div class="flex flex-col gap-2">
-							<Label for="rightPP">Derecha:</Label>
-							<Input
-								type="number"
-								step="0.01"
-								name="rightPP"
-								onchange={() => handleDimensionsChangeEvent()}
-								bind:value={rightPP}
-								success={addedPPMeaseures}
-							/>
-						</div>
-					{/if}
-
-					{@render cartItemList(
-						partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP)
-					)}
-
-					<Spacer title={'Medidas de trabajo'} />
-
-					<div class="grid grid-cols-1 lg:col-span-2">
-						<div class="rounded-md border-2 border-gray-300 p-4">
-							<p class="text-center text-xl text-gray-600">
-								Alto: {totalHeightBox}cm | Ancho: {totalWidthBox}cm
-							</p>
-						</div>
-					</div>
-
-					<div class="col-span-2 flex flex-row justify-between text-sm font-medium">
-						<label class="flex items-center space-x-2">
-							<input
-								class="radio"
-								type="radio"
-								checked
-								name="radio-direct"
-								bind:group={$form.dimenstionsType}
-								value={DimensionsType.NORMAL}
-							/>
-							<p>Nor.</p>
-						</label>
-						<label class="flex items-center space-x-2">
-							<input
-								class="radio"
-								type="radio"
-								bind:group={$form.dimenstionsType}
-								name="radio-direct"
-								value={DimensionsType.EXTERIOR}
-							/>
-							<p>Ext.</p>
-						</label>
-						<label class="flex items-center space-x-2">
-							<input
-								class="radio"
-								type="radio"
-								name="radio-direct"
-								bind:group={$form.dimenstionsType}
-								value={DimensionsType.ROUNDED}
-							/>
-							<p>Redo.</p>
-						</label>
-						<label class="flex items-center space-x-2">
-							<input
-								class="radio"
-								type="radio"
-								name="radio-direct"
-								bind:group={$form.dimenstionsType}
-								value={DimensionsType.WINDOW}
-							/>
-							<p>Vent.</p>
-						</label>
-					</div>
-
-					{#if exteriorDimensions}
-						<div class="flex flex-col gap-2">
-							<Label for="exteriorHeight">Alto Exterior (cm):</Label>
-							<Input
-								type="number"
-								step="0.01"
-								name="exteriorHeight"
-								bind:value={$form.exteriorHeight}
-								success={$form.exteriorHeight != null && $form.exteriorHeight > 0}
-							/>
-						</div>
-
-						<div class="flex flex-col gap-2">
-							<Label for="exteriorWidth">Ancho Exterior (cm):</Label>
-							<Input
-								type="number"
-								step="0.01"
-								name="exteriorWidth"
-								bind:value={$form.exteriorWidth}
-								success={$form.exteriorWidth != null && $form.exteriorWidth > 0}
-							/>
-						</div>
-					{/if}
-
-					<AutocompleteSection
-						sectionTitle={'Molduras'}
-						label={'Moldura/Marco'}
-						prices={pricing.moldPrices}
-						addValue={addFromPricingSelector}
-						pricingType={PricingType.MOLD}
-						added={addedMold}
-					/>
-
-					{@render cartItemList(
-						partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD)
-					)}
-
-					<div class="flex flex-col gap-2">
-						<Label for="floatingDistance">Distancia flotante (cm):</Label>
-						<Input
-							type="number"
-							step="0.01"
-							min="0.00"
-							name="floatingDistance"
-							bind:value={$form.floatingDistance}
-							success={addedFloatingDistance}
-							onchange={() => handleDimensionsChangeEvent()}
-						/>
-					</div>
-
-					<PricingSelectorSection
-						sectionTitle={'Cristal'}
-						label={'Tipo de cristal'}
-						prices={pricing.glassPrices}
-						addValue={addFromPricingSelector}
-						added={addedGlass}
-					/>
-
-					{@render cartItemList(
-						partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS)
-					)}
-
-					<PricingSelectorSection
-						sectionTitle={'Trasera'}
-						label={'Tipo de trasera'}
-						prices={pricing.backPrices}
-						addValue={addFromPricingSelector}
-						added={addedBack}
-					/>
-
-					{@render cartItemList(
-						partsToCalulatePreview.filter((p) => p.pre.type === PricingType.BACK)
-					)}
-
-					<PricingSelectorSection
-						sectionTitle={'Montajes'}
-						label={'Tipo de montaje'}
-						prices={pricing.labourPrices}
-						extraPrices={fabricPrices}
-						locationIdForExtraPrices={'CINTA_CANTO_LIENZO_BLANCA'}
-						addValue={addFromPricingSelector}
-						added={addedLabour}
-					/>
-
-					{@render cartItemList(
-						partsToCalulatePreview.filter((p) =>
-							[PricingType.LABOUR, PricingType.FABRIC].includes(p.pre.type)
-						)
-					)}
-
-					<PricingSelectorWithQuantitySection
-						added={addedHanger}
-						sectionTitle={'Colgadores'}
-						label={'Colgador'}
-						prices={pricing.hangerPrices}
-						addItem={addHangerElementsFromSelector}
-					/>
-
-					{@render cartItemList(
-						partsToCalulatePreview.filter((p) => p.pre.type === PricingType.HANGER)
-					)}
-
-					<PricingSelectorWithQuantitySection
-						added={addedOther}
-						sectionTitle={'Suministros'}
-						label={'Elemento'}
-						prices={pricing.otherPrices}
-						addItem={addOtherElementsFromSelector}
-					/>
-
-					{@render cartItemList(
-						partsToCalulatePreview.filter((p) => p.pre.type === PricingType.OTHER)
-					)}
-
-					<PricingSelectorSection
-						sectionTitle={'Transporte'}
-						label={'Tipo de transporte'}
-						prices={pricing.transportPrices}
-						addValue={addFromPricingSelector}
-						added={addedTransport}
-					/>
-
-					{@render cartItemList(
-						partsToCalulatePreview.filter((p) => p.pre.type === PricingType.TRANSPORT)
-					)}
-
-					<Spacer title={'Elementos extra'} />
-
-					<div class="flex flex-col gap-2 lg:col-span-2">
-						<Label for="otherElementName">Nombre del elemento:</Label>
-						<Input type="text" name="otherElementName" bind:value={otherName} />
-					</div>
-
-					<div class="flex flex-col gap-2">
-						<Label for="otherElementPrice">Precio del elemento:</Label>
-						<Input
-							type="number"
-							step="0.01"
-							min="0"
-							name="otherElementPrice"
-							bind:value={otherPrice}
-						/>
-					</div>
-
-					<div class="flex flex-col gap-2">
-						<Label for="otherQuantityElements">Cantidad</Label>
-						<Select.Root type="single" name="otherQuantityElements" bind:value={otherQuantity}>
-							<Select.Trigger success={addedOther}>
-								{otherQuantity}
-							</Select.Trigger>
-							<Select.Content>
-								{#each Array(10) as _, i (i)}
-									<Select.Item value={String(i + 1)}>{i + 1}</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
-					</div>
-
-					<div class="lg:col-span-2">
-						<Button
-							text="Añadir a la lista"
-							onClick={() => addOtherElement()}
-							icon={IconType.PLUS}
-							iconSize={IconSize.BIG}
-						></Button>
-					</div>
-
-					{@render cartItemExtraList(extraParts)}
-
-					<Spacer title={'Descripción de la obra'} />
-
-					<div class="flex flex-col gap-2 lg:col-span-2">
-						<Label for="description">Descripción:</Label>
-						<Textarea success={addedDescription} name="description" bind:value={$form.description}
-						></Textarea>
-					</div>
-
-					{#if $form.description.length === 0}
-						<ChipSet
-							values={defaultDescriptions}
-							bind:filledValues={$form.predefinedDescriptions}
-						/>
-					{/if}
-
-					<div class="flex flex-col gap-2 lg:col-span-2">
-						<Label for="observations">Observaciones:</Label>
-						<Textarea
-							success={addedObservations}
-							name="observations"
-							bind:value={$form.observations}
-						></Textarea>
-					</div>
-
-					<ChipSet values={defaultObservations} bind:filledValues={$form.predefinedObservations} />
-
-					<Spacer title={'Otros datos'} />
-
-					<div class="flex flex-col gap-2 lg:col-span-2">
-						<Label for="quantity">Cantidad:</Label>
-						<div
-							class="flex flex-row justify-between gap-3 rounded-md border p-2 shadow-sm lg:col-span-2"
-						>
-							<input
-								class="text-md w-full px-2"
-								type="number"
-								step="1"
-								min="1"
-								bind:value={$form.quantity}
+							<PricingSelectorSection
+								sectionTitle={'PP / Fondo'}
+								label={'Tipo'}
+								prices={pricing.ppPrices}
+								addValue={addFromPricingSelector}
+								showExtraInfo={true}
+								added={addedPP}
 							/>
 
-							<div class="flex flex-row gap-2">
+							<div class="flex flex-1 flex-col gap-2">
+								<Label for="pp">Medida PP (cm):</Label>
+								<Input
+									type="number"
+									step="0.01"
+									name="pp"
+									onchange={() => handleDimensionsChangeEvent()}
+									bind:value={$form.pp}
+									success={addedPPMeaseures}
+									disabled={asymetricPP}
+									error={$errors.pp ? true : false}
+								/>
+							</div>
+
+							<div
+								class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
+							>
+								<Label for="pp">PP Asimétrico</Label>
+								<Switch
+									name="ppAsymetric"
+									bind:checked={asymetricPP}
+									onchange={() => handleDimensionsChangeEvent()}
+								/>
+							</div>
+
+							{#if asymetricPP}
+								<Spacer title={'Medidas PP (cm)'} />
+
+								<div class="flex flex-col gap-2">
+									<Label for="upPP">Arriba:</Label>
+									<Input
+										type="number"
+										step="0.01"
+										name="upPP"
+										onchange={() => handleDimensionsChangeEvent()}
+										bind:value={upPP}
+										success={addedPPMeaseures}
+									/>
+								</div>
+
+								<div class="flex flex-col gap-2">
+									<Label for="downPP">Abajo:</Label>
+									<Input
+										type="number"
+										step="0.01"
+										name="downPP"
+										onchange={() => handleDimensionsChangeEvent()}
+										bind:value={downPP}
+										success={addedPPMeaseures}
+									/>
+								</div>
+
+								<div class="flex flex-col gap-2">
+									<Label for="leftPP">Izquierda:</Label>
+									<Input
+										type="number"
+										step="0.01"
+										name="leftPP"
+										onchange={() => handleDimensionsChangeEvent()}
+										bind:value={leftPP}
+										success={addedPPMeaseures}
+									/>
+								</div>
+
+								<div class="flex flex-col gap-2">
+									<Label for="rightPP">Derecha:</Label>
+									<Input
+										type="number"
+										step="0.01"
+										name="rightPP"
+										onchange={() => handleDimensionsChangeEvent()}
+										bind:value={rightPP}
+										success={addedPPMeaseures}
+									/>
+								</div>
+							{/if}
+
+							{@render cartItemList(
+								partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP)
+							)}
+
+							<Spacer title={'Medidas de trabajo'} />
+
+							<div class="grid grid-cols-1 lg:col-span-2">
+								<div class="rounded-md border-2 border-gray-300 p-4">
+									<p class="text-center text-xl text-gray-600">
+										Alto: {totalHeightBox}cm | Ancho: {totalWidthBox}cm
+									</p>
+								</div>
+							</div>
+
+							<div class="col-span-2 flex flex-row justify-between text-sm font-medium">
+								<label class="flex items-center space-x-2">
+									<input
+										class="radio"
+										type="radio"
+										checked
+										name="radio-direct"
+										bind:group={$form.dimenstionsType}
+										value={DimensionsType.NORMAL}
+									/>
+									<p>Nor.</p>
+								</label>
+								<label class="flex items-center space-x-2">
+									<input
+										class="radio"
+										type="radio"
+										bind:group={$form.dimenstionsType}
+										name="radio-direct"
+										value={DimensionsType.EXTERIOR}
+									/>
+									<p>Ext.</p>
+								</label>
+								<label class="flex items-center space-x-2">
+									<input
+										class="radio"
+										type="radio"
+										name="radio-direct"
+										bind:group={$form.dimenstionsType}
+										value={DimensionsType.ROUNDED}
+									/>
+									<p>Redo.</p>
+								</label>
+								<label class="flex items-center space-x-2">
+									<input
+										class="radio"
+										type="radio"
+										name="radio-direct"
+										bind:group={$form.dimenstionsType}
+										value={DimensionsType.WINDOW}
+									/>
+									<p>Vent.</p>
+								</label>
+							</div>
+
+							{#if exteriorDimensions}
+								<div class="flex flex-col gap-2">
+									<Label for="exteriorHeight">Alto Exterior (cm):</Label>
+									<Input
+										type="number"
+										step="0.01"
+										name="exteriorHeight"
+										bind:value={$form.exteriorHeight}
+										success={$form.exteriorHeight != null && $form.exteriorHeight > 0}
+									/>
+								</div>
+
+								<div class="flex flex-col gap-2">
+									<Label for="exteriorWidth">Ancho Exterior (cm):</Label>
+									<Input
+										type="number"
+										step="0.01"
+										name="exteriorWidth"
+										bind:value={$form.exteriorWidth}
+										success={$form.exteriorWidth != null && $form.exteriorWidth > 0}
+									/>
+								</div>
+							{/if}
+
+							<AutocompleteSection
+								sectionTitle={'Molduras'}
+								label={'Moldura/Marco'}
+								prices={pricing.moldPrices}
+								addValue={addFromPricingSelector}
+								pricingType={PricingType.MOLD}
+								added={addedMold}
+							/>
+
+							{@render cartItemList(
+								partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD)
+							)}
+
+							<div class="flex flex-col gap-2">
+								<Label for="floatingDistance">Distancia flotante (cm):</Label>
+								<Input
+									type="number"
+									step="0.01"
+									min="0.00"
+									name="floatingDistance"
+									bind:value={$form.floatingDistance}
+									success={addedFloatingDistance}
+									onchange={() => handleDimensionsChangeEvent()}
+								/>
+							</div>
+
+							<PricingSelectorSection
+								sectionTitle={'Cristal'}
+								label={'Tipo de cristal'}
+								prices={pricing.glassPrices}
+								addValue={addFromPricingSelector}
+								added={addedGlass}
+							/>
+
+							{@render cartItemList(
+								partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS)
+							)}
+
+							<PricingSelectorSection
+								sectionTitle={'Trasera'}
+								label={'Tipo de trasera'}
+								prices={pricing.backPrices}
+								addValue={addFromPricingSelector}
+								added={addedBack}
+							/>
+
+							{@render cartItemList(
+								partsToCalulatePreview.filter((p) => p.pre.type === PricingType.BACK)
+							)}
+
+							<PricingSelectorSection
+								sectionTitle={'Montajes'}
+								label={'Tipo de montaje'}
+								prices={pricing.labourPrices}
+								extraPrices={fabricPrices}
+								locationIdForExtraPrices={'CINTA_CANTO_LIENZO_BLANCA'}
+								addValue={addFromPricingSelector}
+								added={addedLabour}
+							/>
+
+							{@render cartItemList(
+								partsToCalulatePreview.filter((p) =>
+									[PricingType.LABOUR, PricingType.FABRIC].includes(p.pre.type)
+								)
+							)}
+
+							<PricingSelectorWithQuantitySection
+								added={addedHanger}
+								sectionTitle={'Colgadores'}
+								label={'Colgador'}
+								prices={pricing.hangerPrices}
+								addItem={addHangerElementsFromSelector}
+							/>
+
+							{@render cartItemList(
+								partsToCalulatePreview.filter((p) => p.pre.type === PricingType.HANGER)
+							)}
+
+							<PricingSelectorWithQuantitySection
+								added={addedOther}
+								sectionTitle={'Suministros'}
+								label={'Elemento'}
+								prices={pricing.otherPrices}
+								addItem={addOtherElementsFromSelector}
+							/>
+
+							{@render cartItemList(
+								partsToCalulatePreview.filter((p) => p.pre.type === PricingType.OTHER)
+							)}
+
+							<PricingSelectorSection
+								sectionTitle={'Transporte'}
+								label={'Tipo de transporte'}
+								prices={pricing.transportPrices}
+								addValue={addFromPricingSelector}
+								added={addedTransport}
+							/>
+
+							{@render cartItemList(
+								partsToCalulatePreview.filter((p) => p.pre.type === PricingType.TRANSPORT)
+							)}
+
+							<Spacer title={'Elementos extra'} />
+
+							<div class="flex flex-col gap-2 lg:col-span-2">
+								<Label for="otherElementName">Nombre del elemento:</Label>
+								<Input type="text" name="otherElementName" bind:value={otherName} />
+							</div>
+
+							<div class="flex flex-col gap-2">
+								<Label for="otherElementPrice">Precio del elemento:</Label>
+								<Input
+									type="number"
+									step="0.01"
+									min="0"
+									name="otherElementPrice"
+									bind:value={otherPrice}
+								/>
+							</div>
+
+							<div class="flex flex-col gap-2">
+								<Label for="otherQuantityElements">Cantidad</Label>
+								<Select.Root type="single" name="otherQuantityElements" bind:value={otherQuantity}>
+									<Select.Trigger>
+										{otherQuantity}
+									</Select.Trigger>
+									<Select.Content>
+										{#each Array(10) as _, i (i)}
+											<Select.Item value={String(i + 1)}>{i + 1}</Select.Item>
+										{/each}
+									</Select.Content>
+								</Select.Root>
+							</div>
+
+							<div class="lg:col-span-2">
 								<Button
+									text="Añadir a la lista"
+									onClick={() => addOtherElement()}
 									icon={IconType.PLUS}
-									buttonType={ButtonType.SMALL}
-									text=""
-									action={ButtonAction.CLICK}
-									onClick={() => {
-										$form.quantity += 1;
-									}}
-								></Button>
-								<Button
-									icon={IconType.MINUS}
-									textType={ButtonText.GRAY}
-									buttonType={ButtonType.SMALL}
-									style={ButtonStyle.ORDER_GENERIC}
-									action={ButtonAction.CLICK}
-									text=""
-									disabled={$form.quantity <= 1}
-									onClick={() => {
-										$form.quantity -= 1;
-									}}
+									iconSize={IconSize.BIG}
 								></Button>
 							</div>
-						</div>
-					</div>
 
-					{#if !$form.instantDelivery}
-						<div class="flex flex-col gap-2">
-							<Label for="deliveryDate">Fecha de entrega (Sólo pedidos):</Label>
-							<Input
-								name="deliveryDate"
-								type="date"
-								bind:value={$proxyDate}
-								error={$errors.deliveryDate ? true : false}
-							/>
-						</div>
-					{/if}
+							{@render cartItemExtraList(extraParts)}
 
-					<div
-						class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
-						class:lg:col-span-2={$form.instantDelivery}
-					>
-						<Label for="instantDelivery">Al momento</Label>
-						<Switch name="instantDelivery" bind:checked={$form.instantDelivery} />
-					</div>
+							<Spacer title={'Descripción de la obra'} />
 
-					<div class="flex flex-col gap-2">
-						<Label for="discount">Descuento:</Label>
-						<Select.Root type="single" name="discount" bind:value={$form.discount}>
-							<Select.Trigger success={addedDiscount}
-								>{$form.discount !== ''
-									? OrderUtilities.getDiscountRepresentation(parseInt($form.discount))
-									: 'Seleccionar'}</Select.Trigger
-							>
-							<Select.Content>
-								{#each Object.entries(discountMap) as [key, value]}
-									<Select.Item value={String(value)}>{key}</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
-					</div>
+							<div class="flex flex-col gap-2 lg:col-span-2">
+								<Label for="description">Descripción:</Label>
+								<Textarea
+									success={addedDescription}
+									name="description"
+									bind:value={$form.description}
+								></Textarea>
+							</div>
 
-					<div
-						class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
-					>
-						<Label for="hasArrow"><Icon type={IconType.DOWN} /></Label>
-						<Switch name="hasArrow" bind:checked={$form.hasArrow} />
-					</div>
-
-					<Spacer title={'Elementos añadidos'} />
-
-					{@render cartItemList(
-						CalculatedItemUtilities.sortByPricingType([...partsToCalulatePreview], ['pre', 'type'])
-					)}
-					{@render cartItemExtraList(extraParts)}
-
-					<div class="grid grid-cols-1 lg:col-span-2">
-						{#if $form.quantity > 1}
-							<span class="text-md font-medium"
-								>Total por unidad: {totalPerUnitWithoutDiscount.toFixed(2)} € {#if numberDisconunt > 0}
-									- {totalPerUnitDiscount.toFixed(2)} € Dto = {totalPerUnit.toFixed(2)} €
-								{/if}
-							</span>
-						{/if}
-						<span class="text-xl font-medium"
-							>Total: {totalWithoutDiscount.toFixed(2)} € {#if numberDisconunt > 0}
-								- {totalDiscount.toFixed(2)} € Dto = {total.toFixed(2)} €
+							{#if $form.description.length === 0}
+								<ChipSet
+									values={defaultDescriptions}
+									bind:filledValues={$form.predefinedDescriptions}
+								/>
 							{/if}
-						</span>
-					</div>
 
-					{#if missingReasons.length > 0}
-						<div class="pt-3 lg:col-span-2">
-							<Box title={'Rellene todos los campos'} icon={IconType.LIST}>
-								<div class="px-4">
-									<ul class="list-disc">
-										{#each missingReasons as reason}
-											<li>{reason}</li>
-										{/each}
-									</ul>
+							<div class="flex flex-col gap-2 lg:col-span-2">
+								<Label for="observations">Observaciones:</Label>
+								<Textarea
+									success={addedObservations}
+									name="observations"
+									bind:value={$form.observations}
+								></Textarea>
+							</div>
+
+							<ChipSet
+								values={defaultObservations}
+								bind:filledValues={$form.predefinedObservations}
+							/>
+
+							<Spacer title={'Otros datos'} />
+
+							<div class="flex flex-col gap-2 lg:col-span-2">
+								<Label for="quantity">Cantidad:</Label>
+								<div
+									class="flex flex-row justify-between gap-3 rounded-md border p-2 shadow-sm lg:col-span-2"
+								>
+									<input
+										class="text-md w-full px-2"
+										type="number"
+										step="1"
+										min="1"
+										bind:value={$form.quantity}
+									/>
+
+									<div class="flex flex-row gap-2">
+										<Button
+											icon={IconType.PLUS}
+											buttonType={ButtonType.SMALL}
+											text=""
+											action={ButtonAction.CLICK}
+											onClick={() => {
+												$form.quantity += 1;
+											}}
+										></Button>
+										<Button
+											icon={IconType.MINUS}
+											textType={ButtonText.GRAY}
+											buttonType={ButtonType.SMALL}
+											style={ButtonStyle.ORDER_GENERIC}
+											action={ButtonAction.CLICK}
+											text=""
+											disabled={$form.quantity <= 1}
+											onClick={() => {
+												$form.quantity -= 1;
+											}}
+										></Button>
+									</div>
 								</div>
-							</Box>
+							</div>
+
+							{#if !$form.instantDelivery}
+								<div class="flex flex-col gap-2">
+									<Label for="deliveryDate">Fecha de entrega (Sólo pedidos):</Label>
+									<Input
+										name="deliveryDate"
+										type="date"
+										bind:value={$proxyDate}
+										error={$errors.deliveryDate ? true : false}
+									/>
+								</div>
+							{/if}
+
+							<div
+								class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
+								class:lg:col-span-2={$form.instantDelivery}
+							>
+								<Label for="instantDelivery">Al momento</Label>
+								<Switch name="instantDelivery" bind:checked={$form.instantDelivery} />
+							</div>
+
+							<div class="flex flex-col gap-2">
+								<Label for="discount">Descuento:</Label>
+								<Select.Root type="single" name="discount" bind:value={$form.discount}>
+									<Select.Trigger success={addedDiscount}
+										>{$form.discount !== ''
+											? OrderUtilities.getDiscountRepresentation(parseInt($form.discount))
+											: 'Seleccionar'}</Select.Trigger
+									>
+									<Select.Content>
+										{#each Object.entries(discountMap) as [key, value]}
+											<Select.Item value={String(value)}>{key}</Select.Item>
+										{/each}
+									</Select.Content>
+								</Select.Root>
+							</div>
+
+							<div
+								class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
+							>
+								<Label for="hasArrow"><Icon type={IconType.DOWN} /></Label>
+								<Switch name="hasArrow" bind:checked={$form.hasArrow} />
+							</div>
 						</div>
+					{/await}
+				</Box>
+
+				<Box title="Elementos añadidos" collapsible>
+					<div class="flex flex-col gap-2">
+						{@render cartItemList(orderedItems)}
+						{@render cartItemExtraList(extraParts)}
+						{#if isDiscountNotAllowedPresent}
+							<span class="text-xs text-gray-500">* Elementos con descuento no permitido</span>
+						{/if}
+					</div>
+				</Box>
+
+				<div class="flex flex-col gap-2 lg:col-span-2">
+					<OrderPriceDetails
+						quantity={$form.quantity}
+						discount={parseInt($form.discount)}
+						unitPriceWithoutDiscount={totalPerUnitWithoutDiscount}
+						unitPriceWithDiscount={totalPerUnit}
+						{totalWithoutDiscount}
+						totalWithDiscount={total}
+						alertItemsWitouthDiscount={isDiscountNotAllowedPresent}
+					></OrderPriceDetails>
+					{#if missingReasons.length > 0}
+						<Box title={'Rellene todos los campos'} icon={IconType.LIST}>
+							<div class="px-4">
+								<ul class="list-disc">
+									{#each missingReasons as reason}
+										<li>{reason}</li>
+									{/each}
+								</ul>
+							</div>
+						</Box>
 					{:else if data.editing}
-						<div class="lg:col-span-2">
-							<Button
-								text={data.editingStatus === OrderStatus.QUOTE
-									? 'Editar presupuesto'
-									: 'Editar pedido'}
-								action={ButtonAction.SUBMIT}
-								formAction="?/editOrder"
-								icon={IconType.EDIT}
-							></Button>
-						</div>
+						<Button
+							text={data.editingStatus === OrderStatus.QUOTE
+								? 'Editar presupuesto'
+								: 'Editar pedido'}
+							action={ButtonAction.SUBMIT}
+							formAction="?/editOrder"
+							icon={IconType.EDIT}
+						></Button>
 					{:else}
 						<div class="flex flex-col gap-2 lg:col-span-2 lg:flex-row">
 							<Button
@@ -1245,8 +1261,8 @@
 							></Button>
 						</div>
 					{/if}
-				</form>
-			{/await}</Box
-		>
-	{/if}
+				</div>
+			{/if}
+		</div>
+	</form>
 </div>

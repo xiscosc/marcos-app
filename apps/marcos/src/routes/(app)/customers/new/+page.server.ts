@@ -27,7 +27,7 @@ export const actions = {
 		const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
 		const existingCustomer = await customerService.getCustomerByPhone(form.data.phone);
 		if (existingCustomer) {
-			return redirect(302, `/customers/${existingCustomer.id}`);
+			redirect(302, `/customers/${existingCustomer.id}`);
 		}
 
 		const customer = await customerService.createCustomer(form.data.name, form.data.phone);
@@ -35,6 +35,6 @@ export const actions = {
 			return error(500, 'Error creating customer');
 		}
 
-		return redirect(302, `/customers/${customer.id}`);
+		redirect(302, `/customers/${customer.id}`);
 	}
 };

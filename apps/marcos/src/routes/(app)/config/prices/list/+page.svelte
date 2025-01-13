@@ -48,24 +48,23 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
+	<SimpleHeading icon={IconType.LIST}>
+		<div class="flex flex-row items-center gap-2">
+			<span>Listado de precios </span>
+			<Button
+				icon={IconType.PLUS}
+				text=""
+				buttonType={ButtonType.SMALL}
+				style={ButtonStyle.NEUTRAL}
+				onClick={() => goto('/config/prices/new')}
+			></Button>
+		</div>
+	</SimpleHeading>
 	{#await data.pricing}
 		<Box>
 			<ProgressBar text={'Cargando precios'} />
 		</Box>
 	{:then pricing}
-		<SimpleHeading icon={IconType.LIST}>
-			<div class="flex flex-row items-center gap-2">
-				<span>Listado de precios </span>
-				<Button
-					icon={IconType.PLUS}
-					text=""
-					buttonType={ButtonType.SMALL}
-					style={ButtonStyle.NEUTRAL}
-					onClick={() => goto('/config/prices/new')}
-				></Button>
-			</div>
-		</SimpleHeading>
-
 		<Box>
 			<Tabs.Root bind:value={selectedType} class="flex w-full flex-col">
 				<Tabs.List>

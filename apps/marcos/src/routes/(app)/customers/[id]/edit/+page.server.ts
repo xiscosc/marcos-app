@@ -14,7 +14,7 @@ export const load = (async ({ params, locals }) => {
 	const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
 	const customer = await customerService.getCustomerById(id);
 	if (customer == null) {
-		throw redirect(302, '/');
+		redirect(302, '/');
 	}
 
 	const form = await superValidate(zod(customerSchema));
@@ -36,7 +36,7 @@ export const actions = {
 		const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
 		const existingCustomer = await customerService.getCustomerById(id);
 		if (existingCustomer == null) {
-			throw redirect(302, '/');
+			redirect(302, '/');
 		}
 
 		try {
@@ -48,6 +48,6 @@ export const actions = {
 			throw fail(500);
 		}
 
-		return redirect(302, `/customers/${existingCustomer.id}`);
+		redirect(302, `/customers/${existingCustomer.id}`);
 	}
 };

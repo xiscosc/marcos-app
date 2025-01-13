@@ -8,6 +8,7 @@
 	import { promoteOrderSchema, type PromoteOrderSchema } from '$lib/shared/order.utilities';
 	import { dateProxy, superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import BottomSheetLoading from '$lib/components/BottomSheetLoading.svelte';
 
 	interface Props {
 		data: SuperValidated<Infer<PromoteOrderSchema>>;
@@ -19,19 +20,8 @@
 		id: 'promote-order-form'
 	});
 
-	const { enhance, submitting, errors } = form;
+	const { enhance, submitting } = form;
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });
-	let formLoading = $state(false);
-
-	$effect(() => {
-		if ($submitting) {
-			formLoading = true;
-		}
-
-		if ($errors.deliveryDate) {
-			formLoading = false;
-		}
-	});
 </script>
 
 {#snippet sheetTriggerPromote()}
@@ -41,17 +31,21 @@
 
 {#snippet sheetActionPromote()}
 	<form method="POST" use:enhance action="?/promote" class="flex flex-col gap-2">
-		<Form.Field {form} name="deliveryDate">
-			<Form.Control>
-				{#snippet children({ props })}
-					<Form.Label>Fecha de entrega:</Form.Label>
-					<Input {...props} bind:value={$proxyDate} type="date" />
-				{/snippet}
-			</Form.Control>
-			<Form.Description>La fecha debe ser posterior o igual a hoy.</Form.Description>
-			<Form.FieldErrors />
-		</Form.Field>
-		<Button text="Convertir en pedido" icon={IconType.EDIT} action={ButtonAction.SUBMIT}></Button>
+		{#if $submitting}
+			<BottomSheetLoading />
+		{:else}
+			<Form.Field {form} name="deliveryDate">
+				<Form.Control>
+					{#snippet children({ props })}
+						<Form.Label>Fecha de entrega:</Form.Label>
+						<Input {...props} bind:value={$proxyDate} type="date" />
+					{/snippet}
+				</Form.Control>
+				<Form.Description>La fecha debe ser posterior o igual a hoy.</Form.Description>
+				<Form.FieldErrors />
+			</Form.Field>
+			<Button text="Convertir en pedido" icon={IconType.EDIT} action={ButtonAction.SUBMIT}></Button>
+		{/if}
 	</form>
 {/snippet}
 
@@ -62,7 +56,6 @@ pedido conservará todos los elementos, precios y fotos del presupuesto."
 	trigger={sheetTriggerPromote}
 	action={sheetActionPromote}
 	iconType={IconType.ORDER_DEFAULT}
-	loading={formLoading}
 	triggerTextType={ButtonText.GRAY}
 	triggerStyle={ButtonStyle.ORDER_GENERIC}
 ></BottomSheet>

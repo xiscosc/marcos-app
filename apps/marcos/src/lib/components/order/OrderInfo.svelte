@@ -2,7 +2,9 @@
 	import { OrderUtilities } from '$lib/shared/order.utilities';
 	import { DateTime } from 'luxon';
 	import Box from '$lib/components/Box.svelte';
-	import { DimensionsType, OrderStatus, type Order } from '@marcsimolduressonsardina/core/type';
+	import { DimensionsType, type Order } from '@marcsimolduressonsardina/core/type';
+	import { IconSize, IconType } from '../icon/icon.enum';
+	import OrderInfoStep from './OrderInfoStep.svelte';
 
 	interface Props {
 		order: Order;
@@ -11,67 +13,51 @@
 	let { order }: Props = $props();
 </script>
 
-<Box title={`Detalles ${order.hasArrow ? ' ⬇︎' : ''}`}>
-	<div class="text-md grid gap-2 text-gray-700">
-		<div class="flex justify-between">
-			<span class="font-semibold">Dependiente:</span>
-			<span>{order.user.name}</span>
-		</div>
+<Box title={`Detalles ${order.hasArrow ? ' ⬇︎' : ''}`} collapsible>
+	<div class="flex flex-col gap-2">
+		<OrderInfoStep iconType={IconType.WORKER} title="Dependiente" value={order.user.name} />
+		<OrderInfoStep
+			iconType={IconType.CLOCK}
+			title="Fecha de recogida"
+			value={order.item.instantDelivery
+				? 'Al momento'
+				: DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+		/>
 
-		{#if order.status !== OrderStatus.QUOTE}
-			<div class="flex justify-between">
-				<span class="font-semibold">Fecha de recogida:</span>
-				<span>
-					{#if order.item.instantDelivery}
-						Al momento
-					{:else}
-						{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
-					{/if}
-				</span>
-			</div>
-		{/if}
+		<OrderInfoStep
+			iconType={IconType.RULER}
+			title="Medidas de la obra"
+			value={`${order.item.height}x${order.item.width} cm`}
+		/>
 
-		<div class="flex justify-between">
-			<span class="font-semibold">Medidas de la obra:</span>
-			<span>{`${order.item.height}x${order.item.width} cm`}</span>
-		</div>
-
-		<div class="flex justify-between">
-			<span class="font-semibold">Medidas de trabajo:</span>
-			<span>{OrderUtilities.getWorkingDimensions(order)}</span>
-		</div>
+		<OrderInfoStep
+			iconType={IconType.RULER}
+			title="Medidas de trabajo"
+			value={OrderUtilities.getWorkingDimensions(order)}
+		/>
 
 		{#if order.item.dimensionsType === DimensionsType.EXTERIOR}
-			<div class="flex justify-between">
-				<span class="font-semibold">Medidas exteriores del marco:</span>
-				<span>{`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}</span>
-			</div>
+			<OrderInfoStep
+				iconType={IconType.RULER}
+				title="Medidas exteriores del marco"
+				value={`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+			/>
 		{/if}
 
 		{#if order.item.dimensionsType === DimensionsType.ROUNDED || order.item.dimensionsType === DimensionsType.WINDOW}
-			<div class="flex justify-between">
-				<span class="font-semibold">Tipo de medidas:</span>
-				<span>
-					{#if order.item.dimensionsType === DimensionsType.ROUNDED}
-						Redondas
-					{:else}
-						A ventana
-					{/if}
-				</span>
-			</div>
+			<OrderInfoStep
+				iconType={IconType.SETTINGS}
+				title="Tipo de medidas"
+				value={order.item.dimensionsType === DimensionsType.ROUNDED ? 'Redondas' : 'A ventana'}
+			/>
 		{/if}
 
-		<div>
-			<span class="font-semibold">Descripción:</span>
-			<p class="mt-1 pl-2">{order.item.description}</p>
-		</div>
-
-		<div>
-			<span class="font-semibold">Observaciones:</span>
-			<p class="mt-1 pl-2">{order.item.observations}</p>
-			{#each order.item.predefinedObservations as obv}
-				<p class="mt-1 pl-2">- {obv}</p>
-			{/each}
-		</div>
+		<OrderInfoStep iconType={IconType.EYE} title="Descripción" value={order.item.description} />
+		<OrderInfoStep
+			iconType={IconType.LIST}
+			title="Observaciones"
+			value={order.item.observations}
+			valueList={order.item.predefinedObservations}
+		/>
 	</div>
 </Box>

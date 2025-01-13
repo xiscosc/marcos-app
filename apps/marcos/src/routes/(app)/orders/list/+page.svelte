@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import Box from '$lib/components/Box.svelte';
 	import Button from '$lib/components/button/Button.svelte';
@@ -11,6 +10,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		data: PageData;
@@ -19,8 +19,12 @@
 	let { data }: Props = $props();
 	let searchValue = $state('');
 	let timer: NodeJS.Timeout;
-	let searchOrders: FullOrder[] = $state([]);
+	let searchOrders: Promise<FullOrder[]> | undefined = $state(undefined);
+	let listOrders: Promise<FullOrder[]> | undefined = $state(undefined);
+	let paginatedListOrders: Promise<FullOrder[]> | undefined = $state(undefined);
 	let loading = $state(false);
+	let lastKey: Record<string, string | number> | undefined = $state();
+	let paginationAvailable = $derived(searchValue.length === 0 && lastKey != null);
 
 	function getStatus(statusStr: string) {
 		const status = statusStr as OrderStatus;
@@ -29,6 +33,35 @@
 			return `Listado de ${name}s`;
 		} else {
 			return `Pedidos ${name}s`;
+		}
+	}
+	async function getList(): Promise<FullOrder[]> {
+		if (data.priceManager) {
+			const response = await fetch('/api/orders/list', {
+				method: 'POST',
+				body: JSON.stringify({ lastKey, status: data.status }),
+				headers: {
+					'content-type': 'application/json'
+				}
+			});
+
+			const body: { orders: FullOrder[]; nextKey?: Record<string, string | number> } =
+				await response.json();
+			lastKey = body.nextKey;
+			return body.orders.map((fo) => ({
+				calculatedItem: fo.calculatedItem,
+				order: {
+					...fo.order,
+					item: {
+						...fo.order.item,
+						deliveryDate: new Date(fo.order.item.deliveryDate)
+					},
+					createdAt: new Date(fo.order.createdAt)
+				}
+			}));
+		} else {
+			lastKey = undefined;
+			return [];
 		}
 	}
 
@@ -62,12 +95,16 @@
 	const debounce = (v: string) => {
 		clearTimeout(timer);
 		loading = true;
-		searchOrders = [];
-		timer = setTimeout(async () => {
-			searchOrders = await search(v);
+		searchOrders = undefined;
+		timer = setTimeout(() => {
+			searchOrders = search(v);
 			loading = false;
 		}, 400);
 	};
+
+	onMount(async () => {
+		listOrders = getList();
+	});
 </script>
 
 <div class="space flex w-full flex-col gap-4">
@@ -106,20 +143,22 @@
 	</Box>
 
 	{#if searchValue.length === 0}
-		{#await data.orders}
-			<ProgressBar text="Cargando listado" />
-		{:then fullOrders}
-			<OrderList orders={fullOrders} />
-		{/await}
+		<OrderList
+			promiseOrders={listOrders}
+			newPromiseOrders={paginatedListOrders}
+			emptyMessage="EMPTY"
+			{paginationAvailable}
+			paginationFunction={() => {
+				paginatedListOrders = getList();
+			}}
+		/>
 	{/if}
 
 	{#if searchValue.length > 0}
 		{#if searchValue.length < 3}
 			<div class="w-full text-center">Escribe más de 3 carácteres</div>
-		{:else if loading}
-			<ProgressBar text="Buscando" />
 		{:else}
-			<OrderList orders={searchOrders} />
+			<OrderList promiseOrders={searchOrders} loadingCount={3} />
 		{/if}
 	{/if}
 </div>
