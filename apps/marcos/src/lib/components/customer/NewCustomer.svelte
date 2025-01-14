@@ -50,7 +50,7 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>Teléfono</Form.Label>
-							<Input {...props} bind:value={$formData.phone} />
+							<Input {...props} bind:value={$formData.phone} type="tel" />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
