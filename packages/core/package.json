@@ -19,8 +19,8 @@
 	"license": "ISC",
 	"description": "",
 	"devDependencies": {
-		"@smithy/types": "^3.5.0",
-		"@types/aws-lambda": "^8.10.145",
+		"@smithy/types": "^4.1.0",
+		"@types/aws-lambda": "^8.10.147",
 		"@types/lodash": "^4.17.10",
 		"@types/luxon": "^3.4.2",
 		"@types/mime-types": "^2.1.4",
@@ -31,10 +31,10 @@
 		"typescript": "^5.6.3"
 	},
 	"dependencies": {
-		"@aws-sdk/client-dynamodb": "^3.670.0",
-		"@aws-sdk/client-s3": "^3.668.0",
-		"@aws-sdk/lib-dynamodb": "^3.668.0",
-		"@aws-sdk/s3-request-presigner": "^3.668.0",
+		"@aws-sdk/client-dynamodb": "^3.726.1",
+		"@aws-sdk/client-s3": "^3.726.1",
+		"@aws-sdk/lib-dynamodb": "^3.726.1",
+		"@aws-sdk/s3-request-presigner": "^3.726.1",
 		"lodash": "^4.17.21",
 		"luxon": "^3.5.0",
 		"mime-types": "^2.1.35",
