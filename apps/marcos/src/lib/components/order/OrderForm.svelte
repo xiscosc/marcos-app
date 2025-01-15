@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dateProxy, intProxy, superForm } from 'sveltekit-superforms';
+	import { dateProxy, superForm } from 'sveltekit-superforms';
 	import { Toaster, toast } from 'svelte-sonner';
 
 	import type { PreCalculatedItemPartRequest } from '$lib/type/api.type';
@@ -32,7 +32,7 @@
 	import Label from '../ui/label/label.svelte';
 	import Input from '../ui/input/input.svelte';
 	import Switch from '../ui/switch/switch.svelte';
-	import * as Select from '../ui/select/index.js';
+	import * as NativeSelect from '../ui/native-select/index.js';
 	import Textarea from '../ui/textarea/textarea.svelte';
 	import {
 		CalculatedItemUtilities,
@@ -778,84 +778,84 @@
 								addValue={addFromPricingSelector}
 								showExtraInfo={true}
 								added={addedPP}
-							/>
-
-							<div class="flex flex-1 flex-col gap-2">
-								<Label for="pp">Medida PP (cm):</Label>
-								<Input
-									type="number"
-									step="0.01"
-									name="pp"
-									onchange={() => handleDimensionsChangeEvent()}
-									bind:value={$form.pp}
-									success={addedPPMeaseures}
-									disabled={asymetricPP}
-									error={$errors.pp ? true : false}
-								/>
-							</div>
-
-							<div
-								class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
 							>
-								<Label for="pp">PP Asimétrico</Label>
-								<Switch
-									name="ppAsymetric"
-									bind:checked={asymetricPP}
-									onchange={() => handleDimensionsChangeEvent()}
-								/>
-							</div>
-
-							{#if asymetricPP}
-								<Spacer title={'Medidas PP (cm)'} />
-
-								<div class="flex flex-col gap-2">
-									<Label for="upPP">Arriba:</Label>
+								<div class="flex flex-1 flex-col gap-2">
+									<Label for="pp">Medida PP (cm):</Label>
 									<Input
 										type="number"
 										step="0.01"
-										name="upPP"
+										name="pp"
 										onchange={() => handleDimensionsChangeEvent()}
-										bind:value={upPP}
+										bind:value={$form.pp}
 										success={addedPPMeaseures}
+										disabled={asymetricPP}
+										error={$errors.pp ? true : false}
 									/>
 								</div>
 
-								<div class="flex flex-col gap-2">
-									<Label for="downPP">Abajo:</Label>
-									<Input
-										type="number"
-										step="0.01"
-										name="downPP"
+								<div
+									class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
+								>
+									<Label for="pp">PP Asimétrico</Label>
+									<Switch
+										name="ppAsymetric"
+										bind:checked={asymetricPP}
 										onchange={() => handleDimensionsChangeEvent()}
-										bind:value={downPP}
-										success={addedPPMeaseures}
 									/>
 								</div>
 
-								<div class="flex flex-col gap-2">
-									<Label for="leftPP">Izquierda:</Label>
-									<Input
-										type="number"
-										step="0.01"
-										name="leftPP"
-										onchange={() => handleDimensionsChangeEvent()}
-										bind:value={leftPP}
-										success={addedPPMeaseures}
-									/>
-								</div>
+								{#if asymetricPP}
+									<Spacer title={'Medidas PP (cm)'} />
 
-								<div class="flex flex-col gap-2">
-									<Label for="rightPP">Derecha:</Label>
-									<Input
-										type="number"
-										step="0.01"
-										name="rightPP"
-										onchange={() => handleDimensionsChangeEvent()}
-										bind:value={rightPP}
-										success={addedPPMeaseures}
-									/>
-								</div>
-							{/if}
+									<div class="flex flex-col gap-2">
+										<Label for="upPP">Arriba:</Label>
+										<Input
+											type="number"
+											step="0.01"
+											name="upPP"
+											onchange={() => handleDimensionsChangeEvent()}
+											bind:value={upPP}
+											success={addedPPMeaseures}
+										/>
+									</div>
+
+									<div class="flex flex-col gap-2">
+										<Label for="downPP">Abajo:</Label>
+										<Input
+											type="number"
+											step="0.01"
+											name="downPP"
+											onchange={() => handleDimensionsChangeEvent()}
+											bind:value={downPP}
+											success={addedPPMeaseures}
+										/>
+									</div>
+
+									<div class="flex flex-col gap-2">
+										<Label for="leftPP">Izquierda:</Label>
+										<Input
+											type="number"
+											step="0.01"
+											name="leftPP"
+											onchange={() => handleDimensionsChangeEvent()}
+											bind:value={leftPP}
+											success={addedPPMeaseures}
+										/>
+									</div>
+
+									<div class="flex flex-col gap-2">
+										<Label for="rightPP">Derecha:</Label>
+										<Input
+											type="number"
+											step="0.01"
+											name="rightPP"
+											onchange={() => handleDimensionsChangeEvent()}
+											bind:value={rightPP}
+											success={addedPPMeaseures}
+										/>
+									</div>
+								{/if}
+							</PricingSelectorSection>
 
 							{@render cartItemList(
 								partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP)
@@ -1061,16 +1061,11 @@
 
 							<div class="flex flex-col gap-2">
 								<Label for="otherQuantityElements">Cantidad</Label>
-								<Select.Root type="single" name="otherQuantityElements" bind:value={otherQuantity}>
-									<Select.Trigger>
-										{otherQuantity}
-									</Select.Trigger>
-									<Select.Content>
-										{#each Array(10) as _, i (i)}
-											<Select.Item value={String(i + 1)}>{i + 1}</Select.Item>
-										{/each}
-									</Select.Content>
-								</Select.Root>
+								<NativeSelect.Root name="otherQuantityElements" bind:value={otherQuantity}>
+									{#each Array(10) as _, i (i)}
+										<option value={String(i + 1)}>{i + 1}</option>
+									{/each}
+								</NativeSelect.Root>
 							</div>
 
 							<div class="lg:col-span-2">
@@ -1179,18 +1174,16 @@
 
 							<div class="flex flex-col gap-2">
 								<Label for="discount">Descuento:</Label>
-								<Select.Root type="single" name="discount" bind:value={$form.discount}>
-									<Select.Trigger success={addedDiscount}
-										>{$form.discount !== ''
-											? OrderUtilities.getDiscountRepresentation(parseInt($form.discount))
-											: 'Seleccionar'}</Select.Trigger
-									>
-									<Select.Content>
-										{#each Object.entries(discountMap) as [key, value]}
-											<Select.Item value={String(value)}>{key}</Select.Item>
-										{/each}
-									</Select.Content>
-								</Select.Root>
+								<NativeSelect.Root
+									name="discount"
+									bind:value={$form.discount}
+									success={addedDiscount}
+								>
+									<option></option>
+									{#each Object.entries(discountMap) as [key, value]}
+										<option value={String(value)}>{key}</option>
+									{/each}
+								</NativeSelect.Root>
 							</div>
 
 							<div

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form/index.js';
-	import * as Select from '$lib/components/ui/select/index.js';
+	import * as NativeSelect from '$lib/components/ui/native-select/index.js';
 	import BottomSheet from '$lib/components/BottomSheet.svelte';
 	import { ButtonAction, ButtonText } from '$lib/components/button/button.enum';
 	import Button from '$lib/components/button/Button.svelte';
@@ -66,18 +66,12 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>Nueva ubicación:</Form.Label>
-							<Select.Root type="single" bind:value={$formData.location} name={props.name}>
-								<Select.Trigger {...props}
-									>{$formData.location
-										? $formData.location
-										: 'Seleccione una ubicación'}</Select.Trigger
-								>
-								<Select.Content>
-									{#each locations as l}
-										<Select.Item value={l}>{l}</Select.Item>
-									{/each}
-								</Select.Content>
-							</Select.Root>
+							<NativeSelect.Root name={props.name} bind:value={$formData.location}>
+								<option></option>
+								{#each locations as l}
+									<option value={l}>{l}</option>
+								{/each}
+							</NativeSelect.Root>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
