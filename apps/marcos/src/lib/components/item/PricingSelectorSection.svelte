@@ -5,7 +5,8 @@
 	import { IconSize, IconType } from '../icon/icon.enum';
 	import Label from '../ui/label/label.svelte';
 	import Input from '../ui/input/input.svelte';
-	import * as Select from '../ui/select/index.js';
+	import type { Snippet } from 'svelte';
+	import * as NativeSelect from '../ui/native-select/index.js';
 
 	interface Props {
 		sectionTitle: string;
@@ -21,6 +22,7 @@
 		locationIdForExtraPrices?: string | undefined;
 		showExtraInfo?: boolean;
 		added: boolean;
+		children?: Snippet;
 	}
 
 	let {
@@ -31,7 +33,8 @@
 		extraPrices = [],
 		locationIdForExtraPrices = undefined,
 		showExtraInfo = false,
-		added
+		added,
+		children = undefined
 	}: Props = $props();
 	function getSelectLabel(price: ListPriceWithMold): string {
 		return price.description ?? price.id;
@@ -129,23 +132,15 @@
 	<div class="flex flex-col justify-center gap-3 lg:grid lg:grid-cols-2 lg:items-end">
 		<div class="flex flex-col gap-2">
 			<Label for="priceId">{label}:</Label>
-			<Select.Root type="single" name="priceId" bind:value={selectedId}>
-				<Select.Trigger success={added}
-					>{selectedId ? getSelectLabel(pricesMap.get(selectedId)!) : 'Seleccionar'}</Select.Trigger
-				>
-				<Select.Content>
-					{#each defaultPrices as price}
-						<Select.Item data-mold={price.moldId} value={getId(price)}
-							>{getSelectLabel(price)}</Select.Item
-						>
-					{/each}
-					{#each normalPrices as price}
-						<Select.Item data-mold={price.moldId} value={getId(price)}
-							>{getSelectLabel(price)}</Select.Item
-						>
-					{/each}
-				</Select.Content>
-			</Select.Root>
+			<NativeSelect.Root name="priceId" bind:value={selectedId} success={added}>
+				<option value=""></option>
+				{#each defaultPrices as price}
+					<option value={getId(price)} data-mold={price.moldId}>{getSelectLabel(price)}</option>
+				{/each}
+				{#each normalPrices as price}
+					<option value={getId(price)} data-mold={price.moldId}>{getSelectLabel(price)}</option>
+				{/each}
+			</NativeSelect.Root>
 		</div>
 
 		{#if showExtraInfo}
@@ -153,6 +148,7 @@
 				<Label for="extraInfoValue">Número:</Label>
 				<Input type="text" name="extraInfoValue" bind:value={extraInfo} success={added} />
 			</div>
+			{@render children?.()}
 			<div class="w-full lg:col-span-2 lg:w-auto">
 				<Button
 					icon={IconType.PLUS}
@@ -164,6 +160,7 @@
 				></Button>
 			</div>
 		{:else}
+			{@render children?.()}
 			<div class="w-full lg:w-auto">
 				<Button
 					icon={IconType.PLUS}
