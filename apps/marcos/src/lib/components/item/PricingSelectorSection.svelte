@@ -146,7 +146,7 @@
 		{#if showExtraInfo}
 			<div class="flex flex-col gap-2">
 				<Label for="extraInfoValue">Número:</Label>
-				<Input type="tel" name="extraInfoValue" bind:value={extraInfo} success={added} />
+				<Input type="text" name="extraInfoValue" bind:value={extraInfo} success={added} />
 			</div>
 			{@render children?.()}
 			<div class="w-full lg:col-span-2 lg:w-auto">
