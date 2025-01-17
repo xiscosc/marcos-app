@@ -1,7 +1,7 @@
 import { AuthService } from '$lib/server/service/auth.service';
 import type { CustomSession } from '$lib/type/api.type';
 import { OrderService } from '@marcsimolduressonsardina/core/service';
-import type { OrderStatus } from '@marcsimolduressonsardina/core/type';
+import { OrderStatus } from '@marcsimolduressonsardina/core/type';
 import { json } from '@sveltejs/kit';
 
 export async function POST({ request, locals }) {
@@ -20,6 +20,12 @@ export async function POST({ request, locals }) {
 		lastKey?: Record<string, string | number>;
 		status: OrderStatus;
 	};
+
+	const allowedStatus = [OrderStatus.QUOTE, OrderStatus.PENDING, OrderStatus.FINISHED];
+	if (allowedStatus.indexOf(status) === -1) {
+		return json({ error: 'Invalid status' }, { status: 400 });
+	}
+
 	const paginatedOrders = await orderService.getOrdersByStatusPaginated(status, lastKey);
 	return json({ orders: paginatedOrders.orders, nextKey: paginatedOrders.nextKey });
 }

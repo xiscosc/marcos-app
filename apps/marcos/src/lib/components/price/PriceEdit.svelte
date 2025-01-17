@@ -26,7 +26,7 @@
 	import Banner from '../Banner.svelte';
 	import SimpleHeading from '../SimpleHeading.svelte';
 	import Input from '../ui/input/input.svelte';
-	import * as Select from '../ui/select/index.js';
+	import * as NativeSelect from '../ui/native-select/index.js';
 	import Box from '../Box.svelte';
 	import { Switch } from '../ui/switch';
 	import Label from '../ui/label/label.svelte';
@@ -194,25 +194,19 @@
 									{#snippet children({ props })}
 										<Form.Label>Tipo:</Form.Label>
 										{#if !isNew && $formData.type === PricingType.MOLD}
-											<Select.Root type="single" name={props.name} disabled>
-												<Select.Trigger>Marco/Moldura</Select.Trigger>
-											</Select.Root>
+											<NativeSelect.Root name={props.name} disabled>
+												<option>Marco/Moldura</option>
+											</NativeSelect.Root>
 										{:else}
-											<Select.Root
-												type="single"
+											<NativeSelect.Root
 												name={props.name}
 												bind:value={$formData.type}
 												disabled={!isNew}
 											>
-												<Select.Trigger
-													>{pricingTypesMap[$formData.type as EditablePricingTypes]}</Select.Trigger
-												>
-												<Select.Content>
-													{#each Object.entries(pricingTypesMap) as [p, label]}
-														<Select.Item value={p}>{label}</Select.Item>
-													{/each}
-												</Select.Content>
-											</Select.Root>
+												{#each Object.entries(pricingTypesMap) as [p, label]}
+													<option value={p}>{label}</option>
+												{/each}
+											</NativeSelect.Root>
 										{/if}
 									{/snippet}
 								</Form.Control>
@@ -224,25 +218,19 @@
 									{#snippet children({ props })}
 										<Form.Label>Cómo calcular:</Form.Label>
 										{#if !isNew && $formData.type === PricingType.MOLD}
-											<Select.Root type="single" name={props.name} disabled>
-												<Select.Trigger>Marco/Moldura</Select.Trigger>
-											</Select.Root>
+											<NativeSelect.Root name={props.name} disabled>
+												<option>Marco/Moldura</option>
+											</NativeSelect.Root>
 										{:else}
-											<Select.Root
-												type="single"
+											<NativeSelect.Root
 												name={props.name}
 												bind:value={$formData.formula}
-												onValueChange={handleFormulaChange}
+												disabled={!isNew}
 											>
-												<Select.Trigger
-													>{formulasMap[$formData.formula as PricingFormula]}</Select.Trigger
-												>
-												<Select.Content>
-													{#each Object.entries(formulasMap) as [p, label]}
-														<Select.Item value={p}>{label}</Select.Item>
-													{/each}
-												</Select.Content>
-											</Select.Root>
+												{#each Object.entries(formulasMap) as [p, label]}
+													<option value={p}>{label}</option>
+												{/each}
+											</NativeSelect.Root>
 										{/if}
 									{/snippet}
 								</Form.Control>
