@@ -60,7 +60,11 @@
 						...price.areasM2
 					])}</Table.Cell
 				>
-				<Table.Cell>{formulasMap[price.formula]}</Table.Cell>
+				<Table.Cell
+					>{selectedType === PricingType.MOLD
+						? 'Marco / Moldura'
+						: formulasMap[price.formula]}</Table.Cell
+				>
 				<Table.Cell class="text-right">
 					<button type="button" onclick={() => goto(`/config/prices/${price.internalId}`)}>
 						<Icon type={IconType.EDIT}></Icon>

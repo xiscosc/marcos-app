@@ -5,19 +5,25 @@
 	import Button from '$lib/components/button/Button.svelte';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
 	import { OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core/type';
-	import { ButtonStyle } from '$lib/components/button/button.enum';
+	import { ButtonAction, ButtonStyle, ButtonText } from '$lib/components/button/button.enum';
 	import OrderList from '$lib/components/order/OrderList.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 
 	interface Props {
 		data: PageData;
 	}
 
+	const allowedStatus = [OrderStatus.QUOTE, OrderStatus.PENDING, OrderStatus.FINISHED];
+	const initialStatus = $page.url.searchParams.get('status') as OrderStatus;
 	let { data }: Props = $props();
 	let searchValue = $state('');
+	let status: OrderStatus = $state(
+		allowedStatus.indexOf(initialStatus) === -1 ? OrderStatus.PENDING : initialStatus
+	);
 	let timer: NodeJS.Timeout;
 	let searchOrders: Promise<FullOrder[]> | undefined = $state(undefined);
 	let listOrders: Promise<FullOrder[]> | undefined = $state(undefined);
@@ -39,7 +45,7 @@
 		if (data.priceManager) {
 			const response = await fetch('/api/orders/list', {
 				method: 'POST',
-				body: JSON.stringify({ lastKey, status: data.status }),
+				body: JSON.stringify({ lastKey, status }),
 				headers: {
 					'content-type': 'application/json'
 				}
@@ -72,7 +78,7 @@
 
 		const response = await fetch('/api/orders/search', {
 			method: 'POST',
-			body: JSON.stringify({ query, status: data.status }),
+			body: JSON.stringify({ query, status }),
 			headers: {
 				'content-type': 'application/json'
 			}
@@ -105,27 +111,61 @@
 	onMount(async () => {
 		listOrders = getList();
 	});
+
+	async function changeStatus(newStatus: OrderStatus) {
+		lastKey = undefined;
+		listOrders = undefined;
+		searchOrders = undefined;
+		status = newStatus;
+		if (searchValue.length > 0) {
+			searchOrders = search(searchValue);
+		} else {
+			listOrders = getList();
+		}
+	}
+
+	$inspect(status);
 </script>
 
 <div class="space flex w-full flex-col gap-4">
-	<SimpleHeading icon={IconType.ORDER_DEFAULT}>{getStatus(data.status)}</SimpleHeading>
+	<SimpleHeading icon={IconType.ORDER_DEFAULT}>{getStatus(status)}</SimpleHeading>
 	<Box>
 		<div class="flex flex-col gap-3">
-			{#if data.status !== OrderStatus.QUOTE}
+			{#if status !== OrderStatus.QUOTE}
 				<div
 					class="flex w-full flex-col place-content-center items-center justify-center gap-3 md:grid md:grid-cols-2"
 				>
 					<Button
-						text="Ver pedidos finalizados"
-						link={`/orders/list?status=${OrderStatus.FINISHED}`}
-						style={ButtonStyle.ORDER_FINISHED}
+						text={status === OrderStatus.FINISHED
+							? 'Viendo pedidos finalizados'
+							: 'Ver pedidos finalizados'}
+						action={ButtonAction.CLICK}
+						onClick={() => {
+							if (status !== OrderStatus.FINISHED) {
+								changeStatus(OrderStatus.FINISHED);
+							}
+						}}
+						style={status === OrderStatus.FINISHED
+							? ButtonStyle.ORDER_FINISHED_VARIANT
+							: ButtonStyle.ORDER_FINISHED}
+						textType={status === OrderStatus.FINISHED ? ButtonText.NO_COLOR : ButtonText.WHITE}
 						icon={getStatusUIInfo(OrderStatus.FINISHED).statusIcon}
 					></Button>
 
 					<Button
-						text="Ver pedidos pendientes"
-						link={`/orders/list?status=${OrderStatus.PENDING}`}
-						style={ButtonStyle.ORDER_PENDING}
+						text={status === OrderStatus.PENDING
+							? 'Viendo pedidos pendientes'
+							: 'Ver pedidos pendientes'}
+						action={ButtonAction.CLICK}
+						onClick={() => {
+							if (status !== OrderStatus.PENDING) {
+								changeStatus(OrderStatus.PENDING);
+							}
+						}}
+						style={status === OrderStatus.PENDING
+							? ButtonStyle.ORDER_PENDING_VARIANT
+							: ButtonStyle.ORDER_PENDING}
+						textType={status === OrderStatus.PENDING ? ButtonText.NO_COLOR : ButtonText.WHITE}
 						icon={getStatusUIInfo(OrderStatus.PENDING).statusIcon}
 					></Button>
 				</div>
