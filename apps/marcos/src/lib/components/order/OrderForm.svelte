@@ -76,14 +76,14 @@
 	let predefinedObservations: string[] = $state(
 		$form.predefinedObservations.length > 0 ? $form.predefinedObservations : []
 	);
-	let partsToCalculate: PreCalculatedItemPart[] = $state(
+	let partsToCalculate: PreCalculatedItemPart[] = $state.raw(
 		$form.partsToCalculate.length > 0
 			? $form.partsToCalculate.map((p) => ({ ...p, type: p.type as PricingType }))
 			: []
 	);
 
-	let partsToCalulatePreview: TempParts = $state([]);
-	let extraParts: CalculatedItemPart[] = $state(
+	let partsToCalulatePreview: TempParts = $state.raw([]);
+	let extraParts: CalculatedItemPart[] = $state.raw(
 		$form.extraParts.length > 0
 			? $form.extraParts
 			: [
