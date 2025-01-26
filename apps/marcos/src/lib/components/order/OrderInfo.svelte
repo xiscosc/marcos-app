@@ -2,7 +2,7 @@
 	import { OrderUtilities } from '$lib/shared/order.utilities';
 	import { DateTime } from 'luxon';
 	import Box from '$lib/components/Box.svelte';
-	import { DimensionsType, type Order } from '@marcsimolduressonsardina/core/type';
+	import { DimensionsType, OrderStatus, type Order } from '@marcsimolduressonsardina/core/type';
 	import { IconSize, IconType } from '../icon/icon.enum';
 	import OrderInfoStep from './OrderInfoStep.svelte';
 
@@ -16,13 +16,16 @@
 <Box title={`Detalles ${order.hasArrow ? ' ⬇︎' : ''}`} collapsible>
 	<div class="flex flex-col gap-2">
 		<OrderInfoStep iconType={IconType.WORKER} title="Dependiente" value={order.user.name} />
-		<OrderInfoStep
-			iconType={IconType.CLOCK}
-			title="Fecha de recogida"
-			value={order.item.instantDelivery
-				? 'Al momento'
-				: DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
-		/>
+
+		{#if order.status !== OrderStatus.QUOTE}
+			<OrderInfoStep
+				iconType={IconType.CLOCK}
+				title="Fecha de recogida"
+				value={order.item.instantDelivery
+					? 'Al momento'
+					: DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+			/>
+		{/if}
 
 		<OrderInfoStep
 			iconType={IconType.RULER}
