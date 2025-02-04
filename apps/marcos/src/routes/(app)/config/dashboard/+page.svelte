@@ -13,7 +13,7 @@
 	import DateRangePicker from '$lib/components/dashboard/DateRangePicker.svelte';
 
 	const today = DateTime.now().startOf('day');
-	const daysAgo = DateTime.now().minus({ days: 21 });
+	const daysAgo = DateTime.now().startOf('month');
 
 	let dashboardReport: DashboardReport | undefined = $state();
 	let loading = $state(true);
@@ -24,6 +24,12 @@
 		year: daysAgo.year
 	});
 	let endDate: ReportDate = $state({ day: today.day, month: today.month, year: today.year });
+
+	let isSameDay = $derived(twoDatesAreTheSame(startDate, endDate));
+
+	function twoDatesAreTheSame(date1: ReportDate, date2: ReportDate): boolean {
+		return date1.day === date2.day && date1.month === date2.month && date1.year === date2.year;
+	}
 
 	async function getDashboard(start: ReportDate, end: ReportDate): Promise<void> {
 		loading = true;
@@ -77,27 +83,29 @@
 			{@render counter('Total ítems', dashboardReport.totalItems, IconType.LIST)}
 		</div>
 
-		<Box title="Pedidos diarios" icon={IconType.CHART_LINES}>
-			<Chart
-				type="line"
-				unit="Pedidos"
-				data={dashboardReport.dailyOrders.map((d) => ({
-					name: `${d.date.day}/${d.date.month}/${d.date.year}`,
-					total: d.total
-				}))}
-			/>
-		</Box>
+		{#if !isSameDay}
+			<Box title="Pedidos diarios" icon={IconType.CHART_LINES}>
+				<Chart
+					type="line"
+					unit="Pedidos"
+					data={dashboardReport.dailyOrders.map((d) => ({
+						name: `${d.date.day}/${d.date.month}/${d.date.year}`,
+						total: d.total
+					}))}
+				/>
+			</Box>
 
-		<Box title="Caja diaria" icon={IconType.CHART_BARS}>
-			<Chart
-				type="bar"
-				unit="€"
-				data={dashboardReport.dailyCash.map((d) => ({
-					name: `${d.date.day}/${d.date.month}/${d.date.year}`,
-					total: d.total
-				}))}
-			/>
-		</Box>
+			<Box title="Caja diaria" icon={IconType.CHART_BARS}>
+				<Chart
+					type="bar"
+					unit="€"
+					data={dashboardReport.dailyCash.map((d) => ({
+						name: `${d.date.day}/${d.date.month}/${d.date.year}`,
+						total: d.total
+					}))}
+				/>
+			</Box>
+		{/if}
 
 		<Box title="Top pedidos" icon={IconType.ORDER_DEFAULT}>
 			<Table.Root>
