@@ -5,18 +5,21 @@ import {
 	CalculatedItemService,
 	ConfigService,
 	FileService,
+	OrderAuditTrailService,
 	OrderService,
 	type ISameDayOrderCounters
 } from '@marcsimolduressonsardina/core/service';
 import {
+	OrderAuditTrailType,
 	OrderStatus,
 	PaymentStatus,
 	type AppUser,
 	type CalculatedItem,
-	type Order
+	type Order,
+	type OrderAuditTrailEntry
 } from '@marcsimolduressonsardina/core/type';
 import { AuthService } from '$lib/server/service/auth.service';
-import { superValidate, setError } from 'sveltekit-superforms';
+import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import {
 	locationOrderSchema,
@@ -65,10 +68,12 @@ async function loadData(
 	calculatedItem: CalculatedItem | null;
 	hasFiles: boolean;
 	locations: string[];
+	notificationEntries: OrderAuditTrailEntry[];
 }> {
 	const config = AuthService.generateConfiguration(user);
 	const orderService = new OrderService(config);
 	const configService = new ConfigService(config);
+	const auditTrailService = new OrderAuditTrailService(config);
 	const calculatedItemService = new CalculatedItemService(config);
 	const fileService = new FileService(config);
 	const order = await orderService.getOrderById(orderId);
@@ -78,7 +83,17 @@ async function loadData(
 	const unfinishedSameDayCount = order
 		? await orderService.getOrdersCountOnSameDay(order)
 		: { finishedCount: 0, pendingCount: 0, totalCount: 1 };
-	return { order, calculatedItem, hasFiles: files.length > 0, unfinishedSameDayCount, locations };
+	const notificationEntries = order?.notified
+		? await auditTrailService.getEntriesForOrder(orderId, OrderAuditTrailType.NOTIFICATION)
+		: [];
+	return {
+		order,
+		calculatedItem,
+		hasFiles: files.length > 0,
+		unfinishedSameDayCount,
+		locations,
+		notificationEntries
+	};
 }
 
 export const load = (async ({ params, locals }) => {

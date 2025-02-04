@@ -51,6 +51,15 @@ export class OrderAuditTrailService {
 		return filteredDtos.map((dto) => OrderAuditTrailService.fromDto(dto));
 	}
 
+	async getEntriesForOrder(
+		orderId: string,
+		type?: OrderAuditTrailType
+	): Promise<OrderAuditTrailEntry[]> {
+		const dtos = await this.auditRepository.getOrderAuditTrailEntriesForOrder(orderId);
+		const filteredDtos = type ? dtos.filter((dto) => dto.type === type.toString()) : dtos;
+		return filteredDtos.map((dto) => OrderAuditTrailService.fromDto(dto));
+	}
+
 	async logOrderFileDeleted(orderId: string, fileId: string) {
 		await this.pushChanges(orderId, OrderAuditTrailType.ATTACHMENT, '', fileId);
 	}

@@ -20,6 +20,8 @@
 	import OrderSkeletonHeader from '$lib/components/order/OrderSkeletonHeader.svelte';
 	import { OrderUtilities } from '@marcsimolduressonsardina/core/util';
 	import { OrderStatus } from '@marcsimolduressonsardina/core/type';
+	import Step from '@/components/Step.svelte';
+	import { DateTime } from 'luxon';
 
 	let formLoading = $state(false);
 
@@ -123,6 +125,22 @@
 				<OrderInfo order={info.order}></OrderInfo>
 
 				<OrderElements order={info.order} calculatedItem={info.calculatedItem}></OrderElements>
+
+				{#if info.notificationEntries.length > 0}
+					<Box title="Avisos al cliente">
+						<div class="flex flex-col gap-2">
+							{#each info.notificationEntries as entry}
+								<Step
+									icon={IconType.WHATSAPP}
+									title={entry.userName}
+									subtitle="Mensaje finalizado - {DateTime.fromJSDate(entry.createdAt).toFormat(
+										'dd/MM/yyyy HH:mm'
+									)}"
+								></Step>
+							{/each}
+						</div>
+					</Box>
+				{/if}
 
 				{#if data.isPriceManager}
 					<DeleteOrderBottomSheet order={info.order}></DeleteOrderBottomSheet>
