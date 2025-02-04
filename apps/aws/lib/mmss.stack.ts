@@ -47,11 +47,11 @@ export class MmSsStack extends Stack {
 							'dynamodb:Scan',
 							'dynamodb:Query'
 						],
-						resources: storeTableArns
+						resources: [...storeTableArns, ...analyticsTableArns]
 					}),
 					new PolicyStatement({
 						actions: ['dynamodb:Scan', 'dynamodb:Query'],
-						resources: storeTableArns.map((arn) => `${arn}/index/*`)
+						resources: [...storeTableArns, ...analyticsTableArns].map((arn) => `${arn}/index/*`)
 					})
 				]
 			}
