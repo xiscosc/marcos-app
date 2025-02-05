@@ -16,4 +16,6 @@
 	<title>Marcs i Moldures Son Sardina</title>
 </svelte:head>
 
-{@render children?.()}
+<div class="flex min-h-screen flex-col bg-[#F7F5F2]">
+	{@render children?.()}
+</div>
