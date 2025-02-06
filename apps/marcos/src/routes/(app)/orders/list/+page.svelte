@@ -12,6 +12,7 @@
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		data: PageData;
@@ -113,6 +114,7 @@
 	});
 
 	async function changeStatus(newStatus: OrderStatus) {
+		goto('?status=' + newStatus.toString());
 		lastKey = undefined;
 		listOrders = undefined;
 		searchOrders = undefined;

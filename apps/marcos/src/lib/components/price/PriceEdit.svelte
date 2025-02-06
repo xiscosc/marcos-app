@@ -224,6 +224,7 @@
 										{:else}
 											<NativeSelect.Root
 												name={props.name}
+												onchange={handleFormulaChange}
 												bind:value={$formData.formula}
 												disabled={!isNew}
 											>
