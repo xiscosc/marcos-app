@@ -9,7 +9,7 @@
 	let { text = undefined }: Props = $props();
 </script>
 
-<div class="flex w-full flex-col items-center justify-center gap-2 !text-gray-600">
+<div class="flex w-full flex-col items-center justify-center gap-2 text-gray-600!">
 	<div class="animate-bounce">
 		<Icon size={IconSize.XXL} type={IconType.LOADING} />
 	</div>
