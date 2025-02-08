@@ -64,7 +64,7 @@
 		<div
 			aria-label="Close gallery"
 			tabindex="0"
-			class="absolute inset-0 bg-white/90 backdrop-blur"
+			class="absolute inset-0 bg-white/90 backdrop-blur-sm"
 			onclick={() => closeGallery()}
 			onkeydown={(e) => {
 				if (e.key === 'Enter' || e.key === ' ') {

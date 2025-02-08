@@ -40,7 +40,7 @@
 </svelte:head>
 <div class="flex min-h-screen flex-col bg-[#F7F5F2]">
 	<header
-		class={`sticky top-0 z-20 flex items-center justify-between border-b p-3 backdrop-blur ${headerBackgroundClasses}`}
+		class={`sticky top-0 z-20 flex items-center justify-between border-b p-3 backdrop-blur-sm ${headerBackgroundClasses}`}
 	>
 		<div class="flex items-center">
 			<a href="/" class="text-black">

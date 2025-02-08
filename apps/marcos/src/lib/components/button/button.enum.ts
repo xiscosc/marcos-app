@@ -29,7 +29,7 @@ export enum ButtonText {
 
 export enum ButtonType {
 	DEFAULT = 'rounded-md px-4 py-2 text-center focus:ring-offset-2 focus:ring-gray-500 focus:ring-2',
-	SMALL = 'rounded-md px-2 py-1 text-center focus:outline-none focus:ring-offset-2 focus:ring-gray-500 focus:ring-2',
+	SMALL = 'rounded-md px-2 py-1 text-center focus:outline-hidden focus:ring-offset-2 focus:ring-gray-500 focus:ring-2',
 	HOME = 'w-full rounded-md px-6 py-4 text-left text-lg font-semibold focus:ring-offset-2 focus:ring-gray-500 focus:ring-2'
 }
 

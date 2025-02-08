@@ -794,7 +794,7 @@
 								</div>
 
 								<div
-									class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
+									class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-xs"
 								>
 									<Label for="pp">PP Asimétrico</Label>
 									<Switch
@@ -1116,7 +1116,7 @@
 							<div class="flex flex-col gap-2 lg:col-span-2">
 								<Label for="quantity">Cantidad:</Label>
 								<div
-									class="flex flex-row justify-between gap-3 rounded-md border p-2 shadow-sm lg:col-span-2"
+									class="flex flex-row justify-between gap-3 rounded-md border p-2 shadow-xs lg:col-span-2"
 								>
 									<input
 										class="text-md w-full px-2"
@@ -1165,7 +1165,7 @@
 							{/if}
 
 							<div
-								class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
+								class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-xs"
 								class:lg:col-span-2={$form.instantDelivery}
 							>
 								<Label for="instantDelivery">Al momento</Label>
@@ -1187,7 +1187,7 @@
 							</div>
 
 							<div
-								class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-sm"
+								class="flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 shadow-xs"
 							>
 								<Label for="hasArrow"><Icon type={IconType.DOWN} /></Label>
 								<Switch name="hasArrow" bind:checked={$form.hasArrow} />

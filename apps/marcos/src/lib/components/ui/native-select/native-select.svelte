@@ -14,7 +14,7 @@
 	}: WithElementRef<HTMLSelectAttributes & { success?: boolean }> = $props();
 
 	const defaultClass =
-		'appearance-none data-[success=true]:bg-green-100 data-[success=true]:focus:border-green-200 data-[success=true]:focus:ring-green-200 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1';
+		'appearance-none data-[success=true]:bg-green-100 data-[success=true]:focus:border-green-200 data-[success=true]:focus:ring-green-200 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-hidden focus:ring-1 focus:ring-ring focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground [&>span]:line-clamp-1';
 </script>
 
 <div class="relative w-full">
