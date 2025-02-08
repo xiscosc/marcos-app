@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { type Snippet, onMount } from 'svelte';
 	import '../../app.pcss';
 	import type { LayoutData } from './$types';
 	import { initPosthog } from '@/shared/analytics.utilities';
@@ -11,7 +11,9 @@
 
 	let { data, children }: Props = $props();
 
-	initPosthog(data.envName);
+	onMount(() => {
+		initPosthog(data.envName);
+	});
 </script>
 
 <svelte:head>

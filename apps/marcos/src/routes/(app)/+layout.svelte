@@ -6,7 +6,7 @@
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import Box from '$lib/components/Box.svelte';
-	import { type Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { initPosthog } from '@/shared/analytics.utilities';
 
 	interface Props {
@@ -16,7 +16,9 @@
 
 	let { data, children }: Props = $props();
 
-	initPosthog(data.envName);
+	onMount(() => {
+		initPosthog(data.envName);
+	});
 
 	let isNavigating = $state(false);
 	const unsubscribe = navigating.subscribe(($navigating) => {
