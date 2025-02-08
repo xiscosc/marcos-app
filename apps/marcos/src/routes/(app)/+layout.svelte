@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import type { LayoutData } from './$types';
 	import { navigating } from '$app/stores';
 	import '../../app.pcss';
@@ -8,7 +6,20 @@
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import Box from '$lib/components/Box.svelte';
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
+	import { initPosthog } from '@/shared/analytics.utilities';
+
+	interface Props {
+		data: LayoutData;
+		children?: Snippet;
+	}
+
+	let { data, children }: Props = $props();
+
+	onMount(() => {
+		initPosthog(data.envName);
+	});
+
 	let isNavigating = $state(false);
 	const unsubscribe = navigating.subscribe(($navigating) => {
 		if ($navigating) {
@@ -18,15 +29,6 @@
 		}
 	});
 
-	injectSpeedInsights();
-	injectAnalytics();
-
-	interface Props {
-		data: LayoutData;
-		children?: Snippet;
-	}
-
-	let { data, children }: Props = $props();
 	let onTesting = $state(data.envName !== 'prod');
 	let headerBackgroundClasses = $derived(
 		!onTesting ? 'bg-white/90 border-gray-50' : 'bg-red-500/80 border-red-500/80'

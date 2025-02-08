@@ -1,15 +1,19 @@
 <script lang="ts">
-	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-	import { injectAnalytics } from '@vercel/analytics/sveltekit';
-	import type { Snippet } from 'svelte';
+	import { type Snippet, onMount } from 'svelte';
 	import '../../app.pcss';
+	import type { LayoutData } from './$types';
+	import { initPosthog } from '@/shared/analytics.utilities';
+
 	interface Props {
+		data: LayoutData;
 		children?: Snippet;
 	}
 
-	injectSpeedInsights();
-	injectAnalytics();
-	let { children }: Props = $props();
+	let { data, children }: Props = $props();
+
+	onMount(() => {
+		initPosthog(data.envName);
+	});
 </script>
 
 <svelte:head>
