@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import type { LayoutData } from './$types';
 	import { navigating } from '$app/stores';
 	import '../../app.pcss';
@@ -8,7 +6,21 @@
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import Box from '$lib/components/Box.svelte';
-	import type { Snippet } from 'svelte';
+	import { type Snippet, onMount } from 'svelte';
+	import posthog from 'posthog-js';
+	import { browser } from '$app/environment';
+	import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
+
+	onMount(() => {
+		if (browser) {
+			posthog.init(PUBLIC_POSTHOG_KEY, {
+				api_host: 'https://eu.i.posthog.com',
+				person_profiles: 'identified_only' // or 'always' to create profiles for anonymous users as well
+			});
+		}
+		return;
+	});
+
 	let isNavigating = $state(false);
 	const unsubscribe = navigating.subscribe(($navigating) => {
 		if ($navigating) {
@@ -17,9 +29,6 @@
 			isNavigating = false;
 		}
 	});
-
-	injectSpeedInsights();
-	injectAnalytics();
 
 	interface Props {
 		data: LayoutData;
