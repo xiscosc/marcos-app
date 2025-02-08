@@ -11,11 +11,24 @@
 	import { browser } from '$app/environment';
 	import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
 
+	interface Props {
+		data: LayoutData;
+		children?: Snippet;
+	}
+
+	let { data, children }: Props = $props();
+
 	onMount(() => {
 		if (browser) {
 			posthog.init(PUBLIC_POSTHOG_KEY, {
 				api_host: 'https://eu.i.posthog.com',
-				person_profiles: 'identified_only' // or 'always' to create profiles for anonymous users as well
+				person_profiles: 'identified_only',
+				loaded: (ph) => {
+					if (data.envName !== 'prod') {
+						ph.opt_out_capturing();
+						ph.set_config({ disable_session_recording: true });
+					}
+				}
 			});
 		}
 		return;
@@ -30,12 +43,6 @@
 		}
 	});
 
-	interface Props {
-		data: LayoutData;
-		children?: Snippet;
-	}
-
-	let { data, children }: Props = $props();
 	let onTesting = $state(data.envName !== 'prod');
 	let headerBackgroundClasses = $derived(
 		!onTesting ? 'bg-white/90 border-gray-50' : 'bg-red-500/80 border-red-500/80'
