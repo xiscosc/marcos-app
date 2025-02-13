@@ -173,8 +173,8 @@ importers:
         specifier: ^1.5.5
         version: 1.5.5
       bits-ui:
-        specifier: 1.0.0-next.88
-        version: 1.0.0-next.88(svelte@5.19.9)
+        specifier: 1.1.0
+        version: 1.1.0(svelte@5.19.9)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2140,8 +2140,8 @@ packages:
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
 
-  bits-ui@1.0.0-next.88:
-    resolution: {integrity: sha512-vtktOIoG7SzPGD6aQpWIyvc9TFbxfNG0a3+eEOHtsq86zFyYCE7K78L32YGKz4F4pIaix8p72vq7rzHHTT+Vfw==}
+  bits-ui@1.1.0:
+    resolution: {integrity: sha512-fnMO3LrNIjWfirm0UJ/kewH5PTi4BobhGpLoZzN2bc/YnsNQ0NcIWkLDJdrrNSTpcfYuwlJpIVGK96tc1FXa5Q==}
     engines: {node: '>=18', pnpm: '>=8.7.0'}
     peerDependencies:
       svelte: ^5.11.0
@@ -6497,12 +6497,12 @@ snapshots:
     dependencies:
       file-uri-to-path: 1.0.0
 
-  bits-ui@1.0.0-next.88(svelte@5.19.9):
+  bits-ui@1.1.0(svelte@5.19.9):
     dependencies:
       '@floating-ui/core': 1.6.8
       '@floating-ui/dom': 1.6.12
       '@internationalized/date': 3.7.0
-      esm-env: 1.2.1
+      esm-env: 1.2.2
       runed: 0.23.2(svelte@5.19.9)
       svelte: 5.19.9
       svelte-toolbelt: 0.7.1(svelte@5.19.9)
@@ -7674,7 +7674,7 @@ snapshots:
 
   runed@0.23.2(svelte@5.19.9):
     dependencies:
-      esm-env: 1.2.1
+      esm-env: 1.2.2
       svelte: 5.19.9
 
   sade@1.8.1:
@@ -8113,7 +8113,7 @@ snapshots:
 
   vaul-svelte@1.0.0-next.3(svelte@5.19.9):
     dependencies:
-      bits-ui: 1.0.0-next.88(svelte@5.19.9)
+      bits-ui: 1.1.0(svelte@5.19.9)
       svelte: 5.19.9
       svelte-toolbelt: 0.4.6(svelte@5.19.9)
 

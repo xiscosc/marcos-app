@@ -19,7 +19,7 @@
 		"@types/luxon": "3.4.2",
 		"@types/node": "^22.7.5",
 		"@types/qrcode": "^1.5.5",
-		"bits-ui": "1.0.0-next.88",
+		"bits-ui": "1.1.0",
 		"clsx": "^2.1.1",
 		"esbuild": "0.24.0",
 		"formsnap": "^2.0.0-next.1",
