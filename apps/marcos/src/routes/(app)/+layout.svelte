@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { LayoutData } from './$types';
-	import { navigating } from '$app/stores';
-	import '../../app.pcss';
+	import { navigating } from '$app/state';
+	import '../../app.css';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import Icon from '$lib/components/icon/Icon.svelte';
@@ -20,15 +20,6 @@
 		initPosthog(data.envName);
 	});
 
-	let isNavigating = $state(false);
-	const unsubscribe = navigating.subscribe(($navigating) => {
-		if ($navigating) {
-			isNavigating = true;
-		} else {
-			isNavigating = false;
-		}
-	});
-
 	let onTesting = $state(data.envName !== 'prod');
 	let headerBackgroundClasses = $derived(
 		!onTesting ? 'bg-white/90 border-gray-50' : 'bg-red-500/80 border-red-500/80'
@@ -40,39 +31,40 @@
 </svelte:head>
 <div class="flex min-h-screen flex-col bg-[#F7F5F2]">
 	<header
-		class={`sticky top-0 z-20 flex items-center justify-between border-b p-3 backdrop-blur-sm ${headerBackgroundClasses}`}
+		class={`sticky top-0 z-20 flex items-center justify-center border-b backdrop-blur-sm ${headerBackgroundClasses}`}
 	>
-		<div class="flex items-center">
+		<div class="flex w-full flex-row items-center justify-between px-2 py-2 lg:max-w-[1650px]">
 			<a href="/" class="text-black">
 				<Icon type={IconType.HOME} />
 			</a>
-		</div>
 
-		<!-- Absolutely Centered Logo -->
-		<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
-			{#if onTesting}
-				<span class="text-md font-semibold"> ENTORNO DE PRUEBAS ({data.envName}) </span>
-			{:else}
-				<Icon type={IconType.LOGO} />
-			{/if}
-		</div>
+			<div
+				class="pointer-events-none absolute inset-0 flex w-full items-center justify-center gap-3"
+			>
+				{#if onTesting}
+					<span class="text-md font-semibold"> ENTORNO DE PRUEBAS ({data.envName}) </span>
+				{:else}
+					<Icon type={IconType.LOGO} />
+				{/if}
+			</div>
 
-		<div class="flex items-center gap-3">
-			{#if data.user.priceManager}
-				<a href="/config" class="text-black">
-					<Icon type={IconType.SETTINGS} />
+			<div class="flex items-center gap-3">
+				{#if data.user.priceManager}
+					<a href="/config" class="text-black">
+						<Icon type={IconType.SETTINGS} />
+					</a>
+				{/if}
+				<a href="/auth/signout?callbackUrl=/" class="text-black">
+					<Icon type={IconType.LOGOUT} />
 				</a>
-			{/if}
-			<a href="/auth/signout?callbackUrl=/" class="text-black">
-				<Icon type={IconType.LOGOUT} />
-			</a>
+			</div>
 		</div>
 	</header>
 
 	<!-- Scrollable Content Block filling remaining space -->
 	<main class="flex-1 overflow-y-auto p-2">
-		<div class="mx-auto w-full px-1 pb-3 md:px-2 md:pb-0 md:pt-2 lg:px-4">
-			{#if isNavigating}
+		<div class="mx-auto w-full px-1 pb-3 md:px-2 md:pb-0 md:pt-2 lg:max-w-[1650px] lg:px-4">
+			{#if navigating.from != null}
 				<Box>
 					<ProgressBar></ProgressBar>
 				</Box>

@@ -8,14 +8,14 @@
 	} from '@marcsimolduressonsardina/core/type';
 	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
 	import CartItem from '../item/CartItem.svelte';
-	import OrderPriceDetails from './OrderPriceDetails.svelte';
 
 	interface Props {
 		order: Order;
 		calculatedItem: CalculatedItem;
+		discountNotAllowedPresent: boolean;
 	}
 
-	let { order, calculatedItem }: Props = $props();
+	let { order, calculatedItem, discountNotAllowedPresent }: Props = $props();
 
 	const parts = $derived<CalculatedItemPart[]>(
 		CalculatedItemUtilities.sortByPricingType(
@@ -24,9 +24,6 @@
 				calculatedItem.parts
 			)
 		)
-	);
-	const discountNotAllowedPresent = $derived(
-		parts.find((part) => !part.discountAllowed) != null && calculatedItem.discount > 0
 	);
 </script>
 
@@ -46,16 +43,3 @@
 		{/if}
 	</div>
 </Box>
-
-{#if calculatedItem.quantity > 1 || calculatedItem.discount > 0}
-	<OrderPriceDetails
-		quantity={calculatedItem.quantity}
-		discount={calculatedItem.discount}
-		unitPriceWithoutDiscount={CalculatedItemUtilities.getUnitPriceWithoutDiscount(calculatedItem)}
-		unitPriceWithDiscount={CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)}
-		totalWithoutDiscount={CalculatedItemUtilities.getTotalWithoutDiscount(calculatedItem)}
-		totalWithDiscount={CalculatedItemUtilities.getTotal(calculatedItem)}
-		alertItemsWitouthDiscount={discountNotAllowedPresent}
-		collapsed={false}
-	></OrderPriceDetails>
-{/if}

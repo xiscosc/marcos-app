@@ -13,6 +13,8 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import OrderPriceDetails from '@/components/order/OrderPriceDetails.svelte';
+	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
 
 	interface Props {
 		data: PageData;
@@ -24,6 +26,10 @@
 	let loading = $state(false);
 	let searchQuery = $state('');
 	let customers = $state<Customer[]>([]);
+	let discountNotAllowedPresent = $derived(
+		data.calculatedItem.parts.find((part) => !part.discountAllowed) != null &&
+			data.calculatedItem.discount > 0
+	);
 
 	async function searchCustomers() {
 		if (searchQuery.length === 0) {
@@ -119,6 +125,27 @@
 
 		<OrderInfo order={data.order}></OrderInfo>
 
-		<OrderElements order={data.order} calculatedItem={data.calculatedItem}></OrderElements>
+		<OrderElements
+			order={data.order}
+			calculatedItem={data.calculatedItem}
+			{discountNotAllowedPresent}
+		></OrderElements>
+
+		{#if data.calculatedItem.quantity > 1 || data.calculatedItem.discount > 0}
+			<OrderPriceDetails
+				quantity={data.calculatedItem.quantity}
+				discount={data.calculatedItem.discount}
+				unitPriceWithoutDiscount={CalculatedItemUtilities.getUnitPriceWithoutDiscount(
+					data.calculatedItem
+				)}
+				unitPriceWithDiscount={CalculatedItemUtilities.getUnitPriceWithDiscount(
+					data.calculatedItem
+				)}
+				totalWithoutDiscount={CalculatedItemUtilities.getTotalWithoutDiscount(data.calculatedItem)}
+				totalWithDiscount={CalculatedItemUtilities.getTotal(data.calculatedItem)}
+				alertItemsWitouthDiscount={discountNotAllowedPresent}
+				collapsed={false}
+			></OrderPriceDetails>
+		{/if}
 	</div>
 </div>

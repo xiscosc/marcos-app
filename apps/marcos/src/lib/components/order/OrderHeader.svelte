@@ -41,7 +41,7 @@
 {#snippet dateCreated()}
 	<div class="flex flex-row items-center gap-1 text-xs text-gray-700">
 		<Icon type={IconType.CLOCK} />
-		<span>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}</span>
+		<span>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</span>
 	</div>
 {/snippet}
 

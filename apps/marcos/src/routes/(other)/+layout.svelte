@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type Snippet, onMount } from 'svelte';
-	import '../../app.pcss';
+	import '../../app.css';
 	import type { LayoutData } from './$types';
 	import { initPosthog } from '@/shared/analytics.utilities';
 
