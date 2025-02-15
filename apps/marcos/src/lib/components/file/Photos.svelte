@@ -3,6 +3,10 @@
 	import Icon from '../icon/Icon.svelte';
 	import { IconType } from '../icon/icon.enum';
 	import ProgressBar from '../ProgressBar.svelte';
+	import BottomSheet from '../BottomSheet.svelte';
+	import { ButtonAction, ButtonStyle } from '../button/button.enum';
+	import Button from '../button/Button.svelte';
+	import BottomSheetLoading from '../BottomSheetLoading.svelte';
 
 	interface Props {
 		files: MMSSFile[];
@@ -13,10 +17,13 @@
 	let currentIndex = $state(0);
 	let isOpen = $state(false);
 	let isLoading = $state(false);
+	let sheetLoading = $state(false);
 
-	function handleDelete() {
+	async function handleDelete() {
+		sheetLoading = true;
+		await deleteFunction(files[currentIndex].id);
 		closeGallery();
-		deleteFunction(files[currentIndex].id);
+		sheetLoading = false;
 	}
 
 	function next(e: Event) {
@@ -45,6 +52,26 @@
 		isLoading = false;
 	}
 </script>
+
+{#snippet sheetTriggerDelete()}
+	<button class="rounded-full bg-black/50 p-2 text-white hover:bg-black/70" type="button">
+		<Icon type={IconType.TRASH}></Icon>
+	</button>
+{/snippet}
+
+{#snippet sheetActionDelete()}
+	{#if sheetLoading}
+		<BottomSheetLoading />
+	{:else}
+		<Button
+			icon={IconType.TRASH}
+			text="Confirmar"
+			style={ButtonStyle.DELETE}
+			action={ButtonAction.CLICK}
+			onClick={handleDelete}
+		></Button>
+	{/if}
+{/snippet}
 
 <div class="flex flex-wrap gap-2">
 	{#each files as file, i}
@@ -122,15 +149,14 @@
 			>
 				<Icon type={IconType.CLOSE}></Icon>
 			</button>
-			<button
-				class="rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
-				onclick={(e) => {
-					e.stopPropagation();
-					handleDelete();
-				}}
-			>
-				<Icon type={IconType.TRASH}></Icon>
-			</button>
+			<BottomSheet
+				title={'Eliminar imagen'}
+				description="Esta acción no se puede deshacer"
+				trigger={sheetTriggerDelete}
+				action={sheetActionDelete}
+				iconType={IconType.TRASH}
+				customTriggerStyle={true}
+			></BottomSheet>
 		</div>
 	</div>
 {/if}
