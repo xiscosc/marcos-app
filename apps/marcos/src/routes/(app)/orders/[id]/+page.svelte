@@ -18,10 +18,15 @@
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import OrderSkeletonHeader from '$lib/components/order/OrderSkeletonHeader.svelte';
-	import { OrderUtilities } from '@marcsimolduressonsardina/core/util';
-	import { OrderStatus } from '@marcsimolduressonsardina/core/type';
+	import { CalculatedItemUtilities, OrderUtilities } from '@marcsimolduressonsardina/core/util';
+	import {
+		OrderStatus,
+		type Order,
+		type OrderAuditTrailEntry
+	} from '@marcsimolduressonsardina/core/type';
 	import Step from '@/components/Step.svelte';
 	import { DateTime } from 'luxon';
+	import OrderPriceDetails from '@/components/order/OrderPriceDetails.svelte';
 
 	let formLoading = $state(false);
 
@@ -31,11 +36,17 @@
 
 	let { data }: Props = $props();
 
+	let discountNotAllowedPresent = $state(false);
 	$effect(() => {
 		if (data.info) {
 			data.info.then((info) => {
 				if (info.order != null && OrderUtilities.isOrderTemp(info.order)) {
 					goto(`/orders/${info.order.id}/link`);
+				}
+				if (info.calculatedItem != null) {
+					discountNotAllowedPresent =
+						info.calculatedItem.parts.find((part) => !part.discountAllowed) != null &&
+						info.calculatedItem.discount > 0;
 				}
 			});
 		}
@@ -43,28 +54,78 @@
 </script>
 
 {#snippet loadingSection(sectionName: string)}
-	<Box title={sectionName}>
-		<div class="flex flex-col gap-2">
-			<Skeleton class="h-12 w-full" />
-			<Skeleton class="h-12 w-full" />
-			<Skeleton class="h-12 w-full" />
-			<Skeleton class="h-12 w-full" />
+	<div class="lg:mt-3 lg:break-inside-avoid">
+		<Box title={sectionName}>
+			<div class="flex flex-col gap-2">
+				<Skeleton class="h-12 w-full" />
+				<Skeleton class="h-12 w-full" />
+				<Skeleton class="h-12 w-full" />
+				<Skeleton class="h-12 w-full" />
+			</div>
+		</Box>
+	</div>
+{/snippet}
+
+{#snippet deleteOrderSection(mobile: boolean, isPriceManager: boolean, order?: Order)}
+	{#if isPriceManager && order}
+		<div
+			class="lg:mt-3 lg:break-inside-avoid"
+			class:lg:hidden={mobile}
+			class:flex={mobile}
+			class:lg:flex={!mobile}
+			class:hidden={!mobile}
+		>
+			<Box title="Administración">
+				<DeleteOrderBottomSheet {order}></DeleteOrderBottomSheet>
+			</Box>
 		</div>
-	</Box>
+	{/if}
+{/snippet}
+
+{#snippet notificationSection(entries: OrderAuditTrailEntry[], mobile: boolean)}
+	{#if entries.length > 0}
+		<div
+			class="lg:mt-3 lg:break-inside-avoid"
+			class:lg:hidden={mobile}
+			class:flex={mobile}
+			class:lg:flex={!mobile}
+			class:hidden={!mobile}
+		>
+			<Box title="Avisos al cliente">
+				<div class="flex flex-col gap-2">
+					{#each entries as entry}
+						<Step
+							icon={IconType.WHATSAPP}
+							title={entry.userName}
+							subtitle="Mensaje finalizado - {DateTime.fromJSDate(entry.createdAt).toFormat(
+								'dd/MM/yyyy HH:mm'
+							)}"
+						></Step>
+					{/each}
+				</div>
+			</Box>
+		</div>
+	{/if}
 {/snippet}
 
 <div class="flex flex-col gap-3">
 	<SimpleHeading icon={IconType.ORDER_DEFAULT}>Detalles del pedido</SimpleHeading>
 	{#await data.info}
-		<OrderSkeletonHeader></OrderSkeletonHeader>
-		{@render loadingSection('Detalles')}
-		{@render loadingSection('Elementos')}
+		<div class="flex w-full flex-col gap-3 lg:block lg:columns-2">
+			<OrderSkeletonHeader></OrderSkeletonHeader>
+			{@render loadingSection('Detalles')}
+			{@render loadingSection('Elementos')}
+		</div>
 	{:then info}
-		<div class="space flex w-full flex-col gap-3">
+		<div class="flex w-full flex-col gap-3 lg:block lg:columns-2">
 			{#if info.order == null || info.calculatedItem == null}
-				<Box icon={IconType.ALERT} title="Cliente o pedido no encontrado">
-					<p class="text-md">El cliente o pedido solicitado no existe, puede haber sido borrado.</p>
-				</Box>
+				<div class="lg:mt-3 lg:break-inside-avoid">
+					<Box icon={IconType.ALERT} title="Cliente o pedido no encontrado">
+						<p class="text-md">
+							El cliente o pedido solicitado no existe, puede haber sido borrado.
+						</p>
+					</Box>
+				</div>
 			{:else}
 				<OrderHeader
 					order={info.order}
@@ -75,7 +136,9 @@
 				></OrderHeader>
 
 				{#if !formLoading}
-					<div class="flex w-full flex-col gap-1 md:grid md:grid-cols-2 lg:grid-cols-3">
+					<div
+						class="flex w-full flex-col gap-1 md:grid md:grid-cols-2 lg:mt-3 lg:break-inside-avoid lg:grid-cols-3"
+					>
 						{#if info.order.status === OrderStatus.QUOTE}
 							<PromoteOrderBottomSheet data={data.promoteForm}></PromoteOrderBottomSheet>
 						{:else}
@@ -122,28 +185,49 @@
 					<span class=""> <ProgressBar text={'Aplicando cambios...'} /> </span>
 				{/if}
 
-				<OrderInfo order={info.order}></OrderInfo>
-
-				<OrderElements order={info.order} calculatedItem={info.calculatedItem}></OrderElements>
+				<div class="lg:mt-3 lg:break-inside-avoid">
+					<OrderInfo order={info.order}></OrderInfo>
+				</div>
 
 				{#if info.notificationEntries.length > 0}
-					<Box title="Avisos al cliente">
-						<div class="flex flex-col gap-2">
-							{#each info.notificationEntries as entry}
-								<Step
-									icon={IconType.WHATSAPP}
-									title={entry.userName}
-									subtitle="Mensaje finalizado - {DateTime.fromJSDate(entry.createdAt).toFormat(
-										'dd/MM/yyyy HH:mm'
-									)}"
-								></Step>
-							{/each}
-						</div>
-					</Box>
+					{@render notificationSection(info.notificationEntries, false)}
+				{:else}
+					{@render deleteOrderSection(false, data.isPriceManager, info.order)}
 				{/if}
 
-				{#if data.isPriceManager}
-					<DeleteOrderBottomSheet order={info.order}></DeleteOrderBottomSheet>
+				<div class="lg:mt-3 lg:break-inside-avoid">
+					<OrderElements
+						order={info.order}
+						calculatedItem={info.calculatedItem}
+						{discountNotAllowedPresent}
+					></OrderElements>
+				</div>
+
+				{#if info.calculatedItem.quantity > 1 || info.calculatedItem.discount > 0}
+					<div class="lg:mt-3 lg:break-inside-avoid">
+						<OrderPriceDetails
+							quantity={info.calculatedItem.quantity}
+							discount={info.calculatedItem.discount}
+							unitPriceWithoutDiscount={CalculatedItemUtilities.getUnitPriceWithoutDiscount(
+								info.calculatedItem
+							)}
+							unitPriceWithDiscount={CalculatedItemUtilities.getUnitPriceWithDiscount(
+								info.calculatedItem
+							)}
+							totalWithoutDiscount={CalculatedItemUtilities.getTotalWithoutDiscount(
+								info.calculatedItem
+							)}
+							totalWithDiscount={CalculatedItemUtilities.getTotal(info.calculatedItem)}
+							alertItemsWitouthDiscount={discountNotAllowedPresent}
+							collapsed={false}
+						></OrderPriceDetails>
+					</div>
+				{/if}
+
+				{@render notificationSection(info.notificationEntries, true)}
+				{@render deleteOrderSection(true, data.isPriceManager, info.order)}
+				{#if info.notificationEntries.length > 0}
+					{@render deleteOrderSection(false, data.isPriceManager, info.order)}
 				{/if}
 			{/if}
 		</div>

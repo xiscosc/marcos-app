@@ -24,7 +24,7 @@
 	}: Props = $props();
 </script>
 
-<div class="h-100 flex flex-1 flex-col gap-4 rounded-md border border-gray-50 bg-white p-4">
+<div class="h-min-100 flex flex-1 flex-col gap-4 rounded-md border border-gray-50 bg-white p-4">
 	{#if !collapsible}
 		{#if title}
 			<div class="flex items-center gap-3">

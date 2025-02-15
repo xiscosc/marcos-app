@@ -11,7 +11,7 @@
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
 	interface Props {
@@ -19,7 +19,7 @@
 	}
 
 	const allowedStatus = [OrderStatus.QUOTE, OrderStatus.PENDING, OrderStatus.FINISHED];
-	const initialStatus = $page.url.searchParams.get('status') as OrderStatus;
+	const initialStatus = page.url.searchParams.get('status') as OrderStatus;
 	let { data }: Props = $props();
 	let searchValue = $state('');
 	let status: OrderStatus = $state(

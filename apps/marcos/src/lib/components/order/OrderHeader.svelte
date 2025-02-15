@@ -41,7 +41,7 @@
 {#snippet dateCreated()}
 	<div class="flex flex-row items-center gap-1 text-xs text-gray-700">
 		<Icon type={IconType.CLOCK} />
-		<span>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}</span>
+		<span>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</span>
 	</div>
 {/snippet}
 
@@ -65,7 +65,7 @@
 				{order.status === OrderStatus.QUOTE ? 'Presupuesto' : 'Pedido'}
 			</span>
 		</span>
-		<div class="overflow-hidden overflow-ellipsis whitespace-nowrap text-[0.6rem]">
+		<div class="overflow-hidden text-ellipsis whitespace-nowrap text-[0.6rem]">
 			<span class="rounded-lg bg-white px-2 py-1 font-mono text-gray-800">
 				{OrderUtilities.getOrderPublicId(order)}
 			</span>

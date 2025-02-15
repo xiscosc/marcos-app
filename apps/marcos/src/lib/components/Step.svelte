@@ -1,9 +1,13 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { ButtonStyle, ButtonText, ButtonType } from './button/button.enum';
+	import { ButtonAction, ButtonStyle, ButtonText, ButtonType } from './button/button.enum';
 	import Button from './button/Button.svelte';
 	import { IconType } from './icon/icon.enum';
 	import Icon from './icon/Icon.svelte';
+	import BottomSheet from './BottomSheet.svelte';
+	import BottomSheetLoading from './BottomSheetLoading.svelte';
+
+	let sheetLoading = $state(false);
 
 	interface Props {
 		title: string;
@@ -13,6 +17,7 @@
 		deleteFunction?: () => void;
 		otherAction?: Snippet;
 		showDelete?: boolean;
+		deleteConfirmation?: boolean;
 		textList?: string[];
 	}
 
@@ -24,9 +29,41 @@
 		showDelete = false,
 		quantity = 0,
 		otherAction = undefined,
-		textList = []
+		textList = [],
+		deleteConfirmation = false
 	}: Props = $props();
+
+	function handleBottomSheetDelete() {
+		sheetLoading = true;
+		deleteFunction();
+		sheetLoading = false;
+	}
 </script>
+
+{#snippet sheetTriggerDelete()}
+	<Button
+		icon={IconType.TRASH}
+		buttonType={ButtonType.DEFAULT}
+		text=""
+		textType={ButtonText.GRAY}
+		style={ButtonStyle.SOFT_DELETE}
+		action={ButtonAction.TRIGGER}
+	></Button>
+{/snippet}
+
+{#snippet sheetActionDelete()}
+	{#if sheetLoading}
+		<BottomSheetLoading />
+	{:else}
+		<Button
+			icon={IconType.TRASH}
+			text="Confirmar"
+			style={ButtonStyle.DELETE}
+			action={ButtonAction.CLICK}
+			onClick={() => handleBottomSheetDelete()}
+		></Button>
+	{/if}
+{/snippet}
 
 <div class="flex w-full flex-col gap-2 rounded-md border border-gray-100 bg-gray-50 px-2 py-1">
 	<div class="flex w-full flex-row justify-between">
@@ -51,14 +88,24 @@
 		<div class="flex flex-row items-center gap-1">
 			{@render otherAction?.()}
 			{#if showDelete}
-				<Button
-					icon={IconType.TRASH}
-					buttonType={ButtonType.DEFAULT}
-					text=""
-					textType={ButtonText.GRAY}
-					style={ButtonStyle.SOFT_DELETE}
-					onClick={() => deleteFunction()}
-				></Button>
+				{#if !deleteConfirmation}
+					<Button
+						icon={IconType.TRASH}
+						buttonType={ButtonType.DEFAULT}
+						text=""
+						textType={ButtonText.GRAY}
+						style={ButtonStyle.SOFT_DELETE}
+						onClick={() => deleteFunction()}
+					></Button>
+				{:else}
+					<BottomSheet
+						title={'Eliminar elemento'}
+						description="Esta acción no se puede deshacer"
+						trigger={sheetTriggerDelete}
+						action={sheetActionDelete}
+						iconType={IconType.TRASH}
+					></BottomSheet>
+				{/if}
 			{/if}
 		</div>
 	</div>

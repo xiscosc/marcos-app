@@ -4,7 +4,7 @@
 	import Skeleton from '../ui/skeleton/skeleton.svelte';
 </script>
 
-<div class="overflow-hidden rounded-md border border-gray-300">
+<div class="overflow-hidden rounded-md border border-gray-50">
 	<div class="flex items-center justify-between bg-gray-400 px-3 py-2 text-white">
 		<span class="flex items-center px-2 text-lg font-semibold">
 			<span class="flex items-center gap-2">

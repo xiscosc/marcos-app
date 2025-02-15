@@ -29,10 +29,6 @@
 	let other = $derived(files.filter((f) => f.type === FileType.OTHER));
 
 	async function deleteFile(id: string) {
-		if (!confirm('Estás seguro que quieres eliminar el archivo?')) {
-			return;
-		}
-
 		loadingText = 'Eliminando archivo';
 		loading = true;
 		const response = await fetch(`/api/orders/${data!.order!.id}/files/${id}`, {

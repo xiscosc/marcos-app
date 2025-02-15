@@ -42,4 +42,5 @@
 	showDelete={true}
 	deleteFunction={deleteFile}
 	otherAction={viewButton}
+	deleteConfirmation={true}
 ></Step>
