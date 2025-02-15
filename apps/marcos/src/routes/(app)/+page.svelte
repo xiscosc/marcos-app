@@ -5,7 +5,7 @@
 </script>
 
 <div
-	class="flex w-full flex-col place-content-center items-center justify-center gap-4 p-2 md:grid md:grid-cols-2 lg:grid-cols-3"
+	class="flex w-full flex-col place-content-center items-center justify-center gap-4 py-2 md:grid md:grid-cols-2 lg:grid-cols-3"
 >
 	<Button
 		text="Buscar cliente"

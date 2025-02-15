@@ -31,9 +31,11 @@
 </svelte:head>
 <div class="flex min-h-screen flex-col bg-[#F7F5F2]">
 	<header
-		class={`sticky top-0 z-20 flex items-center justify-center border-b backdrop-blur-sm ${headerBackgroundClasses}`}
+		class={`sticky top-0 z-20 flex items-center justify-center border-b p-3 backdrop-blur-sm ${headerBackgroundClasses}`}
 	>
-		<div class="flex w-full flex-row items-center justify-between px-2 py-2 lg:max-w-[1650px]">
+		<div
+			class="flex w-full flex-row items-center justify-between px-1 md:px-2 lg:max-w-[1650px] lg:px-3"
+		>
 			<a href="/" class="text-black">
 				<Icon type={IconType.HOME} />
 			</a>
