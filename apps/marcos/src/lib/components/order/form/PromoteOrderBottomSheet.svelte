@@ -9,7 +9,6 @@
 	import { dateProxy, superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import BottomSheetLoading from '$lib/components/BottomSheetLoading.svelte';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 	interface Props {
 		data: SuperValidated<Infer<PromoteOrderSchema>>;
 	}
@@ -17,10 +16,7 @@
 	let { data }: Props = $props();
 	const form = superForm(data, {
 		validators: zodClient(promoteOrderSchema),
-		id: 'promote-order-form',
-		onResult() {
-			closeBottomSheet();
-		}
+		id: 'promote-order-form'
 	});
 
 	const { enhance, submitting } = form;

@@ -20,7 +20,6 @@
 	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
 	import BottomSheetLoading from '$lib/components/BottomSheetLoading.svelte';
 	import { IconType } from '@/components/icon/icon.enum';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 	interface Props {
 		data: SuperValidated<Infer<StatusOrderSchema>>;
 		locations: string[];
@@ -32,9 +31,6 @@
 	const form = superForm(data, {
 		onSubmit({ formData }) {
 			formData.set('status', newStatus ?? '');
-		},
-		onResult() {
-			closeBottomSheet();
 		}
 	});
 

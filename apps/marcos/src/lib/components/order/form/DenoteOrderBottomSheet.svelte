@@ -5,7 +5,6 @@
 	import Button from '$lib/components/button/Button.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import BottomSheetLoading from '$lib/components/BottomSheetLoading.svelte';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 	let sheetLoading = $state(false);
 
 	const enhanceSheetForm = () => {
@@ -13,7 +12,6 @@
 		return async ({ update }: { update: () => Promise<void> }) => {
 			await update();
 			sheetLoading = false;
-			closeBottomSheet();
 		};
 	};
 </script>

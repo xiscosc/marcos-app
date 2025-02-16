@@ -14,7 +14,6 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
 	import BottomSheetLoading from '$lib/components/BottomSheetLoading.svelte';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 
 	interface Props {
 		order: Order;
@@ -82,7 +81,6 @@
 								return async ({ update }) => {
 									await update();
 									loading = false;
-									closeBottomSheet();
 								};
 							}}
 						>
@@ -106,7 +104,6 @@
 								return async ({ update }) => {
 									await update();
 									loading = false;
-									closeBottomSheet();
 								};
 							}}
 						>
@@ -132,7 +129,6 @@
 							return async ({ update }) => {
 								await update();
 								loading = false;
-								closeBottomSheet();
 							};
 						}}
 					>

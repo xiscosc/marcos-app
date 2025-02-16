@@ -10,7 +10,6 @@
 	import BottomSheet from '$lib/components/BottomSheet.svelte';
 	import BottomSheetLoading from '@/components/BottomSheetLoading.svelte';
 	import * as NativeSelect from '$lib/components/ui/native-select/index.js';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 
 	interface Props {
 		data: SuperValidated<Infer<LocationOrderSchema>>;
@@ -21,10 +20,7 @@
 	let { data, locations, order }: Props = $props();
 	const form = superForm(data, {
 		validators: zodClient(locationOrderSchema),
-		id: 'location-order-form',
-		onResult() {
-			closeBottomSheet();
-		}
+		id: 'location-order-form'
 	});
 
 	const { form: formData, enhance, submitting } = form;

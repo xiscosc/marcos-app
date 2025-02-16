@@ -6,7 +6,6 @@
 	import Icon from './icon/Icon.svelte';
 	import BottomSheet from './BottomSheet.svelte';
 	import BottomSheetLoading from './BottomSheetLoading.svelte';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 
 	let sheetLoading = $state(false);
 
@@ -38,7 +37,6 @@
 		sheetLoading = true;
 		deleteFunction();
 		sheetLoading = false;
-		closeBottomSheet();
 	}
 </script>
 

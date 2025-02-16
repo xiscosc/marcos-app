@@ -6,7 +6,6 @@
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import BottomSheetLoading from '@/components/BottomSheetLoading.svelte';
 	import { OrderStatus, type Order } from '@marcsimolduressonsardina/core/type';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 	let sheetLoading = $state(false);
 
 	interface Props {
@@ -20,7 +19,6 @@
 		return async ({ update }: { update: () => Promise<void> }) => {
 			await update();
 			sheetLoading = false;
-			closeBottomSheet();
 		};
 	};
 </script>

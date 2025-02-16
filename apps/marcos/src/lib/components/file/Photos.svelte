@@ -7,7 +7,6 @@
 	import { ButtonAction, ButtonStyle } from '../button/button.enum';
 	import Button from '../button/Button.svelte';
 	import BottomSheetLoading from '../BottomSheetLoading.svelte';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 	interface Props {
 		files: MMSSFile[];
 		deleteFunction: (id: string) => Promise<void>;
@@ -24,7 +23,6 @@
 		await deleteFunction(files[currentIndex].id);
 		closeGallery();
 		sheetLoading = false;
-		closeBottomSheet();
 	}
 
 	function next(e: Event) {

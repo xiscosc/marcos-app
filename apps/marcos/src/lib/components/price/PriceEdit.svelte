@@ -31,10 +31,9 @@
 	import { Switch } from '../ui/switch';
 	import Label from '../ui/label/label.svelte';
 	import BottomSheet from '../BottomSheet.svelte';
-	import { fitFormulas, type EditablePricingTypes } from '@marcsimolduressonsardina/core/util';
+	import { fitFormulas } from '@marcsimolduressonsardina/core/util';
 	import BottomSheetLoading from '../BottomSheetLoading.svelte';
 	import Step from '../Step.svelte';
-	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 
 	interface Props {
 		data: SuperValidated<Infer<LisPriceSchemaEdit | LisPriceSchemaNew>>;
@@ -431,7 +430,6 @@
 								formLoading = true;
 								return async ({ update }) => {
 									await update();
-									closeBottomSheet();
 								};
 							}}
 						>
