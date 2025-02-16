@@ -8,6 +8,7 @@
 	import Box from '$lib/components/Box.svelte';
 	import { onMount, type Snippet } from 'svelte';
 	import { initPosthog } from '@/shared/analytics.utilities';
+	import SharedBottomSheet from '@/components/SharedBottomSheet.svelte';
 
 	interface Props {
 		data: LayoutData;
@@ -74,5 +75,6 @@
 				{@render children?.()}
 			{/if}
 		</div>
+		<SharedBottomSheet />
 	</main>
 </div>

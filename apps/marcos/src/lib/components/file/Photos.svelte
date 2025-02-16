@@ -7,7 +7,7 @@
 	import { ButtonAction, ButtonStyle } from '../button/button.enum';
 	import Button from '../button/Button.svelte';
 	import BottomSheetLoading from '../BottomSheetLoading.svelte';
-
+	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 	interface Props {
 		files: MMSSFile[];
 		deleteFunction: (id: string) => Promise<void>;
@@ -24,6 +24,7 @@
 		await deleteFunction(files[currentIndex].id);
 		closeGallery();
 		sheetLoading = false;
+		closeBottomSheet();
 	}
 
 	function next(e: Event) {
@@ -52,26 +53,6 @@
 		isLoading = false;
 	}
 </script>
-
-{#snippet sheetTriggerDelete()}
-	<button class="rounded-full bg-black/50 p-2 text-white hover:bg-black/70" type="button">
-		<Icon type={IconType.TRASH}></Icon>
-	</button>
-{/snippet}
-
-{#snippet sheetActionDelete()}
-	{#if sheetLoading}
-		<BottomSheetLoading />
-	{:else}
-		<Button
-			icon={IconType.TRASH}
-			text="Confirmar"
-			style={ButtonStyle.DELETE}
-			action={ButtonAction.CLICK}
-			onClick={handleDelete}
-		></Button>
-	{/if}
-{/snippet}
 
 <div class="flex flex-wrap gap-2">
 	{#each files as file, i}
@@ -152,11 +133,28 @@
 			<BottomSheet
 				title={'Eliminar imagen'}
 				description="Esta acción no se puede deshacer"
-				trigger={sheetTriggerDelete}
-				action={sheetActionDelete}
 				iconType={IconType.TRASH}
 				customTriggerStyle={true}
-			></BottomSheet>
+			>
+				{#snippet trigger()}
+					<button class="rounded-full bg-black/50 p-2 text-white hover:bg-black/70" type="button">
+						<Icon type={IconType.TRASH}></Icon>
+					</button>
+				{/snippet}
+				{#snippet action()}
+					{#if sheetLoading}
+						<BottomSheetLoading />
+					{:else}
+						<Button
+							icon={IconType.TRASH}
+							text="Confirmar"
+							style={ButtonStyle.DELETE}
+							action={ButtonAction.CLICK}
+							onClick={handleDelete}
+						></Button>
+					{/if}
+				{/snippet}
+			</BottomSheet>
 		</div>
 	</div>
 {/if}

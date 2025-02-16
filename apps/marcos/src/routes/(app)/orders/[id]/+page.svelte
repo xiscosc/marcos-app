@@ -27,6 +27,7 @@
 	import Step from '@/components/Step.svelte';
 	import { DateTime } from 'luxon';
 	import OrderPriceDetails from '@/components/order/OrderPriceDetails.svelte';
+	import { isSmBreakpoint } from '@/stores/breakpoint.svelte';
 
 	let formLoading = $state(false);
 
@@ -67,14 +68,8 @@
 {/snippet}
 
 {#snippet deleteOrderSection(mobile: boolean, isPriceManager: boolean, order?: Order)}
-	{#if isPriceManager && order}
-		<div
-			class="lg:mt-3 lg:break-inside-avoid"
-			class:lg:hidden={mobile}
-			class:flex={mobile}
-			class:lg:flex={!mobile}
-			class:hidden={!mobile}
-		>
+	{#if isPriceManager && order && ((mobile && $isSmBreakpoint) || (!mobile && !$isSmBreakpoint))}
+		<div class="lg:mt-3 lg:break-inside-avoid">
 			<Box title="Administración">
 				<DeleteOrderBottomSheet {order}></DeleteOrderBottomSheet>
 			</Box>
@@ -83,14 +78,8 @@
 {/snippet}
 
 {#snippet notificationSection(entries: OrderAuditTrailEntry[], mobile: boolean)}
-	{#if entries.length > 0}
-		<div
-			class="lg:mt-3 lg:break-inside-avoid"
-			class:lg:hidden={mobile}
-			class:flex={mobile}
-			class:lg:flex={!mobile}
-			class:hidden={!mobile}
-		>
+	{#if entries.length > 0 && ((mobile && $isSmBreakpoint) || (!mobile && !$isSmBreakpoint))}
+		<div class="lg:mt-3 lg:break-inside-avoid">
 			<Box title="Avisos al cliente">
 				<div class="flex flex-col gap-2">
 					{#each entries as entry}

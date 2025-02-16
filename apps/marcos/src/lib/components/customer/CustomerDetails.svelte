@@ -94,54 +94,52 @@
 		<WhatsAppButton label="Enviar Whatsapp" message="" {customer}></WhatsAppButton>
 
 		{#if showDelete}
-			{#snippet sheetTrigger()}
-				<Button
-					disabled={totalOrders > 0}
-					tooltipText={'El cliente tiene pedidos o presupuestos'}
-					icon={IconType.TRASH}
-					text="Eliminar cliente"
-					action={ButtonAction.TRIGGER}
-				></Button>
-			{/snippet}
-
-			{#snippet sheetAction()}
-				{#if totalOrders > 0}
-					El cliente tiene pedidos o presupuestos, no se puede eliminar.
-				{:else}
-					<form
-						class="w-full text-center"
-						method="post"
-						action="?/deleteCustomer"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						{#if formLoading}
-							<BottomSheetLoading />
-						{:else}
-							<Button
-								icon={IconType.TRASH}
-								text="Confirmar"
-								style={ButtonStyle.DELETE}
-								action={ButtonAction.SUBMIT}
-							></Button>
-						{/if}
-					</form>
-				{/if}
-			{/snippet}
-
 			<BottomSheet
 				title="Eliminar cliente"
 				description="Esta acción no se puede deshacer"
-				trigger={sheetTrigger as Snippet}
-				action={sheetAction as Snippet}
 				iconType={IconType.TRASH}
 				triggerStyle={ButtonStyle.DELETE}
-			></BottomSheet>
+			>
+				{#snippet trigger()}
+					<Button
+						disabled={totalOrders > 0}
+						tooltipText={'El cliente tiene pedidos o presupuestos'}
+						icon={IconType.TRASH}
+						text="Eliminar cliente"
+						action={ButtonAction.TRIGGER}
+					></Button>
+				{/snippet}
+
+				{#snippet action()}
+					{#if totalOrders > 0}
+						El cliente tiene pedidos o presupuestos, no se puede eliminar.
+					{:else}
+						<form
+							class="w-full text-center"
+							method="post"
+							action="?/deleteCustomer"
+							use:enhance={() => {
+								formLoading = true;
+								return async ({ update }) => {
+									await update();
+									formLoading = false;
+								};
+							}}
+						>
+							{#if formLoading}
+								<BottomSheetLoading />
+							{:else}
+								<Button
+									icon={IconType.TRASH}
+									text="Confirmar"
+									style={ButtonStyle.DELETE}
+									action={ButtonAction.SUBMIT}
+								></Button>
+							{/if}
+						</form>
+					{/if}
+				{/snippet}
+			</BottomSheet>
 		{/if}
 	</div>
 </div>

@@ -6,6 +6,7 @@
 	import Icon from './icon/Icon.svelte';
 	import BottomSheet from './BottomSheet.svelte';
 	import BottomSheetLoading from './BottomSheetLoading.svelte';
+	import { closeBottomSheet } from '@/stores/bottomSheet.svelte';
 
 	let sheetLoading = $state(false);
 
@@ -37,33 +38,9 @@
 		sheetLoading = true;
 		deleteFunction();
 		sheetLoading = false;
+		closeBottomSheet();
 	}
 </script>
-
-{#snippet sheetTriggerDelete()}
-	<Button
-		icon={IconType.TRASH}
-		buttonType={ButtonType.DEFAULT}
-		text=""
-		textType={ButtonText.GRAY}
-		style={ButtonStyle.SOFT_DELETE}
-		action={ButtonAction.TRIGGER}
-	></Button>
-{/snippet}
-
-{#snippet sheetActionDelete()}
-	{#if sheetLoading}
-		<BottomSheetLoading />
-	{:else}
-		<Button
-			icon={IconType.TRASH}
-			text="Confirmar"
-			style={ButtonStyle.DELETE}
-			action={ButtonAction.CLICK}
-			onClick={() => handleBottomSheetDelete()}
-		></Button>
-	{/if}
-{/snippet}
 
 <div class="flex w-full flex-col gap-2 rounded-md border border-gray-100 bg-gray-50 px-2 py-1">
 	<div class="flex w-full flex-row justify-between">
@@ -101,10 +78,32 @@
 					<BottomSheet
 						title={'Eliminar elemento'}
 						description="Esta acción no se puede deshacer"
-						trigger={sheetTriggerDelete}
-						action={sheetActionDelete}
 						iconType={IconType.TRASH}
-					></BottomSheet>
+					>
+						{#snippet trigger()}
+							<Button
+								icon={IconType.TRASH}
+								buttonType={ButtonType.DEFAULT}
+								text=""
+								textType={ButtonText.GRAY}
+								style={ButtonStyle.SOFT_DELETE}
+								action={ButtonAction.TRIGGER}
+							></Button>
+						{/snippet}
+						{#snippet action()}
+							{#if sheetLoading}
+								<BottomSheetLoading />
+							{:else}
+								<Button
+									icon={IconType.TRASH}
+									text="Confirmar"
+									style={ButtonStyle.DELETE}
+									action={ButtonAction.CLICK}
+									onClick={() => handleBottomSheetDelete()}
+								></Button>
+							{/if}
+						{/snippet}
+					</BottomSheet>
 				{/if}
 			{/if}
 		</div>
