@@ -31,7 +31,7 @@
 	import { Switch } from '../ui/switch';
 	import Label from '../ui/label/label.svelte';
 	import BottomSheet from '../BottomSheet.svelte';
-	import { fitFormulas, type EditablePricingTypes } from '@marcsimolduressonsardina/core/util';
+	import { fitFormulas } from '@marcsimolduressonsardina/core/util';
 	import BottomSheetLoading from '../BottomSheetLoading.svelte';
 	import Step from '../Step.svelte';
 
@@ -410,44 +410,42 @@
 			</form>
 
 			{#if !isNew && !$submitting}
-				{#snippet sheetTrigger()}
-					<Button icon={IconType.TRASH} text="Eliminar precio" action={ButtonAction.TRIGGER}
-					></Button>
-				{/snippet}
-
-				{#snippet sheetAction()}
-					<form
-						class="w-full text-center"
-						method="post"
-						action="?/deletePrice"
-						use:sEnhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-							};
-						}}
-					>
-						{#if formLoading}
-							<BottomSheetLoading />
-						{:else}
-							<Button
-								icon={IconType.TRASH}
-								text="Confirmar"
-								style={ButtonStyle.DELETE}
-								action={ButtonAction.SUBMIT}
-							></Button>
-						{/if}
-					</form>
-				{/snippet}
-
 				<BottomSheet
 					title="Eliminar precio"
 					description="Esta acción no se puede desacer"
-					trigger={sheetTrigger}
-					action={sheetAction}
 					iconType={IconType.TRASH}
 					triggerStyle={ButtonStyle.DELETE}
-				></BottomSheet>
+				>
+					{#snippet trigger()}
+						<Button icon={IconType.TRASH} text="Eliminar precio" action={ButtonAction.TRIGGER}
+						></Button>
+					{/snippet}
+
+					{#snippet action()}
+						<form
+							class="w-full text-center"
+							method="post"
+							action="?/deletePrice"
+							use:sEnhance={() => {
+								formLoading = true;
+								return async ({ update }) => {
+									await update();
+								};
+							}}
+						>
+							{#if formLoading}
+								<BottomSheetLoading />
+							{:else}
+								<Button
+									icon={IconType.TRASH}
+									text="Confirmar"
+									style={ButtonStyle.DELETE}
+									action={ButtonAction.SUBMIT}
+								></Button>
+							{/if}
+						</form>
+					{/snippet}
+				</BottomSheet>
 			{/if}
 		</div>
 	</Box>
