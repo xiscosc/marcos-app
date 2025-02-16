@@ -41,7 +41,12 @@
 	<Sheet.Trigger class={`${customTriggerStyle ? '' : classes} lg:hidden`} {disabled}>
 		{@render trigger()}
 	</Sheet.Trigger>
-	<Sheet.Content side="bottom">
+	<Sheet.Content
+		side="bottom"
+		onOpenAutoFocus={(e) => {
+			e.preventDefault();
+		}}
+	>
 		<div class="mx-auto flex w-full max-w-sm flex-col gap-2 p-4">
 			<Sheet.Header class="p-0">
 				{#if title}
@@ -69,7 +74,11 @@
 	<Dialog.Trigger class={`${customTriggerStyle ? '' : classes} hidden lg:block`} {disabled}>
 		{@render trigger()}
 	</Dialog.Trigger>
-	<Dialog.Content>
+	<Dialog.Content
+		onOpenAutoFocus={(e) => {
+			e.preventDefault();
+		}}
+	>
 		<div class="mx-auto flex w-full max-w-sm flex-col gap-2 p-4">
 			<Dialog.Header class="p-0">
 				{#if title}

@@ -33,7 +33,6 @@
 	/>
 {:else}
 	<input
-		tabindex="-1"
 		data-success={success && !error}
 		data-error={error}
 		bind:this={ref}

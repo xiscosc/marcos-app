@@ -19,7 +19,6 @@
 
 <div class="relative w-full">
 	<select
-		tabindex="-1"
 		data-success={success}
 		bind:this={ref}
 		class={cn(defaultClass, className)}

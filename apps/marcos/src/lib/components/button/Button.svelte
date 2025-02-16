@@ -92,7 +92,6 @@
 	</a>
 {:else if action === ButtonAction.SUBMIT}
 	<button
-		tabindex="-1"
 		class={classes}
 		type="submit"
 		class:w-full={buttonType !== ButtonType.SMALL}
