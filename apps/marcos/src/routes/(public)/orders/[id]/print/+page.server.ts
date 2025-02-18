@@ -17,6 +17,7 @@ export const load = (async ({ params, locals }) => {
 
 	return {
 		order,
+		user: appUser,
 		calculatedItem: await calculatedItemService.getCalculatedItem(id)
 	};
 }) satisfies PageServerLoad;

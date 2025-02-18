@@ -28,6 +28,7 @@
 		html5QrCode
 			.stop()
 			.then((ignore) => {
+				window.navigator.vibrate([500]);
 				loading = true;
 				goto('/orders/' + decodedText);
 			})

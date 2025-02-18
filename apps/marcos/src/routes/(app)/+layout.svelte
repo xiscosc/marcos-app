@@ -6,7 +6,7 @@
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import Box from '$lib/components/Box.svelte';
-	import { onMount, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import { initPosthog } from '@/shared/analytics.utilities';
 
 	interface Props {
@@ -16,10 +16,7 @@
 
 	let { data, children }: Props = $props();
 
-	onMount(() => {
-		initPosthog(data.envName);
-	});
-
+	initPosthog(data.envName, data.user);
 	let onTesting = $state(data.envName !== 'prod');
 	let headerBackgroundClasses = $derived(
 		!onTesting ? 'bg-white/90 border-gray-50' : 'bg-red-500/80 border-red-500/80'
