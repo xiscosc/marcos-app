@@ -1,5 +1,6 @@
 import { AuthService } from '$lib/server/service/auth.service';
 import type { CustomSession } from '$lib/type/api.type';
+import { trackServerEvents } from '@/server/shared/analytics/posthog';
 import { FileService, OrderService } from '@marcsimolduressonsardina/core/service';
 import { json } from '@sveltejs/kit';
 
@@ -20,6 +21,20 @@ export async function DELETE({ locals, params }) {
 	}
 
 	await fileService.deleteFile(id, fileId);
+
+	await trackServerEvents(
+		appUser,
+		[
+			{
+				event: 'order_file_deleted',
+				properties: {
+					fileId: fileId
+				}
+			}
+		],
+		id
+	);
+
 	return json({ result: 'Deleted' }, { status: 200 });
 }
 

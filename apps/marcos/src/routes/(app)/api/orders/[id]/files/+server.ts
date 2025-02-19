@@ -1,5 +1,6 @@
 import { AuthService } from '$lib/server/service/auth.service';
 import type { CustomSession } from '$lib/type/api.type';
+import { trackServerEvents } from '@/server/shared/analytics/posthog';
 import { FileService, OrderService } from '@marcsimolduressonsardina/core/service';
 import { json } from '@sveltejs/kit';
 
@@ -25,5 +26,18 @@ export async function POST({ request, locals, params }) {
 	}
 
 	const file = await fileService.createFile(id, filename);
+	await trackServerEvents(
+		appUser,
+		[
+			{
+				event: 'order_file_created',
+				properties: {
+					fileId: file.id
+				}
+			}
+		],
+		id
+	);
+
 	return json(file);
 }

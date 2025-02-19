@@ -2,6 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { CalculatedItemService, OrderService } from '@marcsimolduressonsardina/core/service';
 import { AuthService } from '$lib/server/service/auth.service';
+import { trackAnonymousServerEvents } from '@/server/shared/analytics/posthog';
 
 export const load = (async ({ params }) => {
 	const { id } = params as { id: string };
@@ -17,6 +18,20 @@ export const load = (async ({ params }) => {
 		}
 
 		const calculatedItemService = new CalculatedItemService(AuthService.generatePublicConfig());
+
+		trackAnonymousServerEvents(
+			[
+				{
+					event: 'public_order_viewed',
+					properties: {
+						shortId: order.shortId
+					}
+				}
+			],
+			order.id,
+			order.customer.id
+		);
+
 		return {
 			order,
 			calculatedItem: await calculatedItemService.getCalculatedItem(order.id)

@@ -1,5 +1,6 @@
 import { AuthService } from '$lib/server/service/auth.service';
 import type { CustomSession } from '$lib/type/api.type';
+import { trackServerEvents } from '@/server/shared/analytics/posthog';
 import { OrderService } from '@marcsimolduressonsardina/core/service';
 import { json } from '@sveltejs/kit';
 
@@ -18,5 +19,16 @@ export async function GET({ locals, params }) {
 	}
 
 	await orderService.setOrderAsNotified(order);
+
+	await trackServerEvents(
+		appUser,
+		[
+			{
+				event: 'order_notified'
+			}
+		],
+		id
+	);
+
 	return json({ success: true });
 }

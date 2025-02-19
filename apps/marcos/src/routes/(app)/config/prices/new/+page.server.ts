@@ -14,6 +14,7 @@ import type {
 	PricingType
 } from '@marcsimolduressonsardina/core/type';
 import { InvalidKeyError } from '@marcsimolduressonsardina/core/error';
+import { trackServerEvents } from '@/server/shared/analytics/posthog';
 
 export const load = async ({ locals }) => {
 	await AuthUtilities.checkAuth(locals, true);
@@ -65,6 +66,16 @@ export const actions = {
 			}
 			return setError(form, '', 'Error creando el item. Intente de nuevo.');
 		}
+
+		await trackServerEvents(appUser, [
+			{
+				event: 'price_created',
+				properties: {
+					type: form.data.type,
+					id: form.data.id
+				}
+			}
+		]);
 
 		redirect(302, `/config/prices/list?type=${form.data.type}`);
 	}

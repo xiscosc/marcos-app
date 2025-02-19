@@ -104,7 +104,9 @@ function createTable(
 		tableName,
 		...generateIndexParams(index),
 		billingMode: BillingMode.PAY_PER_REQUEST,
-		pointInTimeRecovery: envName === 'prod'
+		pointInTimeRecoverySpecification: {
+			pointInTimeRecoveryEnabled: envName === 'prod'
+		}
 	});
 }
 

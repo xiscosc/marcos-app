@@ -6,6 +6,7 @@ import { customerSchema } from '$lib/shared/customer.utilities';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service';
 import { CustomerService } from '@marcsimolduressonsardina/core/service';
+import { trackServerEvents } from '@/server/shared/analytics/posthog';
 
 export const load = async ({ url, locals }) => {
 	await AuthUtilities.checkAuth(locals);
@@ -35,6 +36,16 @@ export const actions = {
 			return error(500, 'Error creating customer');
 		}
 
+		await trackServerEvents(
+			appUser,
+			[
+				{
+					event: 'customer_created'
+				}
+			],
+			undefined,
+			customer.id
+		);
 		redirect(302, `/customers/${customer.id}`);
 	}
 };

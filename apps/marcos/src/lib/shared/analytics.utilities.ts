@@ -8,6 +8,7 @@ export function initPosthog(envName: string, appUser?: AppUser) {
 		posthog.init(PUBLIC_POSTHOG_KEY, {
 			api_host: 'https://eu.i.posthog.com',
 			person_profiles: 'identified_only',
+			autocapture: false,
 			loaded: (ph) => {
 				ph.group('env:store', `${envName}:main`);
 			}
