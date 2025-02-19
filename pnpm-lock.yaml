@@ -103,8 +103,8 @@ importers:
         specifier: 2.17.2
         version: 2.17.2(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.20.2)(vite@6.1.1(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(tsx@4.19.3)(yaml@2.6.1)))(svelte@5.20.2)(vite@6.1.1(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(tsx@4.19.3)(yaml@2.6.1))
       '@tailwindcss/forms':
-        specifier: 0.5.7
-        version: 0.5.7(tailwindcss@4.0.6)
+        specifier: 0.5.10
+        version: 0.5.10(tailwindcss@4.0.6)
       '@tailwindcss/vite':
         specifier: 4.0.6
         version: 4.0.6(vite@6.1.1(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(tsx@4.19.3)(yaml@2.6.1))
@@ -1682,10 +1682,10 @@ packages:
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
 
-  '@tailwindcss/forms@0.5.7':
-    resolution: {integrity: sha512-QE7X69iQI+ZXwldE+rzasvbJiyV/ju1FGHH0Qn2W3FKbuYtqp8LKcy6iSw79fVUT5/Vvf+0XgLCeYVG+UV6hOw==}
+  '@tailwindcss/forms@0.5.10':
+    resolution: {integrity: sha512-utI1ONF6uf/pPNO68kmN1b8rEwNXv3czukalo8VtJH8ksIkZXr3Q3VYudZLkCsDd4Wku120uF02hYK25XGPorw==}
     peerDependencies:
-      tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
+      tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1 || >= 4.0.0-alpha.20 || >= 4.0.0-beta.1'
 
   '@tailwindcss/node@4.0.6':
     resolution: {integrity: sha512-jb6E0WeSq7OQbVYcIJ6LxnZTeC4HjMvbzFBMCrQff4R50HBlo/obmYNk6V2GCUXDeqiXtvtrQgcIbT+/boB03Q==}
@@ -5502,7 +5502,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tailwindcss/forms@0.5.7(tailwindcss@4.0.6)':
+  '@tailwindcss/forms@0.5.10(tailwindcss@4.0.6)':
     dependencies:
       mini-svg-data-uri: 1.4.4
       tailwindcss: 4.0.6
