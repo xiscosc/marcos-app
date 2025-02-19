@@ -1,26 +1,26 @@
 {
-  "name": "@marcsimolduressonsardina/lambda",
-  "version": "1.0.0",
-  "exports": {
-    "./reports": "./src/reports.ts",
-    "./images": "./src/images.ts"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "format": "prettier --write ."
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "typescript": "^5.6.3",
-    "sharp": "^0.33.5",
-    "aws-lambda": "^1.0.7"
-  },
-  "dependencies": {
-    "@marcsimolduressonsardina/core": "workspace:*",
-    "luxon": "^3.5.0"
-  }
+	"name": "@marcsimolduressonsardina/lambda",
+	"version": "1.0.0",
+	"exports": {
+		"./reports": "./src/reports.ts",
+		"./images": "./src/images.ts"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"format": "prettier --write ."
+	},
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@repo/eslint-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"typescript": "5.7.3",
+		"sharp": "0.33.5",
+		"aws-lambda": "1.0.7"
+	},
+	"dependencies": {
+		"@marcsimolduressonsardina/core": "workspace:*",
+		"luxon": "3.5.0"
+	}
 }

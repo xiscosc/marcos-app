@@ -471,7 +471,7 @@ export class OrderService {
 		};
 
 		if (order.shortId === '') {
-			order.shortId = OrderService.generateShortId(order);
+			order.shortId = await OrderService.generateShortId();
 		}
 		OrderService.verifyItem(order.item);
 		const calculatedItem = await this.calculatedItemService.createCalculatedItem(
@@ -497,22 +497,9 @@ export class OrderService {
 		return Array.from(map.values());
 	}
 
-	private static generateShortId(order: Order): string {
-		const orderStr = JSON.stringify(order) + uuidv4();
-		const base64 = Buffer.from(orderStr).toString('base64');
-
-		// Create an array of numbers from 0 to maxValue (excluding maxValue)
-		const numbersArray = Array.from({ length: base64.length }, (_, i) => i);
-
-		// Shuffle the array randomly
-		for (let i = numbersArray.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[numbersArray[i], numbersArray[j]] = [numbersArray[j], numbersArray[i]];
-		}
-
-		// Select the first 7 numbers (no repeats)
-		const randomNumbers = numbersArray.slice(0, 7);
-		return randomNumbers.map((num) => base64[num]).join('');
+	private static async generateShortId(): Promise<string> {
+		const { nanoid } = await import('nanoid');
+		return nanoid(10);
 	}
 
 	private static verifyItem(item: Item) {

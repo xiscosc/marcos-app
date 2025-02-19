@@ -26,6 +26,7 @@ import {
 	promoteOrderSchema,
 	statusOrderSchema
 } from '$lib/shared/order.utilities';
+import { trackServerEvents } from '@/server/shared/analytics/posthog';
 
 async function setOrderStatus(
 	status: OrderStatus,
@@ -56,6 +57,16 @@ async function setOrderStatus(
 	}
 
 	await orderService.setOrderStatus(order, status, location);
+	await trackServerEvents(
+		appUser,
+		[
+			{
+				event: 'order_status_changed',
+				properties: { status, location }
+			}
+		],
+		id
+	);
 	return order;
 }
 
@@ -129,6 +140,11 @@ export const actions = {
 		}
 
 		await orderService.moveOrderToQuote(order);
+		await trackServerEvents(
+			appUser,
+			[{ event: 'order_status_changed', properties: { status: OrderStatus.QUOTE } }],
+			id
+		);
 	},
 	promote: async ({ request, locals, params }) => {
 		const appUser = await AuthUtilities.checkAuth(locals);
@@ -147,6 +163,16 @@ export const actions = {
 		}
 
 		await orderService.moveQuoteToOrder(order, form.data.deliveryDate);
+		await trackServerEvents(
+			appUser,
+			[
+				{
+					event: 'order_status_changed',
+					properties: { status: OrderStatus.PENDING }
+				}
+			],
+			id
+		);
 		return {
 			form
 		};
@@ -206,5 +232,10 @@ export const actions = {
 
 			await orderService.setOrderPartiallyPaid(order, amountNumber);
 		}
+		await trackServerEvents(
+			appUser,
+			[{ event: 'order_payment_status_changed', properties: { status: newStatus } }],
+			id
+		);
 	}
 };

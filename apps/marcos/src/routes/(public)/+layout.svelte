@@ -9,10 +9,6 @@
 	}
 
 	let { data, children }: Props = $props();
-
-	onMount(() => {
-		initPosthog(data.envName);
-	});
 </script>
 
 <svelte:head>

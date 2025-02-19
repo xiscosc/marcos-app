@@ -22,6 +22,7 @@ import {
 } from '@marcsimolduressonsardina/core/service';
 import { InvalidSizeError } from '@marcsimolduressonsardina/core/error';
 import { cornersId, otherExtraId, quoteDeliveryDate } from '@marcsimolduressonsardina/core/util';
+import { trackServerEvents } from '../analytics/posthog';
 
 type OrderTypeForm = z.infer<typeof orderSchema>;
 type QuoteTypeForm = z.infer<typeof quoteSchema>;
@@ -162,6 +163,15 @@ export class OrderCreationUtilities {
 
 			return setError(form, '', 'Error actualizando el pedido / presupuesto. Intente de nuevo.');
 		}
+		await trackServerEvents(
+			appUser,
+			[
+				{
+					event: 'order_updated'
+				}
+			],
+			orderId
+		);
 		redirect(302, `/orders/${orderId}`);
 	}
 
@@ -197,6 +207,19 @@ export class OrderCreationUtilities {
 			}
 
 			orderId = order.id;
+
+			await trackServerEvents(
+				appUser,
+				[
+					{
+						event: 'order_created',
+						properties: {
+							status: isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING
+						}
+					}
+				],
+				orderId
+			);
 		} catch (error: unknown) {
 			console.log(error);
 			if (error instanceof InvalidSizeError) {

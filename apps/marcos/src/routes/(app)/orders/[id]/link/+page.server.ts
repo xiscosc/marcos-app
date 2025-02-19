@@ -12,6 +12,7 @@ import {
 } from '@marcsimolduressonsardina/core/service';
 import { OrderUtilities } from '@marcsimolduressonsardina/core/util';
 import { OrderStatus } from '@marcsimolduressonsardina/core/type';
+import { trackServerEvents } from '@/server/shared/analytics/posthog';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
@@ -63,10 +64,30 @@ export const actions = {
 		customer = await customerService.getCustomerByPhone(form.data.phone);
 		if (customer != null) {
 			await orderService.addCustomerToTemporaryOrder(customer, order);
+			trackServerEvents(
+				appUser,
+				[
+					{
+						event: 'order_customer_linked_from_phone'
+					}
+				],
+				order.id,
+				customer.id
+			);
 		} else {
 			if (form.data.name != null && (form.data.name as unknown as string).length >= 3) {
 				customer = await customerService.createCustomer(form.data.name!, form.data.phone);
 				await orderService.addCustomerToTemporaryOrder(customer, order);
+				trackServerEvents(
+					appUser,
+					[
+						{
+							event: 'order_customer_linked_from_new_customer'
+						}
+					],
+					order.id,
+					customer.id
+				);
 			} else {
 				return setError(
 					form,
