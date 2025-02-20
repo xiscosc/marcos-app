@@ -3,6 +3,21 @@ import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
 import { ENV_NAME } from '$env/static/private';
 import type { AppUser } from '@marcsimolduressonsardina/core/type';
 
+export interface IServerEvent {
+	event: string;
+	properties?: Record<string, unknown>;
+	orderId?: string;
+	customerId?: string;
+}
+
+export interface PosthogContext {
+	ip: string;
+	user_agent: string | null;
+	current_url: string;
+	path: string;
+	referrer: string | null;
+}
+
 function buildPostHogServer() {
 	return new PostHog(PUBLIC_POSTHOG_KEY, {
 		host: 'https://eu.i.posthog.com',
@@ -10,62 +25,63 @@ function buildPostHogServer() {
 	});
 }
 
-export interface IServerEvent {
-	event: string;
-	properties?: Record<string, unknown>;
+function getPropertiesFromContext(context: PosthogContext) {
+	return {
+		$ip: context.ip,
+		$user_agent: context.user_agent,
+		$referrer: context.referrer,
+		$current_url: context.current_url,
+		env: ENV_NAME,
+		store: 'main'
+	};
 }
 
-export async function trackServerEvents(
+function createAnonymousDistinctId(context: PosthogContext) {
+	const distinctId = `${context.ip}-${context.user_agent || 'no-agent'}`;
+	return distinctId;
+}
+
+export async function trackServerEvent(
 	user: AppUser,
-	events: IServerEvent[],
-	orderId?: string,
-	customerId?: string,
-	url?: string
+	event: IServerEvent,
+	context: PosthogContext
 ) {
 	const client = buildPostHogServer();
 
-	for (const event of events) {
-		client.capture({
-			distinctId: user.id,
-			event: event.event,
-			properties: {
-				$set: { name: user.name },
-				$set_once: { initial_url: '/' },
-				...event.properties,
-				orderId,
-				customerId,
-				$current_url: url,
-				env: ENV_NAME,
-				store: 'main'
-			}
-		});
-	}
+	client.capture({
+		distinctId: user.id,
+		event: event.event,
+		properties: {
+			$set: { name: user.name },
+			$set_once: { initial_url: '/' },
+			...event.properties,
+			orderId: event.orderId,
+			customerId: event.customerId,
+			...getPropertiesFromContext(context)
+		}
+	});
 
 	await client.shutdown();
 }
 
-export async function trackAnonymousServerEvents(
-	events: IServerEvent[],
-	orderId?: string,
-	customerId?: string,
-	url?: string
-) {
+export async function trackAnonymousServerEvent(event: IServerEvent, context: PosthogContext) {
+	if (context.user_agent?.toLowerCase().includes('whatsapp')) {
+		return;
+	}
+
 	const client = buildPostHogServer();
 
-	for (const event of events) {
-		client.capture({
-			distinctId: 'anonymous',
-			event: event.event,
-			properties: {
-				...event.properties,
-				orderId,
-				customerId,
-				$current_url: url,
-				env: ENV_NAME,
-				store: 'main'
-			}
-		});
-	}
+	client.capture({
+		distinctId: createAnonymousDistinctId(context),
+		event: event.event,
+		properties: {
+			$set: { name: 'Public user' },
+			...event.properties,
+			orderId: event.orderId,
+			customerId: event.customerId,
+			...getPropertiesFromContext(context)
+		}
+	});
 
 	await client.shutdown();
 }

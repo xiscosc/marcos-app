@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import { AuthService } from '$lib/server/service/auth.service';
 import type { CustomSession } from '$lib/type/api.type.js';
 import { MoldPriceLoader } from '@marcsimolduressonsardina/core/data';
-import { trackServerEvents } from '@/server/shared/analytics/posthog';
+import { trackServerEvent } from '@/server/shared/analytics/posthog';
 
 export async function GET({ locals }) {
 	const session = await locals.auth();
@@ -14,11 +14,13 @@ export async function GET({ locals }) {
 	const moldPriceLoader = new MoldPriceLoader(AuthService.generateConfiguration(appUser));
 	const { filename, url } = await moldPriceLoader.generateFileUploadUrl();
 
-	await trackServerEvents(appUser, [
+	await trackServerEvent(
+		appUser,
 		{
 			event: 'mold_price_upload_requested'
-		}
-	]);
+		},
+		locals.posthog
+	);
 
 	return json({ filename, url });
 }
@@ -43,11 +45,13 @@ export async function POST({ request, locals }) {
 		return json({ error: 'Error loading the prices' }, { status: 500 });
 	}
 
-	await trackServerEvents(appUser, [
+	await trackServerEvent(
+		appUser,
 		{
 			event: 'mold_price_upload_completed'
-		}
-	]);
+		},
+		locals.posthog
+	);
 
 	return json({ success: true });
 }

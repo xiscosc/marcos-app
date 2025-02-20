@@ -15,7 +15,7 @@ import type {
 	PricingType
 } from '@marcsimolduressonsardina/core/type';
 import { InvalidKeyError } from '@marcsimolduressonsardina/core/error';
-import { trackServerEvents } from '@/server/shared/analytics/posthog';
+import { trackServerEvent } from '@/server/shared/analytics/posthog';
 
 async function getListPrice(id: string, pricingService: PricingService): Promise<ListPrice> {
 	if (id == null) throw fail(400);
@@ -93,15 +93,17 @@ export const actions = {
 			}
 			return setError(form, '', 'Error actualizando el item. Intente de nuevo.');
 		}
-		await trackServerEvents(appUser, [
+		await trackServerEvent(
+			appUser,
 			{
 				event: 'price_updated',
 				properties: {
 					type: listPrice.type,
 					id: listPrice.id
 				}
-			}
-		]);
+			},
+			locals.posthog
+		);
 
 		redirect(302, `/config/prices/list?type=${listPrice.type}`);
 	},

@@ -200,7 +200,7 @@ export class OrderService {
 		return this.getFullOrders(orders);
 	}
 
-	async createOrderFromDto(dto: OrderCreationDto): Promise<Order | null> {
+	async createOrderFromDto(dto: OrderCreationDto): Promise<FullOrder | null> {
 		const customer =
 			dto.customerId == null
 				? OrderService.getTempCustomer(this.config.storeId)
@@ -380,14 +380,17 @@ export class OrderService {
 		return this.repository.getOrdersBetweenTs(order.customer.id, startTs, endTs);
 	}
 
-	private async createOrder(dto: OrderCreationWithCustomerDto): Promise<Order> {
+	private async createOrder(dto: OrderCreationWithCustomerDto): Promise<FullOrder> {
 		const { order, calculatedItem } = await this.generateOrderAndCalculatedItemFromDto(dto);
 		await Promise.all([
 			this.repository.createOrder(OrderService.toDto(order)),
 			this.calculatedItemService.saveCalculatedItem(calculatedItem),
 			this.orderAuditTrailService.logOrderStatusChanged(order.id, order.status)
 		]);
-		return order;
+		return {
+			calculatedItem,
+			order
+		};
 	}
 
 	private async getFullOrders(orders: Order[]): Promise<FullOrder[]> {

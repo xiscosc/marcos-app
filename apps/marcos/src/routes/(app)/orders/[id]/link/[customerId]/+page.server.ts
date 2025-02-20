@@ -4,7 +4,7 @@ import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service';
 import { CustomerService, OrderService } from '@marcsimolduressonsardina/core/service';
 import { OrderUtilities } from '@marcsimolduressonsardina/core/util';
-import { trackServerEvents } from '@/server/shared/analytics/posthog';
+import { trackServerEvent } from '@/server/shared/analytics/posthog';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
@@ -26,15 +26,14 @@ export const load = (async ({ params, locals }) => {
 	}
 
 	await orderService.addCustomerToTemporaryOrder(customer!, order!);
-	trackServerEvents(
+	await trackServerEvent(
 		appUser,
-		[
-			{
-				event: 'order_customer_linked_from_search'
-			}
-		],
-		order!.id,
-		customer!.id
+		{
+			event: 'order_customer_linked_from_search',
+			orderId: order!.id,
+			customerId: customer!.id
+		},
+		locals.posthog
 	);
 
 	redirect(302, `/orders/${id}/files`);

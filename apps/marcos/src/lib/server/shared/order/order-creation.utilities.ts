@@ -21,8 +21,13 @@ import {
 	PricingService
 } from '@marcsimolduressonsardina/core/service';
 import { InvalidSizeError } from '@marcsimolduressonsardina/core/error';
-import { cornersId, otherExtraId, quoteDeliveryDate } from '@marcsimolduressonsardina/core/util';
-import { trackServerEvents } from '../analytics/posthog';
+import {
+	CalculatedItemUtilities,
+	cornersId,
+	otherExtraId,
+	quoteDeliveryDate
+} from '@marcsimolduressonsardina/core/util';
+import { trackServerEvent } from '../analytics/posthog';
 
 type OrderTypeForm = z.infer<typeof orderSchema>;
 type QuoteTypeForm = z.infer<typeof quoteSchema>;
@@ -163,14 +168,14 @@ export class OrderCreationUtilities {
 
 			return setError(form, '', 'Error actualizando el pedido / presupuesto. Intente de nuevo.');
 		}
-		await trackServerEvents(
+
+		await trackServerEvent(
 			appUser,
-			[
-				{
-					event: 'order_updated'
-				}
-			],
-			orderId
+			{
+				event: 'order_updated',
+				orderId
+			},
+			locals.posthog
 		);
 		redirect(302, `/orders/${orderId}`);
 	}
@@ -184,7 +189,6 @@ export class OrderCreationUtilities {
 		const appUser = await AuthUtilities.checkAuth(locals);
 		const schema = isQuote ? quoteSchema : orderSchema;
 		const form = await superValidate(request, zod(schema));
-		console.log(form.errors);
 
 		if (!form.valid) {
 			return fail(400, { form });
@@ -200,28 +204,26 @@ export class OrderCreationUtilities {
 				customerId
 			);
 
-			const order = await orderService.createOrderFromDto(orderDto);
-			if (order === null) {
-				console.log('Error creating quote');
+			const fullOrder = await orderService.createOrderFromDto(orderDto);
+			if (fullOrder === null) {
 				return setError(form, '', 'Error creando el pedido / presupuesto. Intente de nuevo.');
 			}
 
-			orderId = order.id;
+			orderId = fullOrder.order.id;
 
-			await trackServerEvents(
+			await trackServerEvent(
 				appUser,
-				[
-					{
-						event: 'order_created',
-						properties: {
-							status: isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING
-						}
+				{
+					event: 'order_created',
+					orderId,
+					properties: {
+						status: isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING,
+						amount: CalculatedItemUtilities.getTotal(fullOrder.calculatedItem)
 					}
-				],
-				orderId
+				},
+				locals.posthog
 			);
 		} catch (error: unknown) {
-			console.log(error);
 			if (error instanceof InvalidSizeError) {
 				return setError(form, '', error.message);
 			}
