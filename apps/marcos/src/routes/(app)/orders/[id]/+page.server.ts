@@ -26,7 +26,7 @@ import {
 	promoteOrderSchema,
 	statusOrderSchema
 } from '$lib/shared/order.utilities';
-import { trackServerEvents } from '@/server/shared/analytics/posthog';
+import { trackServerEvent } from '@/server/shared/analytics/posthog';
 
 async function setOrderStatus(
 	status: OrderStatus,
@@ -57,15 +57,14 @@ async function setOrderStatus(
 	}
 
 	await orderService.setOrderStatus(order, status, location);
-	await trackServerEvents(
+	await trackServerEvent(
 		appUser,
-		[
-			{
-				event: 'order_status_changed',
-				properties: { status, location }
-			}
-		],
-		id
+		{
+			event: 'order_status_changed',
+			properties: { status, location },
+			orderId: order.id
+		},
+		locals.posthog
 	);
 	return order;
 }
@@ -140,10 +139,14 @@ export const actions = {
 		}
 
 		await orderService.moveOrderToQuote(order);
-		await trackServerEvents(
+		await trackServerEvent(
 			appUser,
-			[{ event: 'order_status_changed', properties: { status: OrderStatus.QUOTE } }],
-			id
+			{
+				event: 'order_status_changed',
+				properties: { status: OrderStatus.QUOTE },
+				orderId: order.id
+			},
+			locals.posthog
 		);
 	},
 	promote: async ({ request, locals, params }) => {
@@ -163,16 +166,16 @@ export const actions = {
 		}
 
 		await orderService.moveQuoteToOrder(order, form.data.deliveryDate);
-		await trackServerEvents(
+		await trackServerEvent(
 			appUser,
-			[
-				{
-					event: 'order_status_changed',
-					properties: { status: OrderStatus.PENDING }
-				}
-			],
-			id
+			{
+				event: 'order_status_changed',
+				properties: { status: OrderStatus.PENDING },
+				orderId: order.id
+			},
+			locals.posthog
 		);
+
 		return {
 			form
 		};
@@ -232,10 +235,15 @@ export const actions = {
 
 			await orderService.setOrderPartiallyPaid(order, amountNumber);
 		}
-		await trackServerEvents(
+
+		await trackServerEvent(
 			appUser,
-			[{ event: 'order_payment_status_changed', properties: { status: newStatus } }],
-			id
+			{
+				event: 'order_payment_status_changed',
+				properties: { status: newStatus },
+				orderId: order.id
+			},
+			locals.posthog
 		);
 	}
 };

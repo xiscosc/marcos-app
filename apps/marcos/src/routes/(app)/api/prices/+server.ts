@@ -28,8 +28,6 @@ export async function POST({ request, locals }) {
 			return json({ error: error.message }, { status: 400 });
 		}
 
-		console.log(error);
-
 		return json({ error: 'Error computing the price' }, { status: 500 });
 	}
 }

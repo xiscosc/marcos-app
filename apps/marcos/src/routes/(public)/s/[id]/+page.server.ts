@@ -2,10 +2,9 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { CalculatedItemService, OrderService } from '@marcsimolduressonsardina/core/service';
 import { AuthService } from '$lib/server/service/auth.service';
-import { trackAnonymousServerEvents } from '@/server/shared/analytics/posthog';
-import { PUBLIC_DOMAIN_URL } from '$env/static/public';
+import { trackAnonymousServerEvent } from '@/server/shared/analytics/posthog';
 
-export const load = (async ({ params, getClientAddress }) => {
+export const load = (async ({ params, locals }) => {
 	const { id } = params as { id: string };
 
 	if (id == null) {
@@ -20,19 +19,16 @@ export const load = (async ({ params, getClientAddress }) => {
 
 		const calculatedItemService = new CalculatedItemService(AuthService.generatePublicConfig());
 
-		trackAnonymousServerEvents(
-			[
-				{
-					event: 'public_order_viewed',
-					properties: {
-						shortId: order.shortId,
-						$ip: getClientAddress()
-					}
+		trackAnonymousServerEvent(
+			{
+				event: 'public_order_viewed',
+				orderId: order.id,
+				customerId: order.customer.id,
+				properties: {
+					shortId: order.shortId
 				}
-			],
-			order.id,
-			order.customer.id,
-			`${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
+			},
+			locals.posthog
 		);
 
 		return {

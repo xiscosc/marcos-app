@@ -10,7 +10,10 @@ export function initPosthog(envName: string, appUser?: AppUser) {
 			person_profiles: 'identified_only',
 			autocapture: false,
 			loaded: (ph) => {
-				ph.group('env:store', `${envName}:main`);
+				ph.register({
+					env: envName,
+					store: 'main'
+				});
 			}
 		});
 
@@ -27,22 +30,4 @@ export function identifyUser(appUser: AppUser) {
 			name: appUser.name
 		});
 	}
-}
-
-export function trackEvent(event: string, properties?: Record<string, unknown>) {
-	if (browser) {
-		posthog.capture(event, properties);
-	}
-}
-
-export function trackPageView(pageName: string, properties?: Record<string, unknown>) {
-	trackEvent(`visited ${pageName}`, properties);
-}
-
-export function trackOrderEvent(
-	action: string,
-	orderId: string,
-	properties?: Record<string, unknown>
-) {
-	trackEvent(`order ${action}`, { ...properties, orderId });
 }

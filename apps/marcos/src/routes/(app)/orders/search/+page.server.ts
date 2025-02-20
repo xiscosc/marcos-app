@@ -26,7 +26,6 @@ export const actions = {
 		}
 
 		const splits = form.data.id.split('/');
-		console.log(splits);
 		if (splits.length !== 3) {
 			return setError(form, 'id', 'No se ha encontrado el pedido');
 		}
@@ -35,7 +34,6 @@ export const actions = {
 		const customerService = new CustomerService(config);
 		const orderService = new OrderService(config, customerService);
 		const existingCustomer = await customerService.getCustomerByPhone(`+${splits[2]}`);
-		console.log(existingCustomer);
 		if (existingCustomer == null) {
 			return setError(form, 'id', 'No se ha encontrado el pedido');
 		}
