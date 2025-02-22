@@ -61,7 +61,11 @@ export async function trackServerEvent(
 		}
 	});
 
-	await client.shutdown();
+	try {
+		await client.shutdown();
+	} catch (error) {
+		console.error('Failed to shutdown PostHog client:', error);
+	}
 }
 
 export async function trackAnonymousServerEvent(event: IServerEvent, context: PosthogContext) {
@@ -83,5 +87,9 @@ export async function trackAnonymousServerEvent(event: IServerEvent, context: Po
 		}
 	});
 
-	await client.shutdown();
+	try {
+		await client.shutdown();
+	} catch (error) {
+		console.error('Failed to shutdown PostHog client:', error);
+	}
 }
