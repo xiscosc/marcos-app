@@ -248,8 +248,8 @@ importers:
         specifier: 9.6.0
         version: 9.6.0
       uuid:
-        specifier: 11.0.5
-        version: 11.0.5
+        specifier: 11.1.0
+        version: 11.1.0
       xlsx:
         specifier: 0.18.5
         version: 0.18.5
@@ -278,9 +278,6 @@ importers:
       '@types/node':
         specifier: 22.13.4
         version: 22.13.4
-      '@types/uuid':
-        specifier: 10.0.0
-        version: 10.0.0
       typescript:
         specifier: 5.7.3
         version: 5.7.3
@@ -1812,9 +1809,6 @@ packages:
 
   '@types/qrcode@1.5.5':
     resolution: {integrity: sha512-CdfBi/e3Qk+3Z/fXYShipBT13OJ2fDO2Q2w5CIP5anLTLIndQG9z6P1cnm+8zCWSpm5dnxMFd/uREtb0EXuQzg==}
-
-  '@types/uuid@10.0.0':
-    resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
 
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
@@ -3697,8 +3691,8 @@ packages:
   util@0.12.5:
     resolution: {integrity: sha512-kZf/K6hEIrWHI6XqOFUiiMa+79wE/D8Q+NCNAWclkyg3b4d2k7s0QGepNjiABc+aR3N1PAyHL7p6UcLY6LmrnA==}
 
-  uuid@11.0.5:
-    resolution: {integrity: sha512-508e6IcKLrhxKdBbcA2b4KQZlLVp2+J5UwQ6F7Drckkc5N9ZJwFa4TgWtsww9UG8fGHbm6gbV19TdM5pQ4GaIA==}
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
     hasBin: true
 
   uuid@8.0.0:
@@ -5609,8 +5603,6 @@ snapshots:
     dependencies:
       '@types/node': 22.13.4
 
-  '@types/uuid@10.0.0': {}
-
   '@types/uuid@9.0.8': {}
 
   '@types/validator@13.12.2':
@@ -7512,7 +7504,7 @@ snapshots:
       is-typed-array: 1.1.13
       which-typed-array: 1.1.16
 
-  uuid@11.0.5: {}
+  uuid@11.1.0: {}
 
   uuid@8.0.0: {}
 

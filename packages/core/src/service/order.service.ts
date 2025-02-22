@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import { CustomerService } from './customer.service';
 import type { OrderDto } from '../repository/dto/order.dto';
 import { OrderRepositoryDynamoDb } from '../repository/dynamodb/order.repository.dynamodb';
@@ -346,6 +346,10 @@ export class OrderService {
 		}
 
 		return null;
+	}
+
+	static validateOrderId(orderId?: string): boolean {
+		return uuidValidate(orderId);
 	}
 
 	private static getTempCustomer(storeId: string): Customer {
