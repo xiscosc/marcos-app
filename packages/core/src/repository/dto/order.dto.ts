@@ -14,4 +14,5 @@ export type OrderDto = {
 	hasArrow?: boolean;
 	location?: string;
 	notified?: boolean;
+	publicId?: string;
 };
