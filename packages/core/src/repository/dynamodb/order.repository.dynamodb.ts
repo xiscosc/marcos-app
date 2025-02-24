@@ -32,6 +32,12 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 			: (this.filterByStoreIdAndDeleted(dto) as OrderDto | null);
 	}
 
+	public async getOrderByPublicId(publicId: string): Promise<OrderDto | null> {
+		const dtos = await this.getByIndex(OrderDynamoDbIndex.publicIdIndex, publicId);
+		const dto = dtos[0] ?? null;
+		return this.filterByStoreIdAndDeleted(dto) as OrderDto | null;
+	}
+
 	public async getOrdersByCustomerId(customerUuid: string): Promise<OrderDto[]> {
 		const dtos = await this.getByIndex(OrderDynamoDbIndex.customerIndex, customerUuid);
 		return this.filterByStoreIdAndDeleted(dtos) as OrderDto[];
@@ -115,11 +121,6 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 	public async updateAmountPayed(order: OrderDto) {
 		this.checkOrderStore(order);
 		await this.updateFields(order.uuid, new Map([['amountPayed', order.amountPayed]]));
-	}
-
-	public async updatePublicId(order: OrderDto) {
-		this.checkOrderStore(order);
-		await this.updateFields(order.uuid, new Map([['publicId', order.publicId]]));
 	}
 
 	public async updateCustomerId(order: OrderDto) {

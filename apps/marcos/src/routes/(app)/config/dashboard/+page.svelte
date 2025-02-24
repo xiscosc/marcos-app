@@ -126,7 +126,7 @@
 									class="rounded-lg bg-gray-100 px-2 py-1 font-mono text-gray-800"
 									href={`/orders/${topOrder.order.id}`}
 								>
-									{OrderUtilities.getOrderPublicId(topOrder.order)}
+									{topOrder.order.publicId}
 								</a>
 							</Table.Cell>
 							<Table.Cell>

@@ -54,7 +54,7 @@
 
 			<div class="overflow-hidden text-ellipsis whitespace-nowrap text-[0.6rem]">
 				<span class="rounded-lg bg-white px-2 py-1 font-mono text-gray-800">
-					{OrderUtilities.getOrderPublicId(order)}
+					{order.publicId}
 				</span>
 			</div>
 		</div>
