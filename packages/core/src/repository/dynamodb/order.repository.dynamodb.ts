@@ -117,6 +117,11 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 		await this.updateFields(order.uuid, new Map([['amountPayed', order.amountPayed]]));
 	}
 
+	public async updatePublicId(order: OrderDto) {
+		this.checkOrderStore(order);
+		await this.updateFields(order.uuid, new Map([['publicId', order.publicId]]));
+	}
+
 	public async updateCustomerId(order: OrderDto) {
 		this.checkOrderStore(order);
 		await this.updateFields(order.uuid, new Map([['customerUuid', order.customerUuid]]));

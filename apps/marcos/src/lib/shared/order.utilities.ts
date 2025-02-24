@@ -24,8 +24,7 @@ export class OrderUtilities {
 		const dateStr = date.toFormat('ddMMyyyy');
 		const phoneWithoutPlus = order.customer.phone.replace('+', '');
 		const middle = (order.shortId.charAt(0) + order.id.charAt(0)).toUpperCase();
-		const quote = order.status === OrderStatus.QUOTE ? 'P-' : '';
-		return `${quote}${dateStr}/${middle}/${phoneWithoutPlus}`;
+		return `${dateStr}/${middle}/${phoneWithoutPlus}`;
 	}
 
 	public static addPricingTypeToCalculatedParts(

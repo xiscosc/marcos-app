@@ -86,6 +86,11 @@ export class OrderService {
 	}
 
 	async getOrdersByStatus(status: OrderStatus): Promise<FullOrder[]> {
+		const orders = await this.getStandaloneOrdersByStatus(status);
+		return this.getFullOrders(orders);
+	}
+
+	async getStandaloneOrdersByStatus(status: OrderStatus): Promise<Order[]> {
 		const orderDtos = await this.repository.getOrdersByStatus(status);
 		const customerIds = orderDtos.map((dto) => dto.customerUuid);
 		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
@@ -96,7 +101,8 @@ export class OrderService {
 				customerMap.get(o.customerUuid) ?? OrderService.getTempCustomer(this.config.storeId)
 			)
 		);
-		return this.getFullOrders(orders);
+
+		return orders;
 	}
 
 	async getOrdersByStatusPaginated(
@@ -348,6 +354,11 @@ export class OrderService {
 		return null;
 	}
 
+	async updateOrderPublicId(order: Order, publicId: string) {
+		order.publicId = publicId;
+		await this.repository.updatePublicId(OrderService.toDto(order));
+	}
+
 	static validateOrderId(orderId?: string): boolean {
 		return uuidValidate(orderId);
 	}
@@ -424,7 +435,8 @@ export class OrderService {
 			originalOrder.location,
 			originalOrder.amountPayed,
 			originalOrder.notified,
-			originalOrder.user
+			originalOrder.user,
+			originalOrder.publicId
 		);
 
 		await Promise.all([
@@ -444,11 +456,13 @@ export class OrderService {
 		originalLocation?: string,
 		originalAmountPayed?: number,
 		originalNotified?: boolean,
-		originalUser?: StaticUser
+		originalUser?: StaticUser,
+		originalPublicId?: string
 	): Promise<{ order: Order; calculatedItem: CalculatedItem }> {
 		const order: Order = {
 			id: originalId ?? uuidv4(),
 			shortId: originalShortId ?? '',
+			publicId: originalPublicId ?? '',
 			customer: dto.customer,
 			createdAt: originalCreationDate ?? new Date(),
 			storeId: this.config.storeId,
@@ -480,6 +494,11 @@ export class OrderService {
 		if (order.shortId === '') {
 			order.shortId = await OrderService.generateShortId();
 		}
+
+		if (order.publicId === '') {
+			order.publicId = await OrderService.generatePublicId(order.createdAt, order.customer);
+		}
+
 		OrderService.verifyItem(order.item);
 		const calculatedItem = await this.calculatedItemService.createCalculatedItem(
 			order,
@@ -535,7 +554,8 @@ export class OrderService {
 			status: order.status,
 			hasArrow: order.hasArrow,
 			location: order.location,
-			notified: order.notified
+			notified: order.notified,
+			publicId: order.publicId
 		};
 	}
 
@@ -552,7 +572,8 @@ export class OrderService {
 			status: dto.status as OrderStatus,
 			hasArrow: dto.hasArrow ?? false,
 			location: dto.location ?? '',
-			notified: dto.notified ?? false
+			notified: dto.notified ?? false,
+			publicId: dto.publicId
 		};
 	}
 
@@ -611,5 +632,14 @@ export class OrderService {
 					? DimensionsType.EXTERIOR
 					: DimensionsType.NORMAL
 		};
+	}
+
+	private static async generatePublicId(createdAt: Date, customer: Customer): Promise<string> {
+		const { customAlphabet } = await import('nanoid');
+		const middle = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 2)();
+		const date = DateTime.fromJSDate(createdAt);
+		const dateStr = date.toFormat('ddMMyyyy');
+		const phoneWithoutPlus = customer.phone.replace('+', '');
+		return `${dateStr}/${middle}/${phoneWithoutPlus}`;
 	}
 }
