@@ -19,14 +19,6 @@ import {
 } from '@marcsimolduressonsardina/core/util';
 
 export class OrderUtilities {
-	public static getOrderPublicId(order: Order): string {
-		const date = DateTime.fromJSDate(order.createdAt);
-		const dateStr = date.toFormat('ddMMyyyy');
-		const phoneWithoutPlus = order.customer.phone.replace('+', '');
-		const middle = (order.shortId.charAt(0) + order.id.charAt(0)).toUpperCase();
-		return `${dateStr}/${middle}/${phoneWithoutPlus}`;
-	}
-
 	public static addPricingTypeToCalculatedParts(
 		preparts: PreCalculatedItemPart[],
 		parts: CalculatedItemPart[]
@@ -106,12 +98,12 @@ export class OrderUtilities {
 
 	public static getWhatsappTicketText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
-		return `Su pedido \`\`\`${OrderUtilities.getOrderPublicId(order)}\`\`\` ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
+		return `Su pedido \`\`\`${order.publicId}\`\`\` ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappQuoteText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
-		return `Aquí tiene una copia de su presupuesto \`\`\`${OrderUtilities.getOrderPublicId(order)}\`\`\` :  ${url} . Marcs i Moldures Son Sardina.`;
+		return `Aquí tiene una copia de su presupuesto \`\`\`${order.publicId}\`\`\` :  ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappFinishedText(orders: Order[]): string {
@@ -119,12 +111,11 @@ export class OrderUtilities {
 			'Nuestro horario es de lunes a viernes de 09:00 a 18:00 y los sábados de 09:30 a 13:15. Marcs i Moldures Son Sardina.';
 		if (orders.length === 1) {
 			const url = `${PUBLIC_DOMAIN_URL}/s/${orders[0].shortId}`;
-			return `Hemos terminado su pedido \`\`\`${OrderUtilities.getOrderPublicId(orders[0])}\`\`\` puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
+			return `Hemos terminado su pedido \`\`\`${orders[0].publicId}\`\`\` puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
 		} else {
 			const orderLines = orders
 				.map(
-					(order) =>
-						`* \`\`\`${OrderUtilities.getOrderPublicId(order)}\`\`\` \n ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
+					(order) => `* \`\`\`${order.publicId}\`\`\` \n ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
 				)
 				.join('\n');
 
@@ -298,7 +289,14 @@ export type StatusOrderSchema = typeof statusOrderSchema;
 export const orderPublicIdSchema = z.object({
 	id: z
 		.string({ message: 'El id es obligatorio' })
-		.regex(/^[0-9]{8}\/[A-Z0-9a-z]{2}\/[0-9]{11}$/, { message: 'Formato inválido' })
+		.min(13, { message: 'El id debe tener al menos 13 caracteres' })
+		.refine(
+			(value) => {
+				const slashCount = (value.match(/\//g) || []).length;
+				return slashCount === 2;
+			},
+			{ message: 'El id debe contener exactamente 2 barras (/)' }
+		)
 });
 
 export type OrderPublicIdSchema = typeof orderPublicIdSchema;

@@ -161,10 +161,18 @@ export class OrderDynamoDbIndex {
 		sortKeyType: 'N'
 	};
 
+	public static readonly publicIdIndex: ISecondaryDynamoDbIndex = {
+		type: DynamoDbIndexType.secondary,
+		indexName: 'publicId',
+		partitionKeyName: 'publicId',
+		partitionKeyType: 'S'
+	};
+
 	public static readonly secondaryIndexes = [
 		this.customerIndex,
 		this.shortIdIndex,
 		this.statusIndex,
-		this.storeIndex
+		this.storeIndex,
+		this.publicIdIndex
 	];
 }

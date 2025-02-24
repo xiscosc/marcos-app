@@ -96,7 +96,7 @@
 								<td>
 									<Qr size={85} qrData={order.id}></Qr>
 									<div class="customer-text">
-										<p class="customer-bottom">{OrderUtilities.getOrderPublicId(order)}</p>
+										<p class="customer-bottom">{order.publicId}</p>
 									</div>
 								</td>
 								<td>

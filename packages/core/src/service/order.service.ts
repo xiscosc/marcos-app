@@ -85,6 +85,11 @@ export class OrderService {
 		return null;
 	}
 
+	async getOrderIdByPublicId(publicId: string): Promise<string | null> {
+		const order = await this.repository.getOrderByPublicId(publicId);
+		return order?.uuid ?? null;
+	}
+
 	async getOrdersByStatus(status: OrderStatus): Promise<FullOrder[]> {
 		const orders = await this.getStandaloneOrdersByStatus(status);
 		return this.getFullOrders(orders);
@@ -138,26 +143,6 @@ export class OrderService {
 			)
 		);
 		return this.getFullOrders(orders);
-	}
-
-	async indexOrders() {
-		const orderDtos = (
-			await Promise.all(
-				Object.values(OrderStatus)
-					.filter((s) => s !== OrderStatus.DELETED)
-					.map((s) => this.repository.getOrdersByStatus(s))
-			)
-		).flat();
-
-		const newOrderDtos = orderDtos.map((order) => ({
-			...order,
-			item: {
-				...order.item,
-				normalizedDescription: SearchUtilities.normalizeString(order.item.description)
-			}
-		}));
-
-		await this.repository.storeOrders(newOrderDtos);
 	}
 
 	async getOrdersByCustomerId(customerId: string): Promise<FullOrder[]> {
@@ -352,11 +337,6 @@ export class OrderService {
 		}
 
 		return null;
-	}
-
-	async updateOrderPublicId(order: Order, publicId: string) {
-		order.publicId = publicId;
-		await this.repository.updatePublicId(OrderService.toDto(order));
 	}
 
 	static validateOrderId(orderId?: string): boolean {

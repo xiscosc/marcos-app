@@ -22,10 +22,10 @@
 <div class="flex flex-col gap-4">
 	<SimpleHeading icon={IconType.ORDER_DEFAULT}>Consultar pedido</SimpleHeading>
 	<Box>
-		{#if $submitting}
-			<ProgressBar />
-		{:else}
-			<form use:enhance class="space-y-4" method="post">
+		<form use:enhance method="post">
+			{#if $submitting}
+				<ProgressBar text="Buscando pedido..." />
+			{:else}
 				<Form.Field {form} name="id">
 					<Form.Control>
 						{#snippet children({ props })}
@@ -37,7 +37,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 				<Button text="Buscar" icon={IconType.SEARCH} action={ButtonAction.SUBMIT}></Button>
-			</form>
-		{/if}
+			{/if}
+		</form>
 	</Box>
 </div>

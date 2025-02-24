@@ -74,7 +74,7 @@ export type Order = {
 	customer: Customer;
 	location: string;
 	notified: boolean;
-	publicId?: string;
+	publicId: string;
 };
 
 export type FullOrder = {
