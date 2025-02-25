@@ -37,17 +37,11 @@
 
 	let { data }: Props = $props();
 
-	let discountNotAllowedPresent = $state(false);
 	$effect(() => {
 		if (data.info) {
 			data.info.then((info) => {
 				if (info.order != null && OrderUtilities.isOrderTemp(info.order)) {
 					goto(`/orders/${info.order.id}/link`);
-				}
-				if (info.calculatedItem != null) {
-					discountNotAllowedPresent =
-						info.calculatedItem.parts.find((part) => !part.discountAllowed) != null &&
-						info.calculatedItem.discount > 0;
 				}
 			});
 		}
@@ -188,7 +182,7 @@
 					<OrderElements
 						order={info.order}
 						calculatedItem={info.calculatedItem}
-						{discountNotAllowedPresent}
+						discountNotAllowedPresent={info.totals.discountNotAllowedPresent}
 					></OrderElements>
 				</div>
 

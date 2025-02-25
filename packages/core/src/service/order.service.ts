@@ -17,11 +17,13 @@ import {
 } from '../configuration/core-configuration.interface';
 import {
 	CalculatedItem,
+	CalculatedItemWithPartTypes,
 	DimensionsType,
 	FullOrder,
 	Item,
 	Order,
 	OrderStatus,
+	OrderTotals,
 	PreCalculatedItemPart
 } from '../types/order.type';
 import { SearchUtilities } from '../utilities/search.utilities';
@@ -383,8 +385,9 @@ export class OrderService {
 			this.orderAuditTrailService.logOrderStatusChanged(order.id, order.status)
 		]);
 		return {
-			calculatedItem,
-			order
+			calculatedItem: OrderService.addTypesToCalculatedItem(order, calculatedItem),
+			order,
+			totals: OrderService.getTotals(order, calculatedItem)
 		};
 	}
 
@@ -397,8 +400,12 @@ export class OrderService {
 			(calculatedItem) => calculatedItem != null
 		);
 		return calculatedItems.map((calculatedItem) => ({
-			calculatedItem,
-			order: orderMap.get(calculatedItem.orderId)!
+			calculatedItem: OrderService.addTypesToCalculatedItem(
+				orderMap.get(calculatedItem.orderId)!,
+				calculatedItem
+			),
+			order: orderMap.get(calculatedItem.orderId)!,
+			totals: OrderService.getTotals(orderMap.get(calculatedItem.orderId)!, calculatedItem)
 		}));
 	}
 
@@ -621,5 +628,58 @@ export class OrderService {
 		const dateStr = date.toFormat('ddMMyyyy');
 		const phoneWithoutPlus = customer.phone.replace('+', '');
 		return `${dateStr}/${middle}/${phoneWithoutPlus}`;
+	}
+
+	private static addTypesToCalculatedItem(
+		order: Order,
+		calculatedItem: CalculatedItem
+	): CalculatedItemWithPartTypes {
+		const parts = calculatedItem.parts;
+		const preparts = order.item.partsToCalculate;
+
+		// Create a map of PreCalculatedItemPart based on id for quick lookup
+		const prepartsMap = new Map<string, PreCalculatedItemPart>(
+			preparts.map((prepart) => [prepart.id, prepart])
+		);
+
+		// Map through the parts and match them with corresponding preparts using the priceId and id
+		const partsWithTypes = parts.map((part) => {
+			const matchingPrepart = prepartsMap.get(part.priceId);
+
+			return {
+				...part,
+				type: matchingPrepart?.type // If a matching prepart exists, set the type, otherwise undefined
+			};
+		});
+
+		return {
+			...calculatedItem,
+			parts: partsWithTypes
+		};
+	}
+
+	private static getTotals(order: Order, calculatedItem: CalculatedItem): OrderTotals {
+		const unitPrice = CalculatedItemUtilities.calculatePartsCost(
+			calculatedItem.parts,
+			true,
+			calculatedItem.discount
+		);
+
+		const unitPriceWithoutDiscount = CalculatedItemUtilities.calculatePartsCost(
+			calculatedItem.parts,
+			false
+		);
+
+		const total = unitPrice * calculatedItem.quantity;
+
+		return {
+			unitPrice: unitPrice,
+			unitPriceWithoutDiscount: unitPriceWithoutDiscount,
+			totalWithoutDiscount: unitPriceWithoutDiscount * calculatedItem.quantity,
+			total,
+			discountNotAllowedPresent:
+				calculatedItem.parts.some((part) => !part.discountAllowed) && calculatedItem.discount > 0,
+			payed: total === order.amountPayed || total === 0
+		};
 	}
 }
