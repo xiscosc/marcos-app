@@ -29,7 +29,6 @@
 		html5QrCode
 			.stop()
 			.then((ignore) => {
-				window.navigator.vibrate([500]);
 				scannedText = decodedText;
 			})
 			.catch((err) => {});
