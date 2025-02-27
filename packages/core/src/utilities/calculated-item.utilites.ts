@@ -1,9 +1,4 @@
-import {
-	CalculatedItem,
-	CalculatedItemPart,
-	OrderDimensions,
-	PPDimensions
-} from '../types/order.type';
+import { CalculatedItemPart, OrderDimensions, PPDimensions } from '../types/order.type';
 import { PricingType } from '../types/pricing.type';
 
 export const cornersId = 'cantoneras_extra';
@@ -86,30 +81,6 @@ export class CalculatedItemUtilities {
 		const before_ = moldId.split('_')[0];
 		const after_ = moldId.split('_')[1];
 		return `${after_} - UBI: ${before_}`;
-	}
-
-	public static getUnitPriceWithoutDiscount(calculatedItem: CalculatedItem): number {
-		return CalculatedItemUtilities.calculatePartsCost(calculatedItem.parts, false);
-	}
-
-	public static getUnitPriceWithDiscount(calculatedItem: CalculatedItem): number {
-		return CalculatedItemUtilities.calculatePartsCost(
-			calculatedItem.parts,
-			true,
-			calculatedItem.discount
-		);
-	}
-
-	public static getTotalWithoutDiscount(calculatedItem: CalculatedItem): number {
-		return (
-			calculatedItem.quantity * CalculatedItemUtilities.getUnitPriceWithoutDiscount(calculatedItem)
-		);
-	}
-
-	public static getTotal(calculatedItem: CalculatedItem): number {
-		return (
-			calculatedItem.quantity * CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)
-		);
 	}
 
 	public static calculatePartsCost(

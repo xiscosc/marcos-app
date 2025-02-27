@@ -88,6 +88,7 @@ export type OrderTotals = {
 	unitPriceWithoutDiscount: number;
 	discountNotAllowedPresent: boolean;
 	payed: boolean;
+	remainingAmount: number;
 };
 
 export type FullOrder = {

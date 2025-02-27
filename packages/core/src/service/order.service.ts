@@ -274,7 +274,7 @@ export class OrderService {
 		const oldAmount = order.amountPayed;
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
-		const total = CalculatedItemUtilities.getTotal(calculatedItem);
+		const total = OrderService.getTotals(order, calculatedItem).total;
 		order.amountPayed = total;
 		await Promise.all([
 			this.repository.updateAmountPayed(OrderService.toDto(order)),
@@ -286,7 +286,7 @@ export class OrderService {
 		const oldAmount = order.amountPayed;
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
-		const total = CalculatedItemUtilities.getTotal(calculatedItem);
+		const total = OrderService.getTotals(order, calculatedItem).total;
 		if (amount < 0) {
 			throw new InvalidDataError('Invalid amount');
 		}
@@ -326,7 +326,7 @@ export class OrderService {
 	static async getPublicOrder(
 		config: ICorePublicConfiguration | ICorePublicConfigurationForAWSLambda,
 		publicId: string
-	): Promise<Order | null> {
+	): Promise<FullOrder | null> {
 		const repo = OrderRepositoryDynamoDb.createPublicRepository(config);
 		const orderDto = await repo.getOrderByShortId(publicId);
 		if (orderDto) {
@@ -335,7 +335,15 @@ export class OrderService {
 				config
 			);
 			if (publicCustomer == null) return null;
-			return OrderService.fromDto(orderDto, publicCustomer);
+			const order = OrderService.fromDto(orderDto, publicCustomer);
+			const publicCalculatedItemService = new CalculatedItemService(config);
+			const calculatedItem = await publicCalculatedItemService.getCalculatedItem(order.id);
+			if (calculatedItem == null) return null;
+			return {
+				order,
+				calculatedItem,
+				totals: OrderService.getTotals(order, calculatedItem)
+			};
 		}
 
 		return null;
@@ -671,6 +679,7 @@ export class OrderService {
 		);
 
 		const total = unitPrice * calculatedItem.quantity;
+		const remainingAmount = total - order.amountPayed;
 
 		return {
 			unitPrice: unitPrice,
@@ -679,7 +688,8 @@ export class OrderService {
 			total,
 			discountNotAllowedPresent:
 				calculatedItem.parts.some((part) => !part.discountAllowed) && calculatedItem.discount > 0,
-			payed: total === order.amountPayed || total === 0
+			payed: remainingAmount <= 0,
+			remainingAmount
 		};
 	}
 }
