@@ -25,7 +25,7 @@
 		"formsnap": "2.0.0",
 		"lucide-svelte": "0.475.0",
 		"sveltekit-superforms": "2.23.1",
-		"tailwind-merge": "3.0.1",
+		"tailwind-merge": "3.0.2",
 		"tailwind-variants": "0.3.1",
 		"tailwindcss-animate": "1.0.7",
 		"ts-node": "10.9.2",
