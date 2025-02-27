@@ -56,60 +56,101 @@
 	} from 'lucide-svelte';
 	import { IconSize, IconType } from '../icon/icon.enum';
 	import { siWhatsapp } from 'simple-icons';
+	import type { ComponentType } from 'svelte';
+
 	interface Props {
 		type: IconType;
 		size?: IconSize;
 	}
 
 	let { type, size = IconSize.DEFAULT }: Props = $props();
+
+	type IconMapType = {
+		[key in IconType]?: ComponentType;
+	};
+
+	// Map icon types to their components
+	const iconMap: IconMapType = {
+		[IconType.CLOSE]: CopyX,
+		[IconType.SEARCH]: Search,
+		[IconType.PLUS]: Plus,
+		[IconType.MINUS]: Minus,
+		[IconType.ORDER_DEFAULT]: Package,
+		[IconType.ORDER_PENDING]: RefreshCw,
+		[IconType.ORDER_FINISHED]: CircleCheck,
+		[IconType.DONE]: CircleCheck,
+		[IconType.ORDER_PICKED_UP]: Truck,
+		[IconType.TRUCK]: Truck,
+		[IconType.ORDER_QUOTE]: ClipboardList,
+		[IconType.QR]: QrCode,
+		[IconType.SENT]: MailCheck,
+		[IconType.EDIT]: FilePenLine,
+		[IconType.USER]: User,
+		[IconType.COINS]: BadgeEuro,
+		[IconType.LOCATION]: MapPin,
+		[IconType.CLOCK]: Clock,
+		[IconType.LINK]: Link,
+		[IconType.EYE]: Eye,
+		[IconType.TRASH]: Trash2,
+		[IconType.CART]: ShoppingCart,
+		[IconType.DOWN]: ArrowDown,
+		[IconType.LIST]: ListTodo,
+		[IconType.PRINTER]: Printer,
+		[IconType.NOT_DONE]: CircleX,
+		[IconType.VIDEO]: Video,
+		[IconType.DOWNLOAD]: Download,
+		[IconType.RULER]: Ruler,
+		[IconType.QUESTION]: CircleHelp,
+		[IconType.FORM]: FilePlus,
+		[IconType.HOME]: House,
+		[IconType.SETTINGS]: Cog,
+		[IconType.LOGOUT]: LogOut,
+		[IconType.MOLD]: Grid2x2,
+		[IconType.EXCEL]: FileSpreadsheet,
+		[IconType.COPY]: Copy,
+		[IconType.CAMERA]: Camera,
+		[IconType.USER_PLUS]: UserPlus,
+		[IconType.ALERT]: TriangleAlert,
+		[IconType.LEFT]: ChevronLeft,
+		[IconType.RIGHT]: ChevronRight,
+		[IconType.LOADING]: Ellipsis,
+		[IconType.PHONE]: Phone,
+		[IconType.DASHBOARD]: ChartPie,
+		[IconType.CHART_LINES]: ChartNoAxesCombined,
+		[IconType.CHART_BARS]: ChartColumnBig,
+		[IconType.ADD]: BadgePlus,
+		[IconType.NOT_FOUND]: SearchX,
+		[IconType.DISCOUNT]: Percent,
+		[IconType.TICKET]: Tag,
+		[IconType.TICKET_DISCOUNT]: TicketPercent,
+		[IconType.COLLAPSE]: ChevronsUpDown,
+		[IconType.WORKER]: UserPen,
+		[IconType.DOCUMENT]: FileText
+	};
+
+	// Reactive declarations using Svelte 5 runes
+	const isWhatsApp = $derived(type === IconType.WHATSAPP);
+	const isLogo = $derived(type === IconType.LOGO);
+	const IconComponent = $derived(iconMap[type]);
+
+	// Helper function for logo size classes
+	function getLogoSizeClass(iconSize: IconSize): string {
+		switch (iconSize) {
+			case IconSize.SMALL:
+				return 'h-4 w-4';
+			case IconSize.DEFAULT:
+				return 'h-6 w-6';
+			case IconSize.BIG:
+				return 'h-7 w-7';
+			case IconSize.XL:
+				return 'h-8 w-8';
+			default:
+				return 'h-6 w-6';
+		}
+	}
 </script>
 
-{#if type === IconType.SEARCH}
-	<Search {size} />
-{/if}
-{#if type === IconType.CLOSE}
-	<CopyX {size} />
-{/if}
-{#if type === IconType.PLUS}
-	<Plus {size} />
-{/if}
-{#if type === IconType.MINUS}
-	<Minus {size} />
-{/if}
-{#if type === IconType.ORDER_DEFAULT}
-	<Package {size} />
-{/if}
-{#if type === IconType.ORDER_PENDING}
-	<RefreshCw {size} />
-{/if}
-{#if type === IconType.ORDER_FINISHED || type === IconType.DONE}
-	<CircleCheck {size} />
-{/if}
-{#if type === IconType.ORDER_PICKED_UP || type === IconType.TRUCK}
-	<Truck {size} />
-{/if}
-{#if type === IconType.ORDER_QUOTE}
-	<ClipboardList {size} />
-{/if}
-{#if type === IconType.QR}
-	<QrCode {size} />
-{/if}
-{#if type === IconType.SENT}
-	<MailCheck {size} />
-{/if}
-{#if type === IconType.EDIT}
-	<FilePenLine {size} />
-{/if}
-{#if type === IconType.USER}
-	<User {size} />
-{/if}
-{#if type === IconType.COINS}
-	<BadgeEuro {size} />
-{/if}
-{#if type === IconType.LOCATION}
-	<MapPin {size} />
-{/if}
-{#if type === IconType.WHATSAPP}
+{#if isWhatsApp}
 	<svg
 		role="img"
 		viewBox="0 0 24 24"
@@ -121,140 +162,10 @@
 		<title>{siWhatsapp.title}</title>
 		<path d={siWhatsapp.path} />
 	</svg>
-{/if}
-{#if type === IconType.CLOCK}
-	<Clock {size} />
-{/if}
-{#if type === IconType.LINK}
-	<Link {size} />
-{/if}
-{#if type === IconType.EYE}
-	<Eye {size} />
-{/if}
-{#if type === IconType.TRASH}
-	<Trash2 {size} />
-{/if}
-{#if type === IconType.CART}
-	<ShoppingCart {size} />
-{/if}
-{#if type === IconType.DOWN}
-	<ArrowDown {size} />
-{/if}
-{#if type === IconType.LIST}
-	<ListTodo {size} />
-{/if}
-{#if type === IconType.PRINTER}
-	<Printer {size} />
-{/if}
-{#if type === IconType.NOT_DONE}
-	<CircleX {size} />
-{/if}
-{#if type === IconType.VIDEO}
-	<Video {size} />
-{/if}
-{#if type === IconType.DOWNLOAD}
-	<Download {size} />
-{/if}
-{#if type === IconType.RULER}
-	<Ruler {size} />
-{/if}
-{#if type === IconType.QUESTION}
-	<CircleHelp {size} />
-{/if}
-{#if type === IconType.FORM}
-	<FilePlus {size} />
-{/if}
-{#if type === IconType.HOME}
-	<House {size} />
-{/if}
-{#if type === IconType.SETTINGS}
-	<Cog {size} />
-{/if}
-{#if type === IconType.LOGOUT}
-	<LogOut {size} />
-{/if}
-{#if type === IconType.MOLD}
-	<Grid2x2 {size} />
-{/if}
-{#if type === IconType.EXCEL}
-	<FileSpreadsheet {size} />
-{/if}
-{#if type === IconType.COPY}
-	<Copy {size} />
-{/if}
-{#if type === IconType.CAMERA}
-	<Camera {size} />
-{/if}
-{#if type === IconType.USER_PLUS}
-	<UserPlus {size} />
-{/if}
-{#if type === IconType.ALERT}
-	<TriangleAlert {size} />
-{/if}
-{#if type === IconType.LEFT}
-	<ChevronLeft {size} />
-{/if}
-{#if type === IconType.PHONE}
-	<Phone {size} />
-{/if}
-{#if type === IconType.RIGHT}
-	<ChevronRight {size} />
-{/if}
-{#if type === IconType.LOGO}
-	{#if size === IconSize.SMALL}
-		<img src="/mmss_favicon_black.ico" alt="Icon" class="h-4 w-4" />
-	{:else if size === IconSize.DEFAULT}
-		<img src="/mmss_favicon_black.ico" alt="Icon" class="h-6 w-6" />
-	{:else if size === IconSize.BIG}
-		<img src="/mmss_favicon_black.ico" alt="Icon" class="h-7 w-7" />
-	{:else if size === IconSize.XL}
-		<img src="/mmss_favicon_black.ico" alt="Icon" class="h-8 w-8" />
-	{/if}
-{/if}
-{#if type === IconType.LOADING}
-	<Ellipsis {size} />
-{/if}
-
-{#if type === IconType.DASHBOARD}
-	<ChartPie {size} />
-{/if}
-
-{#if type === IconType.CHART_LINES}
-	<ChartNoAxesCombined {size} />
-{/if}
-
-{#if type === IconType.CHART_BARS}
-	<ChartColumnBig {size} />
-{/if}
-
-{#if type === IconType.ADD}
-	<BadgePlus {size} />
-{/if}
-
-{#if type === IconType.NOT_FOUND}
-	<SearchX {size} />
-{/if}
-
-{#if type === IconType.DISCOUNT}
-	<Percent {size} />
-{/if}
-
-{#if type === IconType.TICKET}
-	<Tag {size} />
-{/if}
-
-{#if type === IconType.TICKET_DISCOUNT}
-	<TicketPercent {size} />
-{/if}
-
-{#if type === IconType.COLLAPSE}
-	<ChevronsUpDown {size} />
-{/if}
-
-{#if type === IconType.WORKER}
-	<UserPen {size} />
-{/if}
-
-{#if type === IconType.DOCUMENT}
-	<FileText {size} />
+{:else if isLogo}
+	<img src="/mmss_favicon_black.ico" alt="Icon" class={getLogoSizeClass(size)} />
+{:else if IconComponent}
+	{#key type}
+		<IconComponent {size} />
+	{/key}
 {/if}

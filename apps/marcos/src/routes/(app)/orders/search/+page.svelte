@@ -8,7 +8,7 @@
 	import { ButtonAction } from '$lib/components/button/button.enum.js';
 	import { IconType } from '$lib/components/icon/icon.enum.js';
 	import { Input } from '$lib/components/ui/input';
-	import { orderPublicIdSchema } from '$lib/shared/order.utilities.js';
+	import { orderPublicIdSchema } from '@/shared/form-schema/order.form-schema';
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 
 	let { data } = $props();

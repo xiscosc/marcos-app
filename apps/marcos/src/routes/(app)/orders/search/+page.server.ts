@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
-import { orderPublicIdSchema } from '$lib/shared/order.utilities';
+import { orderPublicIdSchema } from '@/shared/form-schema/order.form-schema';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service';
 import { OrderService } from '@marcsimolduressonsardina/core/service';

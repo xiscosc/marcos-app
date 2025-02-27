@@ -13,7 +13,7 @@
 		linkCustomerSchema,
 		type CustomerSchema,
 		type LinkCustomerSchema
-	} from '$lib/shared/customer.utilities';
+	} from '$lib/shared/form-schema/customer.form-schema';
 	interface Props {
 		data: {
 			form: SuperValidated<Infer<CustomerSchema | LinkCustomerSchema>>;

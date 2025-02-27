@@ -1,4 +1,4 @@
-import type { Session } from '@auth/core/types';
+import type { Session } from '@auth/sveltekit';
 import type { OrderDimensions, PreCalculatedItemPart } from '@marcsimolduressonsardina/core/type';
 
 export type UserMetadata = {

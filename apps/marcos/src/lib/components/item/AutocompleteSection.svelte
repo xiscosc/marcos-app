@@ -2,7 +2,7 @@
 	import Fuse from 'fuse.js';
 	import Spacer from './Spacer.svelte';
 	import { type ListPrice, type PricingType } from '@marcsimolduressonsardina/core/type';
-	import { formulasStringMap } from '$lib/shared/pricing.utilites';
+	import { formulasStringMap } from '@/shared/mappings/pricing.mapping';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { IconType } from '../icon/icon.enum';

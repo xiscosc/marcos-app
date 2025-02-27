@@ -7,13 +7,12 @@
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import {
-		formulasMap,
 		listPriceSchemaEdit,
 		listPriceSchemaNew,
-		pricingTypesMap,
 		type LisPriceSchemaEdit,
 		type LisPriceSchemaNew
-	} from '$lib/shared/pricing.utilites';
+	} from '@/shared/form-schema/pricing.form-schema';
+	import { formulasMap, pricingTypesMap } from '$lib/shared/mappings/pricing.mapping';
 	import {
 		PricingFormula,
 		PricingType,
