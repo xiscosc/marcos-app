@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Box from '../Box.svelte';
 	import { IconType } from '../icon/icon.enum';
-	import Icon from '../icon/Icon.svelte';
 	import OrderInfoStep from './OrderInfoStep.svelte';
 
 	interface Props {

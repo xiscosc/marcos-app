@@ -4,30 +4,23 @@
 	import BottomSheet from '$lib/components/BottomSheet.svelte';
 	import { ButtonAction, ButtonText } from '$lib/components/button/button.enum';
 	import Button from '$lib/components/button/Button.svelte';
-	import {
-		orderStatusMap,
-		OrderUtilities,
-		type StatusOrderSchema
-	} from '$lib/shared/order.utilities';
+	import { orderStatusMap } from '$lib/shared/mappings/order.mapping';
+	import { OrderUtilities } from '$lib/shared/order.utilities';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '$lib/ui/ui.helper';
 	import Divider from '$lib/components/Divider.svelte';
-	import {
-		OrderStatus,
-		type CalculatedItem,
-		type Order
-	} from '@marcsimolduressonsardina/core/type';
-	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
+	import { OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core/type';
 	import BottomSheetLoading from '$lib/components/BottomSheetLoading.svelte';
 	import { IconType } from '@/components/icon/icon.enum';
+	import type { StatusOrderSchema } from '@/shared/form-schema/order.form-schema';
+
 	interface Props {
 		data: SuperValidated<Infer<StatusOrderSchema>>;
 		locations: string[];
-		order: Order;
-		calculatedItem: CalculatedItem;
+		fullOrder: FullOrder;
 	}
 
-	let { data, locations, order, calculatedItem }: Props = $props();
+	let { data, locations, fullOrder }: Props = $props();
 	const form = superForm(data, {
 		onSubmit({ formData }) {
 			formData.set('status', newStatus ?? '');
@@ -42,16 +35,15 @@
 	}
 
 	let newStatus = $state<OrderStatus>();
-	const statuses = OrderUtilities.getPossibleNextStatuses(order.status);
-	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
-	const payed = order.amountPayed === totalOrder;
+	const statuses = OrderUtilities.getPossibleNextStatuses(fullOrder.order.status);
+	const order = fullOrder.order;
 </script>
 
 <BottomSheet
 	title="Cambiar estado"
 	description="Seleccione el nuevo estado del pedido"
 	iconType={getStatusUIInfo(order.status).statusIcon}
-	triggerStyle={getStatusUIInfoWithPaymentInfo(order.status, payed, true).colors}
+	triggerStyle={getStatusUIInfoWithPaymentInfo(order.status, fullOrder.totals.payed, true).colors}
 	triggerTextType={ButtonText.NO_COLOR}
 >
 	{#snippet trigger()}

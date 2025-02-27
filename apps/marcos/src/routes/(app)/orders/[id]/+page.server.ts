@@ -2,7 +2,6 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, RouteParams } from './$types';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import {
-	CalculatedItemService,
 	ConfigService,
 	FileService,
 	OrderAuditTrailService,
@@ -14,7 +13,7 @@ import {
 	OrderStatus,
 	PaymentStatus,
 	type AppUser,
-	type CalculatedItem,
+	type FullOrder,
 	type Order,
 	type OrderAuditTrailEntry
 } from '@marcsimolduressonsardina/core/type';
@@ -25,7 +24,7 @@ import {
 	locationOrderSchema,
 	promoteOrderSchema,
 	statusOrderSchema
-} from '$lib/shared/order.utilities';
+} from '$lib/shared/form-schema/order.form-schema';
 import { trackServerEvent } from '@/server/shared/analytics/posthog';
 
 async function setOrderStatus(
@@ -73,9 +72,8 @@ async function loadData(
 	user: AppUser,
 	orderId: string
 ): Promise<{
-	order: Order | null;
+	fullOrder: FullOrder | null;
 	unfinishedSameDayCount: ISameDayOrderCounters;
-	calculatedItem: CalculatedItem | null;
 	hasFiles: boolean;
 	locations: string[];
 	notificationEntries: OrderAuditTrailEntry[];
@@ -84,12 +82,11 @@ async function loadData(
 	const orderService = new OrderService(config);
 	const configService = new ConfigService(config);
 	const auditTrailService = new OrderAuditTrailService(config);
-	const calculatedItemService = new CalculatedItemService(config);
 	const fileService = new FileService(config);
-	const order = await orderService.getOrderById(orderId);
-	const calculatedItem = await calculatedItemService.getCalculatedItem(orderId);
+	const fullOrder = await orderService.getFullOrderById(orderId);
 	const files = await fileService.getFilesByOrder(orderId);
 	const locations = await configService.getLocationsList();
+	const order = fullOrder?.order;
 	const unfinishedSameDayCount = order
 		? await orderService.getOrdersCountOnSameDay(order)
 		: { finishedCount: 0, pendingCount: 0, totalCount: 1 };
@@ -97,8 +94,7 @@ async function loadData(
 		? await auditTrailService.getEntriesForOrder(orderId, OrderAuditTrailType.NOTIFICATION)
 		: [];
 	return {
-		order,
-		calculatedItem,
+		fullOrder,
 		hasFiles: files.length > 0,
 		unfinishedSameDayCount,
 		locations,

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { orderStatusMap } from '$lib/shared/order.utilities';
+	import { orderStatusMap } from '$lib/shared/mappings/order.mapping';
 	import Box from '$lib/components/Box.svelte';
 	import Button from '$lib/components/button/Button.svelte';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
@@ -13,6 +13,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { OrderUtilities } from '@/shared/order.utilities';
 
 	interface Props {
 		data: PageData;
@@ -55,17 +56,7 @@
 			const body: { orders: FullOrder[]; nextKey?: Record<string, string | number> } =
 				await response.json();
 			lastKey = body.nextKey;
-			return body.orders.map((fo) => ({
-				calculatedItem: fo.calculatedItem,
-				order: {
-					...fo.order,
-					item: {
-						...fo.order.item,
-						deliveryDate: new Date(fo.order.item.deliveryDate)
-					},
-					createdAt: new Date(fo.order.createdAt)
-				}
-			}));
+			return OrderUtilities.hydrateFullOrderDates(body.orders);
 		} else {
 			lastKey = undefined;
 			return [];
@@ -86,17 +77,7 @@
 		});
 
 		const body: { results: FullOrder[] } = await response.json();
-		return body.results.map((fo) => ({
-			calculatedItem: fo.calculatedItem,
-			order: {
-				...fo.order,
-				item: {
-					...fo.order.item,
-					deliveryDate: new Date(fo.order.item.deliveryDate)
-				},
-				createdAt: new Date(fo.order.createdAt)
-			}
-		}));
+		return OrderUtilities.hydrateFullOrderDates(body.results);
 	}
 
 	const debounce = (v: string) => {

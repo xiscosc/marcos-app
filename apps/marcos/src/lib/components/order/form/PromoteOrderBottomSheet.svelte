@@ -5,7 +5,10 @@
 	import Button from '$lib/components/button/Button.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
 	import { Input } from '$lib/components/ui/input';
-	import { promoteOrderSchema, type PromoteOrderSchema } from '$lib/shared/order.utilities';
+	import {
+		promoteOrderSchema,
+		type PromoteOrderSchema
+	} from '$lib/shared/form-schema/order.form-schema';
 	import { dateProxy, superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import BottomSheetLoading from '$lib/components/BottomSheetLoading.svelte';

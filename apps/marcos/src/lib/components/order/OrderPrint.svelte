@@ -3,23 +3,20 @@
 	import { OrderUtilities } from '$lib/shared/order.utilities';
 	import { DateTime } from 'luxon';
 	import Qr from '$lib/components/Qr.svelte';
-	import { otherForPrintPricingTypes } from '$lib/shared/pricing.utilites';
+	import { otherForPrintPricingTypes } from '$lib/shared/mappings/pricing.mapping';
 	import {
 		DimensionsType,
 		OrderStatus,
 		PricingType,
-		type CalculatedItem,
-		type Order
+		type FullOrder
 	} from '@marcsimolduressonsardina/core/type';
-	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
 
-	let {
-		order,
-		calculatedItem,
-		print = false
-	}: { order: Order; calculatedItem: CalculatedItem; print?: boolean } = $props();
+	let { fullOrder, print = false }: { fullOrder: FullOrder; print?: boolean } = $props();
 
-	const totalOrder = calculatedItem ? CalculatedItemUtilities.getTotal(calculatedItem) : 0;
+	const order = fullOrder.order;
+	const calculatedItem = fullOrder.calculatedItem;
+	const totals = fullOrder.totals;
+
 	const isQuote = order.status === OrderStatus.QUOTE;
 
 	const others = [
@@ -52,12 +49,12 @@
 		if (order.status === OrderStatus.PICKED_UP) {
 			statusInfo.push('ENTREGADO');
 		}
-		if (order.amountPayed === totalOrder) {
+		if (totals.payed) {
 			statusInfo.push('PAGADO');
 		} else if (order.amountPayed === 0) {
 			statusInfo.push('PENDIENTE DE PAGO');
 		} else {
-			statusInfo.push(`PENDIENTE DE PAGO (${(totalOrder - order.amountPayed).toFixed(2)} €)`);
+			statusInfo.push(`PENDIENTE DE PAGO (${totals.remainingAmount.toFixed(2)} €)`);
 		}
 	} else {
 		statusInfo.push('PRESUPUESTO');
@@ -301,14 +298,14 @@
 							</tr>
 							<tr>
 								<td>
-									{CalculatedItemUtilities.getUnitPriceWithoutDiscount(calculatedItem)} €
+									{totals.unitPriceWithoutDiscount.toFixed(2)} €
 								</td>
 								{#if calculatedItem.discount > 0}
-									<td>{CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)} €</td>
+									<td>{totals.unitPrice.toFixed(2)} €</td>
 								{/if}
 								<td> {order.item.quantity} </td>
 								<td> {order.amountPayed.toFixed(2)} €</td>
-								<td>{totalOrder.toFixed(2)} €</td>
+								<td>{totals.total.toFixed(2)} €</td>
 							</tr>
 						</tbody>
 					</table>

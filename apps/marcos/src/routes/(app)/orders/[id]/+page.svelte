@@ -18,7 +18,7 @@
 	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import OrderSkeletonHeader from '$lib/components/order/OrderSkeletonHeader.svelte';
-	import { CalculatedItemUtilities, OrderUtilities } from '@marcsimolduressonsardina/core/util';
+	import { OrderUtilities } from '@marcsimolduressonsardina/core/util';
 	import {
 		OrderStatus,
 		type Order,
@@ -40,8 +40,9 @@
 	$effect(() => {
 		if (data.info) {
 			data.info.then((info) => {
-				if (info.order != null && OrderUtilities.isOrderTemp(info.order)) {
-					goto(`/orders/${info.order.id}/link`);
+				const order = info.fullOrder?.order;
+				if (order != null && OrderUtilities.isOrderTemp(order)) {
+					goto(`/orders/${order.id}/link`);
 				}
 			});
 		}
@@ -101,7 +102,7 @@
 		</div>
 	{:then info}
 		<div class="flex w-full flex-col gap-3 lg:block lg:columns-2">
-			{#if info.order == null || info.calculatedItem == null}
+			{#if info.fullOrder == null}
 				<div class="lg:mt-3 lg:break-inside-avoid">
 					<Box icon={IconType.ALERT} title="Cliente o pedido no encontrado">
 						<p class="text-md">
@@ -111,8 +112,7 @@
 				</div>
 			{:else}
 				<OrderHeader
-					order={info.order}
-					calculatedItem={info.calculatedItem}
+					fullOrder={info.fullOrder}
 					locations={info.locations}
 					locationForm={data.locationForm}
 					statusForm={data.statusForm}
@@ -122,7 +122,7 @@
 					<div
 						class="flex w-full flex-col gap-1 md:grid md:grid-cols-2 lg:mt-3 lg:break-inside-avoid lg:grid-cols-3"
 					>
-						{#if info.order.status === OrderStatus.QUOTE}
+						{#if info.fullOrder.order.status === OrderStatus.QUOTE}
 							<PromoteOrderBottomSheet data={data.promoteForm}></PromoteOrderBottomSheet>
 						{:else}
 							<Button
@@ -130,14 +130,14 @@
 								icon={IconType.ORDER_DEFAULT}
 								style={ButtonStyle.ORDER_GENERIC}
 								text="Pedidos del día"
-								link={`/orders/${info.order.id}/day`}
+								link={`/orders/${info.fullOrder.order.id}/day`}
 							></Button>
 
 							<DenoteOrderBottomSheet></DenoteOrderBottomSheet>
 						{/if}
 
 						<WhatsAppOrderButtons
-							order={info.order}
+							order={info.fullOrder.order}
 							counters={info.unfinishedSameDayCount}
 							hasFiles={info.hasFiles}
 						></WhatsAppOrderButtons>
@@ -148,18 +148,24 @@
 							icon={IconType.PRINTER}
 							text="Imprimir"
 							action={ButtonAction.LINK}
-							link={`/orders/${info.order.id}/print`}
+							link={`/orders/${info.fullOrder.order.id}/print`}
 						></Button>
-						<Button icon={IconType.EDIT} text="Editar" link={`/orders/${info.order.id}/edit`}
+						<Button
+							icon={IconType.EDIT}
+							text="Editar"
+							link={`/orders/${info.fullOrder.order.id}/edit`}
 						></Button>
 						<Button
 							icon={IconType.COPY}
 							text="Copiar"
-							link={`/orders/new?originId=${info.order.id}`}
+							link={`/orders/new?originId=${info.fullOrder.order.id}`}
 						></Button>
 
 						<Divider hideOnDesktop={true}></Divider>
-						<Button icon={IconType.CAMERA} text="Cámara" link={`/orders/${info.order.id}/files`}
+						<Button
+							icon={IconType.CAMERA}
+							text="Cámara"
+							link={`/orders/${info.fullOrder.order.id}/files`}
 						></Button>
 					</div>
 				{/if}
@@ -169,48 +175,38 @@
 				{/if}
 
 				<div class="lg:mt-3 lg:break-inside-avoid">
-					<OrderInfo order={info.order}></OrderInfo>
+					<OrderInfo order={info.fullOrder.order}></OrderInfo>
 				</div>
 
 				{#if info.notificationEntries.length > 0}
 					{@render notificationSection(info.notificationEntries, false)}
 				{:else}
-					{@render deleteOrderSection(false, data.isPriceManager, info.order)}
+					{@render deleteOrderSection(false, data.isPriceManager, info.fullOrder.order)}
 				{/if}
 
 				<div class="lg:mt-3 lg:break-inside-avoid">
-					<OrderElements
-						order={info.order}
-						calculatedItem={info.calculatedItem}
-						discountNotAllowedPresent={info.totals.discountNotAllowedPresent}
-					></OrderElements>
+					<OrderElements fullOrder={info.fullOrder}></OrderElements>
 				</div>
 
-				{#if info.calculatedItem.quantity > 1 || info.calculatedItem.discount > 0}
+				{#if info.fullOrder.calculatedItem.quantity > 1 || info.fullOrder.calculatedItem.discount > 0}
 					<div class="lg:mt-3 lg:break-inside-avoid">
 						<OrderPriceDetails
-							quantity={info.calculatedItem.quantity}
-							discount={info.calculatedItem.discount}
-							unitPriceWithoutDiscount={CalculatedItemUtilities.getUnitPriceWithoutDiscount(
-								info.calculatedItem
-							)}
-							unitPriceWithDiscount={CalculatedItemUtilities.getUnitPriceWithDiscount(
-								info.calculatedItem
-							)}
-							totalWithoutDiscount={CalculatedItemUtilities.getTotalWithoutDiscount(
-								info.calculatedItem
-							)}
-							totalWithDiscount={CalculatedItemUtilities.getTotal(info.calculatedItem)}
-							alertItemsWitouthDiscount={discountNotAllowedPresent}
+							quantity={info.fullOrder.calculatedItem.quantity}
+							discount={info.fullOrder.calculatedItem.discount}
+							unitPriceWithoutDiscount={info.fullOrder.totals.unitPriceWithoutDiscount}
+							unitPriceWithDiscount={info.fullOrder.totals.unitPrice}
+							totalWithoutDiscount={info.fullOrder.totals.totalWithoutDiscount}
+							totalWithDiscount={info.fullOrder.totals.total}
+							alertItemsWitouthDiscount={info.fullOrder.totals.discountNotAllowedPresent}
 							collapsed={false}
 						></OrderPriceDetails>
 					</div>
 				{/if}
 
 				{@render notificationSection(info.notificationEntries, true)}
-				{@render deleteOrderSection(true, data.isPriceManager, info.order)}
+				{@render deleteOrderSection(true, data.isPriceManager, info.fullOrder.order)}
 				{#if info.notificationEntries.length > 0}
-					{@render deleteOrderSection(false, data.isPriceManager, info.order)}
+					{@render deleteOrderSection(false, data.isPriceManager, info.fullOrder.order)}
 				{/if}
 			{/if}
 		</div>

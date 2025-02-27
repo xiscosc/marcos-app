@@ -3,7 +3,7 @@
 	import { DateTime } from 'luxon';
 	import Box from '$lib/components/Box.svelte';
 	import { DimensionsType, OrderStatus, type Order } from '@marcsimolduressonsardina/core/type';
-	import { IconSize, IconType } from '../icon/icon.enum';
+	import { IconType } from '../icon/icon.enum';
 	import OrderInfoStep from './OrderInfoStep.svelte';
 
 	interface Props {

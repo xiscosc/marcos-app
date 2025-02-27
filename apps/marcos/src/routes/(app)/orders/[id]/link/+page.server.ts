@@ -1,15 +1,11 @@
 import { superValidate, setError } from 'sveltekit-superforms';
 import type { PageServerLoad } from './$types';
-import { linkCustomerSchema } from '$lib/shared/customer.utilities';
+import { linkCustomerSchema } from '$lib/shared/form-schema/customer.form-schema';
 import { zod } from 'sveltekit-superforms/adapters';
 import { fail, redirect } from '@sveltejs/kit';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service';
-import {
-	CalculatedItemService,
-	CustomerService,
-	OrderService
-} from '@marcsimolduressonsardina/core/service';
+import { CustomerService, OrderService } from '@marcsimolduressonsardina/core/service';
 import { OrderUtilities } from '@marcsimolduressonsardina/core/util';
 import { OrderStatus } from '@marcsimolduressonsardina/core/type';
 import { trackServerEvent } from '@/server/shared/analytics/posthog';
@@ -19,24 +15,21 @@ export const load = (async ({ params, locals }) => {
 	const { id } = params;
 	const config = AuthService.generateConfiguration(appUser);
 	const orderService = new OrderService(config);
-	const calculatedItemService = new CalculatedItemService(config);
 
-	const order = await orderService.getOrderById(id);
-	const calculatedItem = await calculatedItemService.getCalculatedItem(id);
-	if (order == null || calculatedItem == null) {
+	const fullOrder = await orderService.getFullOrderById(id);
+	if (fullOrder == null) {
 		redirect(302, `/`);
 	}
 
-	if (!OrderUtilities.isOrderTemp(order)) {
+	if (!OrderUtilities.isOrderTemp(fullOrder.order)) {
 		redirect(302, `/orders/${id}`);
 	}
 
 	const form = await superValidate(zod(linkCustomerSchema));
 	return {
 		form,
-		orderName: order.status === OrderStatus.QUOTE ? 'presupuesto' : 'pedido',
-		order,
-		calculatedItem
+		orderName: fullOrder.order.status === OrderStatus.QUOTE ? 'presupuesto' : 'pedido',
+		fullOrder: fullOrder
 	};
 }) satisfies PageServerLoad;
 

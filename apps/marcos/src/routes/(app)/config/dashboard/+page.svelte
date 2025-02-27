@@ -6,7 +6,7 @@
 	import type { DashboardReport, ReportDate } from '@marcsimolduressonsardina/core/type';
 	import { DateTime } from 'luxon';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { orderStatusMap, OrderUtilities } from '$lib/shared/order.utilities';
+	import { orderStatusMap } from '$lib/shared/mappings/order.mapping';
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
 	import Chart from '$lib/components/dashboard/Chart.svelte';

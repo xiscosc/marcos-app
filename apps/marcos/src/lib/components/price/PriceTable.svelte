@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { formulasMap } from '$lib/shared/pricing.utilites';
 	import {
 		PricingType,
 		type ListPrice,
@@ -12,6 +11,7 @@
 	import { IconType } from '../icon/icon.enum';
 	import { goto } from '$app/navigation';
 	import { fitFormulas } from '@marcsimolduressonsardina/core/util';
+	import { formulasMap } from '@/shared/mappings/pricing.mapping';
 
 	interface Props {
 		prices: ListPrice[];

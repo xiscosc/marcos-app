@@ -3,7 +3,10 @@
 	import { ButtonAction, ButtonStyle, ButtonText } from '$lib/components/button/button.enum';
 	import Button from '$lib/components/button/Button.svelte';
 	import { IconType } from '$lib/components/icon/icon.enum';
-	import { locationOrderSchema, type LocationOrderSchema } from '$lib/shared/order.utilities';
+	import {
+		locationOrderSchema,
+		type LocationOrderSchema
+	} from '@/shared/form-schema/order.form-schema';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import type { Order } from '@marcsimolduressonsardina/core/type';

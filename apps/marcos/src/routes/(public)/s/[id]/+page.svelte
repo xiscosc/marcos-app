@@ -6,8 +6,6 @@
 	}
 
 	let { data }: Props = $props();
-	const order = data.order!;
-	const calculatedItem = data.calculatedItem!;
 </script>
 
-<OrderPrint {order} {calculatedItem} print={false}></OrderPrint>
+<OrderPrint fullOrder={data.fullOrder} print={false}></OrderPrint>

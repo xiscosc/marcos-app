@@ -8,8 +8,6 @@
 
 	let { data }: Props = $props();
 	identifyUser(data.user);
-	const order = data.order!;
-	const calculatedItem = data.calculatedItem!;
 </script>
 
-<OrderPrint {order} {calculatedItem} print></OrderPrint>
+<OrderPrint fullOrder={data.fullOrder} print></OrderPrint>

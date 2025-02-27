@@ -2,7 +2,7 @@ import { fail, error, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
-import { customerSchema } from '$lib/shared/customer.utilities';
+import { customerSchema } from '$lib/shared/form-schema/customer.form-schema';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service';
 import { CustomerService } from '@marcsimolduressonsardina/core/service';

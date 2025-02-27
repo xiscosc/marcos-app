@@ -2,7 +2,7 @@ import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { superValidate, setError } from 'sveltekit-superforms';
 import type { PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
-import { customerSchema } from '$lib/shared/customer.utilities';
+import { customerSchema } from '$lib/shared/form-schema/customer.form-schema';
 import { fail, redirect } from '@sveltejs/kit';
 import { AuthService } from '$lib/server/service/auth.service';
 import { CustomerService } from '@marcsimolduressonsardina/core/service';

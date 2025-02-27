@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
-	import { OrderUtilities, orderStatusMap } from '$lib/shared/order.utilities';
+	import { OrderUtilities } from '$lib/shared/order.utilities';
+	import { orderStatusMap } from '$lib/shared/mappings/order.mapping';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '$lib/ui/ui.helper';
-	import {
-		CalculatedItemUtilities,
-		OrderUtilities as CoreOrderUtilities
-	} from '@marcsimolduressonsardina/core/util';
+	import { OrderUtilities as CoreOrderUtilities } from '@marcsimolduressonsardina/core/util';
 	import Button from '../button/Button.svelte';
 	import { ButtonStyle } from '../button/button.enum';
 	import { IconType } from '../icon/icon.enum';
@@ -20,8 +18,6 @@
 	let { fullOrder, showCustomer = true }: Props = $props();
 	const order = fullOrder.order;
 	const calculatedItem = fullOrder.calculatedItem;
-	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
-	const payed = order.amountPayed === totalOrder;
 	let measures = $derived(`${order.item.height}x${order.item.width} cm`);
 	let mold = $derived(OrderUtilities.getFirstMoldDescriptionFromOrder(order, calculatedItem));
 </script>
@@ -43,7 +39,7 @@
 >
 	<div
 		class={`rounded-t-md p-2 text-white ${
-			getStatusUIInfoWithPaymentInfo(order.status, payed).staticColor
+			getStatusUIInfoWithPaymentInfo(order.status, fullOrder.totals.payed).staticColor
 		}`}
 	>
 		<div class="flex items-center justify-between">
@@ -92,11 +88,7 @@
 			{/if}
 
 			{#if order.status !== OrderStatus.QUOTE}
-				{@render infoPiece(
-					IconType.COINS,
-					'Pagado',
-					order.amountPayed === totalOrder ? 'Sí' : 'No'
-				)}
+				{@render infoPiece(IconType.COINS, 'Pagado', fullOrder.totals.payed ? 'Sí' : 'No')}
 			{/if}
 
 			{#if order.status === OrderStatus.FINISHED}

@@ -1,16 +1,12 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
 	import {
-		OrderUtilities,
 		type LocationOrderSchema,
 		type StatusOrderSchema
-	} from '$lib/shared/order.utilities';
+	} from '$lib/shared/form-schema/order.form-schema';
 	import Button from '../button/Button.svelte';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '$lib/ui/ui.helper';
-	import {
-		CalculatedItemUtilities,
-		OrderUtilities as CoreOrderUtilities
-	} from '@marcsimolduressonsardina/core/util';
+	import { OrderUtilities as CoreOrderUtilities } from '@marcsimolduressonsardina/core/util';
 	import { ButtonAction, ButtonStyle, ButtonText } from '../button/button.enum';
 	import Icon from '../icon/Icon.svelte';
 	import { IconType } from '../icon/icon.enum';
@@ -18,24 +14,20 @@
 	import LocationOrderBottomSheet from './form/LocationOrderBottomSheet.svelte';
 	import StatusOrderBottomSheet from './form/StatusOrderBottomSheet.svelte';
 	import PaymentOrderBottomSheet from './form/PaymentOrderBottomSheet.svelte';
-	import {
-		OrderStatus,
-		type CalculatedItem,
-		type Order
-	} from '@marcsimolduressonsardina/core/type';
+	import { OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core/type';
 	import CustomerDetails from '../customer/CustomerDetails.svelte';
 	import BottomSheet from '../BottomSheet.svelte';
 	interface Props {
-		order: Order;
+		fullOrder: FullOrder;
 		locationForm: SuperValidated<Infer<LocationOrderSchema>>;
 		statusForm: SuperValidated<Infer<StatusOrderSchema>>;
 		locations: string[];
-		calculatedItem: CalculatedItem;
 	}
 
-	let { order, calculatedItem, locationForm, locations, statusForm }: Props = $props();
-	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
-	const payed = order.amountPayed === totalOrder;
+	let { fullOrder, locationForm, locations, statusForm }: Props = $props();
+	const order = fullOrder.order;
+	const calculatedItem = fullOrder.calculatedItem;
+	const totals = fullOrder.totals;
 </script>
 
 {#snippet dateCreated()}
@@ -56,7 +48,7 @@
 <div class="overflow-hidden rounded-md border border-gray-50">
 	<div
 		class={`flex items-center justify-between px-3 py-2 text-white ${
-			getStatusUIInfoWithPaymentInfo(order.status, payed).staticColor
+			getStatusUIInfoWithPaymentInfo(order.status, totals.payed).staticColor
 		}`}
 	>
 		<span class="flex items-center px-2 text-lg font-semibold">
@@ -83,10 +75,9 @@
 		{/if}
 
 		{#if order.status !== OrderStatus.QUOTE}
-			<PaymentOrderBottomSheet {order} {calculatedItem}></PaymentOrderBottomSheet>
+			<PaymentOrderBottomSheet {fullOrder}></PaymentOrderBottomSheet>
 
-			<StatusOrderBottomSheet {order} {locations} data={statusForm} {calculatedItem}
-			></StatusOrderBottomSheet>
+			<StatusOrderBottomSheet {fullOrder} {locations} data={statusForm}></StatusOrderBottomSheet>
 
 			{#if order.status === OrderStatus.FINISHED}
 				<LocationOrderBottomSheet {order} {locations} data={locationForm}
@@ -95,13 +86,13 @@
 		{/if}
 
 		<div class="px-2 pt-1">
-			{#if order.amountPayed > 0 && order.amountPayed !== totalOrder}
+			{#if order.amountPayed > 0 && !totals.payed}
 				<div class="flex flex-row items-end justify-between">
 					<div class="flex flex-col">
-						<span class="text-lg text-gray-800 line-through">{totalOrder.toFixed(2)} €</span>
+						<span class="text-lg text-gray-800 line-through">{totals.total.toFixed(2)} €</span>
 						<span class="text-lg text-gray-800">{order.amountPayed.toFixed(2)} € pagado</span>
 						<span class="text-xl font-bold text-gray-800">
-							{(totalOrder - order.amountPayed).toFixed(2)} € pendiente
+							{totals.remainingAmount.toFixed(2)} € pendiente
 						</span>
 					</div>
 					<div class="pb-1">
@@ -110,7 +101,7 @@
 				</div>
 			{:else}
 				<div class="flex flex-row items-center justify-between">
-					<span class="text-xl font-bold text-gray-800">{totalOrder.toFixed(2)} €</span>
+					<span class="text-xl font-bold text-gray-800">{totals.total.toFixed(2)} €</span>
 					{@render dateCreated()}
 				</div>
 			{/if}

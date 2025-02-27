@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { pricingTypesMap } from '$lib/shared/pricing.utilites';
+	import { pricingTypesMap } from '$lib/shared/mappings/pricing.mapping';
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/button/Button.svelte';
 	import { ButtonStyle, ButtonType } from '$lib/components/button/button.enum';

@@ -1,4 +1,4 @@
-import { orderSchema, quoteSchema } from '$lib/shared/order.utilities';
+import { orderSchema, quoteSchema } from '$lib/shared/form-schema/order.form-schema';
 import { setError, superValidate, type SuperValidated } from 'sveltekit-superforms';
 import { z } from 'zod';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -21,12 +21,7 @@ import {
 	PricingService
 } from '@marcsimolduressonsardina/core/service';
 import { InvalidSizeError } from '@marcsimolduressonsardina/core/error';
-import {
-	CalculatedItemUtilities,
-	cornersId,
-	otherExtraId,
-	quoteDeliveryDate
-} from '@marcsimolduressonsardina/core/util';
+import { cornersId, otherExtraId, quoteDeliveryDate } from '@marcsimolduressonsardina/core/util';
 import { trackServerEvent } from '../analytics/posthog';
 
 type OrderTypeForm = z.infer<typeof orderSchema>;
@@ -218,7 +213,7 @@ export class OrderCreationUtilities {
 					orderId,
 					properties: {
 						status: isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING,
-						amount: CalculatedItemUtilities.getTotal(fullOrder.calculatedItem)
+						amount: fullOrder.totals.total
 					}
 				},
 				locals.posthog

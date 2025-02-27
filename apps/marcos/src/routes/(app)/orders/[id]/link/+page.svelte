@@ -14,7 +14,6 @@
 	import Icon from '$lib/components/icon/Icon.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import OrderPriceDetails from '@/components/order/OrderPriceDetails.svelte';
-	import { CalculatedItemUtilities } from '@marcsimolduressonsardina/core/util';
 
 	interface Props {
 		data: PageData;
@@ -26,10 +25,6 @@
 	let loading = $state(false);
 	let searchQuery = $state('');
 	let customers = $state<Customer[]>([]);
-	let discountNotAllowedPresent = $derived(
-		data.calculatedItem.parts.find((part) => !part.discountAllowed) != null &&
-			data.calculatedItem.discount > 0
-	);
 
 	async function searchCustomers() {
 		if (searchQuery.length === 0) {
@@ -102,7 +97,7 @@
 							<h4 class="mb-4 text-sm font-medium leading-none">Clientes encontrados</h4>
 							{#each customers as customer}
 								<button
-									onclick={() => goto(`/orders/${data.order.id}/link/${customer.id}`)}
+									onclick={() => goto(`/orders/${data.fullOrder.order.id}/link/${customer.id}`)}
 									class="flexr-row flex w-full items-center gap-2 rounded-md p-2 hover:bg-gray-50"
 									type="button"
 								>
@@ -123,27 +118,19 @@
 			</div>
 		</Box>
 
-		<OrderInfo order={data.order}></OrderInfo>
+		<OrderInfo order={data.fullOrder.order}></OrderInfo>
 
-		<OrderElements
-			order={data.order}
-			calculatedItem={data.calculatedItem}
-			{discountNotAllowedPresent}
-		></OrderElements>
+		<OrderElements fullOrder={data.fullOrder}></OrderElements>
 
-		{#if data.calculatedItem.quantity > 1 || data.calculatedItem.discount > 0}
+		{#if data.fullOrder.calculatedItem.quantity > 1 || data.fullOrder.calculatedItem.discount > 0}
 			<OrderPriceDetails
-				quantity={data.calculatedItem.quantity}
-				discount={data.calculatedItem.discount}
-				unitPriceWithoutDiscount={CalculatedItemUtilities.getUnitPriceWithoutDiscount(
-					data.calculatedItem
-				)}
-				unitPriceWithDiscount={CalculatedItemUtilities.getUnitPriceWithDiscount(
-					data.calculatedItem
-				)}
-				totalWithoutDiscount={CalculatedItemUtilities.getTotalWithoutDiscount(data.calculatedItem)}
-				totalWithDiscount={CalculatedItemUtilities.getTotal(data.calculatedItem)}
-				alertItemsWitouthDiscount={discountNotAllowedPresent}
+				quantity={data.fullOrder.calculatedItem.quantity}
+				discount={data.fullOrder.calculatedItem.discount}
+				unitPriceWithoutDiscount={data.fullOrder.totals.unitPriceWithoutDiscount}
+				unitPriceWithDiscount={data.fullOrder.totals.unitPrice}
+				totalWithoutDiscount={data.fullOrder.totals.totalWithoutDiscount}
+				totalWithDiscount={data.fullOrder.totals.total}
+				alertItemsWitouthDiscount={data.fullOrder.totals.discountNotAllowedPresent}
 				collapsed={false}
 			></OrderPriceDetails>
 		{/if}
