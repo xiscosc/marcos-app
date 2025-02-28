@@ -1,17 +1,17 @@
 <script lang="ts">
-	import Box from '$lib/components/Box.svelte';
+	import Box from '@/components/generic/Box.svelte';
 
-	import { OrderUtilities } from '$lib/shared/order.utilities';
+	import { OrderUtilities } from '@/shared/order.utilities';
 	import type { PageData } from './$types';
 
 	import { OrderStatus } from '@marcsimolduressonsardina/core/type';
-	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
-	import Button from '$lib/components/button/Button.svelte';
-	import { getStatusUIInfo } from '$lib/ui/ui.helper';
-	import Banner from '$lib/components/Banner.svelte';
-	import { ButtonStyle, ButtonText } from '$lib/components/button/button.enum';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import WhatsAppButton from '@/components/business-related/button/WhatsAppButton.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { getStatusUIInfo } from '@/ui/ui.helper';
+	import Banner from '@/components/generic/Banner.svelte';
+	import { ButtonStyle, ButtonText } from '@/components/generic/button/button.enum';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 
 	interface Props {
 		data: PageData;

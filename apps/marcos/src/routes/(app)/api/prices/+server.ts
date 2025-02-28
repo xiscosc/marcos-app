@@ -1,6 +1,6 @@
-import type { CustomSession, PreCalculatedItemPartRequest } from '$lib/type/api.type';
+import type { CustomSession, PreCalculatedItemPartRequest } from '@/type/api.type';
 import { json } from '@sveltejs/kit';
-import { AuthService } from '$lib/server/service/auth.service';
+import { AuthService } from '@/server/service/auth.service';
 import { InvalidSizeError } from '@marcsimolduressonsardina/core/error';
 import { CalculatedItemService } from '@marcsimolduressonsardina/core/service';
 

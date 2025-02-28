@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
-import { AuthService } from '$lib/server/service/auth.service';
-import type { CustomSession } from '$lib/type/api.type.js';
+import { AuthService } from '@/server/service/auth.service';
+import type { CustomSession } from '@/type/api.type.js';
 import { MoldPriceLoader } from '@marcsimolduressonsardina/core/data';
 import { trackServerEvent } from '@/server/shared/analytics/posthog';
 

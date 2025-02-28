@@ -1,5 +1,5 @@
-import { AuthService } from '$lib/server/service/auth.service';
-import type { CustomSession } from '$lib/type/api.type';
+import { AuthService } from '@/server/service/auth.service';
+import type { CustomSession } from '@/type/api.type';
 import { trackServerEvent } from '@/server/shared/analytics/posthog';
 import { FileService, OrderService } from '@marcsimolduressonsardina/core/service';
 import { json } from '@sveltejs/kit';

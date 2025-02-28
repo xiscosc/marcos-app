@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Box from '$lib/components/Box.svelte';
-	import LocationItem from '$lib/components/config/LocationItem.svelte';
+	import Box from '@/components/generic/Box.svelte';
+	import LocationItem from '@/components/business-related/config/LocationItem.svelte';
 	import type { PageData } from './$types';
-	import Button from '$lib/components/button/Button.svelte';
-	import { ButtonAction, ButtonStyle } from '$lib/components/button/button.enum';
-	import { IconSize, IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { ButtonAction, ButtonStyle } from '@/components/generic/button/button.enum';
+	import { IconSize, IconType } from '@/components/generic/icon/icon.enum';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import Input from '@/components/ui/input/input.svelte';
 
 	interface Props {
 		data: PageData;

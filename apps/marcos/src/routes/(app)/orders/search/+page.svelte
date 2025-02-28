@@ -1,15 +1,15 @@
 <script lang="ts">
-	import * as Form from '$lib/components/ui/form/index.js';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import * as Form from '@/components/ui/form/index.js';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import Box from '$lib/components/Box.svelte';
-	import Button from '$lib/components/button/Button.svelte';
-	import { ButtonAction } from '$lib/components/button/button.enum.js';
-	import { IconType } from '$lib/components/icon/icon.enum.js';
-	import { Input } from '$lib/components/ui/input';
+	import Box from '@/components/generic/Box.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { ButtonAction } from '@/components/generic/button/button.enum.js';
+	import { IconType } from '@/components/generic/icon/icon.enum.js';
+	import { Input } from '@/components/ui/input';
 	import { orderPublicIdSchema } from '@/shared/form-schema/order.form-schema';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 
 	let { data } = $props();
 	const form = superForm(data.form, {

@@ -1,19 +1,19 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
-	import NewCustomer from '$lib/components/customer/NewCustomer.svelte';
-	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
-	import OrderElements from '$lib/components/order/OrderElements.svelte';
-	import Box from '$lib/components/Box.svelte';
+	import { ScrollArea } from '@/components/ui/scroll-area/index.js';
+	import NewCustomer from '@/components/business-related/customer/NewCustomer.svelte';
+	import OrderInfo from '@/components/business-related/order-detail/OrderInfo.svelte';
+	import OrderElements from '@/components/business-related/order-detail/OrderElements.svelte';
+	import Box from '@/components/generic/Box.svelte';
 	import { goto } from '$app/navigation';
-	import Banner from '$lib/components/Banner.svelte';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import { Input } from '$lib/components/ui/input';
+	import Banner from '@/components/generic/Banner.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import { Input } from '@/components/ui/input';
 	import type { Customer } from '@marcsimolduressonsardina/core/type';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import Icon from '$lib/components/icon/Icon.svelte';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import OrderPriceDetails from '@/components/order/OrderPriceDetails.svelte';
+	import Separator from '@/components/ui/separator/separator.svelte';
+	import Icon from '@/components/generic/icon/Icon.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
 
 	interface Props {
 		data: PageData;

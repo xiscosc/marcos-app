@@ -1,7 +1,7 @@
 <script lang="ts">
-	import NewCustomer from '$lib/components/customer/NewCustomer.svelte';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import NewCustomer from '@/components/business-related/customer/NewCustomer.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum.js';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 	let { data } = $props();
 </script>
 

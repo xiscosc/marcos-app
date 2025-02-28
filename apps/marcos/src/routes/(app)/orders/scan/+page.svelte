@@ -1,13 +1,13 @@
 <script lang="ts">
-	import OrderScanner from '$lib/components/order/OrderScanner.svelte';
-	import Box from '$lib/components/Box.svelte';
-	import Button from '$lib/components/button/Button.svelte';
-	import { IconSize, IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import OrderScanner from '@/components/business-related/order/OrderScanner.svelte';
+	import Box from '@/components/generic/Box.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { IconSize, IconType } from '@/components/generic/icon/icon.enum';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
 	import type { PageProps } from './$types';
-	import Icon from '$lib/components/icon/Icon.svelte';
-	import { ButtonAction } from '@/components/button/button.enum';
+	import Icon from '@/components/generic/icon/Icon.svelte';
+	import { ButtonAction } from '@/components/generic/button/button.enum';
 	let { form }: PageProps = $props();
 
 	let scannedText = $state(undefined);

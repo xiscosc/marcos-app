@@ -1,10 +1,10 @@
 <script lang="ts">
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import Box from '$lib/components/Box.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import Box from '@/components/generic/Box.svelte';
 	import type { PageData } from './$types';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
-	import CustomerDetails from '@/components/customer/CustomerDetails.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import CustomerDetails from '@/components/business-related/customer/CustomerDetails.svelte';
 
 	interface Props {
 		data: PageData;
@@ -24,7 +24,7 @@
 				<div class="mt-4 flex justify-center">
 					<a
 						href="/customers/search"
-						class="w-full rounded-md bg-blue-800 px-4 py-2 text-white hover:bg-blue-900 focus:outline-hidden focus:ring-2 focus:ring-blue-900 focus:ring-offset-2"
+						class="focus:outline-hidden w-full rounded-md bg-blue-800 px-4 py-2 text-white hover:bg-blue-900 focus:ring-2 focus:ring-blue-900 focus:ring-offset-2"
 					>
 						Buscar cliente
 					</a>

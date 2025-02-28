@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Box from '$lib/components/Box.svelte';
-	import { IconType } from '$lib/components/icon/icon.enum';
+	import Box from '@/components/generic/Box.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
 </script>
 
 <div class="flex min-h-screen w-full items-center justify-center">

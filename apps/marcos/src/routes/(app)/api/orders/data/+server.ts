@@ -1,5 +1,5 @@
-import { AuthService } from '$lib/server/service/auth.service';
-import type { CustomSession } from '$lib/type/api.type';
+import { AuthService } from '@/server/service/auth.service';
+import type { CustomSession } from '@/type/api.type';
 import {
 	OrderService,
 	CustomerService,

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { Toaster, toast } from 'svelte-sonner';
-	import Box from '$lib/components/Box.svelte';
-	import Button from '$lib/components/button/Button.svelte';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import Banner from '$lib/components/Banner.svelte';
-	import { Input } from '$lib/components/ui/input';
-	import Progress from '$lib/components/ui/progress/progress.svelte';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import Box from '@/components/generic/Box.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import Banner from '@/components/generic/Banner.svelte';
+	import { Input } from '@/components/ui/input';
+	import Progress from '@/components/ui/progress/progress.svelte';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 
 	let files: FileList | undefined = $state();
 	let loadingText = $state('');

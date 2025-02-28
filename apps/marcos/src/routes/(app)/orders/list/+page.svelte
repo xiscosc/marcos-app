@@ -1,19 +1,19 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { orderStatusMap } from '$lib/shared/mappings/order.mapping';
-	import Box from '$lib/components/Box.svelte';
-	import Button from '$lib/components/button/Button.svelte';
-	import { getStatusUIInfo } from '$lib/ui/ui.helper';
+	import { orderStatusMap } from '@/shared/mappings/order.mapping';
+	import Box from '@/components/generic/Box.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
 	import { OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core/type';
-	import { ButtonAction, ButtonStyle, ButtonText } from '$lib/components/button/button.enum';
-	import OrderList from '$lib/components/order/OrderList.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
-	import { IconType } from '$lib/components/icon/icon.enum';
+	import { ButtonAction, ButtonStyle, ButtonText } from '@/components/generic/button/button.enum';
+	import Input from '@/components/ui/input/input.svelte';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { OrderUtilities } from '@/shared/order.utilities';
+	import { getStatusUIInfo } from '@/ui/ui.helper';
+	import OrderList from '@/components/business-related/order-list/OrderList.svelte';
 
 	interface Props {
 		data: PageData;

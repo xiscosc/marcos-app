@@ -1,14 +1,14 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import OrderCard from '$lib/components/order/OrderCard.svelte';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { OrderUtilities } from '$lib/shared/order.utilities';
-	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
-	import Banner from '$lib/components/Banner.svelte';
-	import { getStatusUIInfo } from '$lib/ui/ui.helper';
+	import OrderCard from '@/components/business-related/order-list/OrderCard.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import { OrderUtilities } from '@/shared/order.utilities';
+	import WhatsAppButton from '@/components/business-related/button/WhatsAppButton.svelte';
+	import Banner from '@/components/generic/Banner.svelte';
+	import { getStatusUIInfo } from '@/ui/ui.helper';
 	import { OrderStatus } from '@marcsimolduressonsardina/core/type';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 
 	interface Props {
 		data: PageData;

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import Button from '$lib/components/button/Button.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
 	import type { Customer } from '@marcsimolduressonsardina/core/type';
 	import { onMount } from 'svelte';
-	import { ButtonStyle, ButtonText } from '$lib/components/button/button.enum';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import { ButtonStyle, ButtonText } from '@/components/generic/button/button.enum';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 
 	let customers: Customer[] = $state([]);
 	let loading = $state(false);

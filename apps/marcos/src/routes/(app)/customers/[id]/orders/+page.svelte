@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import OrderList from '$lib/components/order/OrderList.svelte';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import OrderList from '@/components/business-related/order-list/OrderList.svelte';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 
 	interface Props {
 		data: PageData;

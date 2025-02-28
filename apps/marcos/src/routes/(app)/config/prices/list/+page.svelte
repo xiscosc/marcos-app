@@ -1,15 +1,15 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { pricingTypesMap } from '$lib/shared/mappings/pricing.mapping';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import { pricingTypesMap } from '@/shared/mappings/pricing.mapping';
 	import { goto } from '$app/navigation';
-	import Button from '$lib/components/button/Button.svelte';
-	import { ButtonStyle, ButtonType } from '$lib/components/button/button.enum';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
-	import Box from '$lib/components/Box.svelte';
-	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import PriceTable from '$lib/components/price/PriceTable.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { ButtonStyle, ButtonType } from '@/components/generic/button/button.enum';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import Box from '@/components/generic/Box.svelte';
+	import * as Tabs from '@/components/ui/tabs/index.js';
+	import PriceTable from '@/components/business-related/price/PriceTable.svelte';
 	import { PricingType, type AllPrices, type ListPrice } from '@marcsimolduressonsardina/core/type';
 
 	interface Props {

@@ -1,5 +1,5 @@
-import { AuthService } from '$lib/server/service/auth.service';
-import type { CustomSession } from '$lib/type/api.type';
+import { AuthService } from '@/server/service/auth.service';
+import type { CustomSession } from '@/type/api.type';
 import { OrderService } from '@marcsimolduressonsardina/core/service';
 import { OrderStatus } from '@marcsimolduressonsardina/core/type';
 import { json } from '@sveltejs/kit';

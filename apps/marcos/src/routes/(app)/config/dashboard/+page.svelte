@@ -1,16 +1,16 @@
 <script lang="ts">
-	import Box from '$lib/components/Box.svelte';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
-	import * as Table from '$lib/components/ui/table/index.js';
+	import Box from '@/components/generic/Box.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import * as Table from '@/components/ui/table/index.js';
 	import type { DashboardReport, ReportDate } from '@marcsimolduressonsardina/core/type';
 	import { DateTime } from 'luxon';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { orderStatusMap } from '$lib/shared/mappings/order.mapping';
-	import Icon from '$lib/components/icon/Icon.svelte';
-	import { getStatusUIInfo } from '$lib/ui/ui.helper';
-	import Chart from '$lib/components/dashboard/Chart.svelte';
-	import DateRangePicker from '$lib/components/dashboard/DateRangePicker.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import { orderStatusMap } from '@/shared/mappings/order.mapping';
+	import Icon from '@/components/generic/icon/Icon.svelte';
+	import { getStatusUIInfo } from '@/ui/ui.helper';
+	import Chart from '@/components/business-related/dashboard/Chart.svelte';
+	import DateRangePicker from '@/components/business-related/dashboard/DateRangePicker.svelte';
 
 	const today = DateTime.now().startOf('day');
 	const daysAgo = DateTime.now().startOf('month');

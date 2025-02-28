@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import OrderPrint from '$lib/components/order/OrderPrint.svelte';
 	import { identifyUser } from '@/shared/analytics.utilities';
+	import OrderPrint from '@/components/business-related/order-detail/OrderPrint.svelte';
 	interface Props {
 		data: PageData;
 	}

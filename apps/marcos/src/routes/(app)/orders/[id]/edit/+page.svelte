@@ -1,5 +1,5 @@
 <script lang="ts">
-	import OrderForm from '$lib/components/order/OrderForm.svelte';
+	import OrderForm from '@/components/business-related/order-form/OrderForm.svelte';
 	import type { PageData } from './$types';
 
 	interface Props {

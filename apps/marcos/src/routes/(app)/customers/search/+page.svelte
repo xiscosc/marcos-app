@@ -1,13 +1,17 @@
 <script lang="ts">
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
 	import { superForm } from 'sveltekit-superforms';
-	import Box from '$lib/components/Box.svelte';
-	import Button from '$lib/components/button/Button.svelte';
+	import Box from '@/components/generic/Box.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
 	import { goto } from '$app/navigation';
-	import { ButtonAction, ButtonStyle, ButtonText } from '$lib/components/button/button.enum.js';
-	import { IconType } from '$lib/components/icon/icon.enum.js';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
+	import {
+		ButtonAction,
+		ButtonStyle,
+		ButtonText
+	} from '@/components/generic/button/button.enum.js';
+	import { IconType } from '@/components/generic/icon/icon.enum.js';
+	import Input from '@/components/ui/input/input.svelte';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 	let { data } = $props();
 	const { form, enhance, submitting } = superForm(data.form);
 

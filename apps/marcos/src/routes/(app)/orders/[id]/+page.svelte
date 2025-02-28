@@ -2,32 +2,32 @@
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
-	import OrderElements from '$lib/components/order/OrderElements.svelte';
-	import OrderHeader from '$lib/components/order/OrderHeader.svelte';
-	import Button from '$lib/components/button/Button.svelte';
-	import Divider from '$lib/components/Divider.svelte';
-	import WhatsAppOrderButtons from '$lib/components/order/WhatsAppOrderButtons.svelte';
-	import { ButtonAction, ButtonStyle, ButtonText } from '$lib/components/button/button.enum';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import Box from '$lib/components/Box.svelte';
-	import DeleteOrderBottomSheet from '$lib/components/order/form/DeleteOrderBottomSheet.svelte';
-	import PromoteOrderBottomSheet from '$lib/components/order/form/PromoteOrderBottomSheet.svelte';
-	import DenoteOrderBottomSheet from '$lib/components/order/form/DenoteOrderBottomSheet.svelte';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
-	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import OrderSkeletonHeader from '$lib/components/order/OrderSkeletonHeader.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import OrderInfo from '@/components/business-related/order-detail/OrderInfo.svelte';
+	import OrderElements from '@/components/business-related/order-detail/OrderElements.svelte';
+	import OrderHeader from '@/components/business-related/order-detail/OrderHeader.svelte';
+	import Button from '@/components/generic/button/Button.svelte';
+	import Divider from '@/components/generic/Divider.svelte';
+	import { ButtonAction, ButtonStyle, ButtonText } from '@/components/generic/button/button.enum';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import Box from '@/components/generic/Box.svelte';
+	import DeleteOrderBottomSheet from '@/components/business-related/order-detail/edit/DeleteOrderBottomSheet.svelte';
+	import PromoteOrderBottomSheet from '@/components/business-related/order-detail/edit/PromoteOrderBottomSheet.svelte';
+	import DenoteOrderBottomSheet from '@/components/business-related/order-detail/edit/DenoteOrderBottomSheet.svelte';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import Skeleton from '@/components/ui/skeleton/skeleton.svelte';
+	import OrderSkeletonHeader from '@/components/business-related/order-detail/OrderSkeletonHeader.svelte';
 	import { OrderUtilities } from '@marcsimolduressonsardina/core/util';
 	import {
 		OrderStatus,
 		type Order,
 		type OrderAuditTrailEntry
 	} from '@marcsimolduressonsardina/core/type';
-	import Step from '@/components/Step.svelte';
+	import Step from '@/components/generic/Step.svelte';
 	import { DateTime } from 'luxon';
-	import OrderPriceDetails from '@/components/order/OrderPriceDetails.svelte';
+	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
 	import { isSmBreakpoint } from '@/stores/breakpoint.svelte';
+	import WhatsAppOrderButtons from '@/components/business-related/order-detail/WhatsAppOrderButtons.svelte';
 
 	let formLoading = $state(false);
 

@@ -2,16 +2,16 @@
 	import type { PageData } from './$types';
 	import { Toaster, toast } from 'svelte-sonner';
 	import { FileType, type File as MMSSFile } from '@marcsimolduressonsardina/core/type';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import UploadedFile from '$lib/components/order/UploadedFile.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import UploadedFile from '@/components/business-related/file/UploadedFile.svelte';
 	import { goto } from '$app/navigation';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import Button from '$lib/components/button/Button.svelte';
-	import { ButtonType } from '$lib/components/button/button.enum';
-	import Box from '$lib/components/Box.svelte';
-	import SimpleHeading from '$lib/components/SimpleHeading.svelte';
-	import { Input } from '$lib/components/ui/input';
-	import Photos from '@/components/file/Photos.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { ButtonType } from '@/components/generic/button/button.enum';
+	import Box from '@/components/generic/Box.svelte';
+	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import { Input } from '@/components/ui/input';
+	import Photos from '@/components/business-related/file/Photos.svelte';
 
 	interface Props {
 		data: PageData;

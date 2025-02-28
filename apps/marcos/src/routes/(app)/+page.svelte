@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { ButtonStyle, ButtonText, ButtonType } from '$lib/components/button/button.enum';
-	import Button from '$lib/components/button/Button.svelte';
-	import { IconSize, IconType } from '$lib/components/icon/icon.enum';
+	import { ButtonStyle, ButtonText, ButtonType } from '@/components/generic/button/button.enum';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { IconSize, IconType } from '@/components/generic/icon/icon.enum';
 </script>
 
 <div

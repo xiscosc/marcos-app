@@ -1,6 +1,6 @@
 import { OrderStatus } from '@marcsimolduressonsardina/core/type';
-import { ButtonStyle } from '$lib/components/button/button.enum';
-import { IconType } from '$lib/components/icon/icon.enum';
+import { ButtonStyle } from '@/components/generic/button/button.enum';
+import { IconType } from '@/components/generic/icon/icon.enum';
 
 interface IUIInfo {
 	colors: ButtonStyle;

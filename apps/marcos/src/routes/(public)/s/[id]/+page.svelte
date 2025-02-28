@@ -1,6 +1,6 @@
 <script lang="ts">
+	import OrderPrint from '@/components/business-related/order-detail/OrderPrint.svelte';
 	import type { PageData } from './$types';
-	import OrderPrint from '$lib/components/order/OrderPrint.svelte';
 	interface Props {
 		data: PageData;
 	}
