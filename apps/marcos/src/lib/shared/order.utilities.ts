@@ -68,13 +68,17 @@ export class OrderUtilities {
 		return molds.length === 0 ? undefined : molds[0];
 	}
 
+	public static getOrderPublicUrl(order: Order): string {
+		return `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
+	}
+
 	public static getWhatsappTicketText(order: Order): string {
-		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
+		const url = OrderUtilities.getOrderPublicUrl(order);
 		return `Su pedido \`\`\`${order.publicId}\`\`\` ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappQuoteText(order: Order): string {
-		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
+		const url = OrderUtilities.getOrderPublicUrl(order);
 		return `Aquí tiene una copia de su presupuesto \`\`\`${order.publicId}\`\`\` :  ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
@@ -82,12 +86,12 @@ export class OrderUtilities {
 		const greeting =
 			'Nuestro horario es de lunes a viernes de 09:00 a 18:00 y los sábados de 09:30 a 13:15. Marcs i Moldures Son Sardina.';
 		if (orders.length === 1) {
-			const url = `${PUBLIC_DOMAIN_URL}/s/${orders[0].shortId}`;
+			const url = OrderUtilities.getOrderPublicUrl(orders[0]);
 			return `Hemos terminado su pedido \`\`\`${orders[0].publicId}\`\`\` puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
 		} else {
 			const orderLines = orders
 				.map(
-					(order) => `* \`\`\`${order.publicId}\`\`\` \n ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
+					(order) => `* \`\`\`${order.publicId}\`\`\` \n ${OrderUtilities.getOrderPublicUrl(order)}`
 				)
 				.join('\n');
 
