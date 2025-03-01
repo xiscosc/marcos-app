@@ -111,7 +111,7 @@ export class FileService {
 		}
 
 		if (fileDto.optimizedKey == null) {
-			fileDto.optimizedKey = `optimized/${fileDto.key}${optimizationAndThumbnailTypeInfo?.optimizedExtension ?? ''}}`;
+			fileDto.optimizedKey = `optimized/${fileDto.key}${optimizationAndThumbnailTypeInfo?.optimizedExtension ?? ''}`;
 			await S3Util.uploadToS3(
 				this.s3Client,
 				this.config.filesBucket!,

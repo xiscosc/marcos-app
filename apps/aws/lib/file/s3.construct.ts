@@ -41,7 +41,12 @@ export function createBuckets(
 		bucketName: `mmss-${envName}-files`,
 		cors: [corsRule],
 		lifecycleRules: [expiryLifecycleRule],
-		blockPublicAccess: BlockPublicAccess.BLOCK_ALL
+		blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+		intelligentTieringConfigurations: [
+			{
+				name: `${envName}-intelligent-tiering`
+			}
+		]
 	};
 
 	const reportsBucketProps: BucketProps = {
