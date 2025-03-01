@@ -330,6 +330,9 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/aws-lambda':
+        specifier: 8.10.147
+        version: 8.10.147
       aws-lambda:
         specifier: 1.0.7
         version: 1.0.7

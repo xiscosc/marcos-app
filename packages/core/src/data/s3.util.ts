@@ -5,10 +5,12 @@ import {
 	PutObjectCommandInput,
 	PutObjectCommand,
 	type S3Client,
-	HeadObjectCommand
+	HeadObjectCommand,
+	PutObjectTaggingCommand
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { Readable } from 'stream';
+import { pino } from 'pino';
 
 export class S3Util {
 	public static async getPresignedUploadUrl(
@@ -140,5 +142,29 @@ export class S3Util {
 			stream.on('error', reject);
 			stream.on('end', () => resolve(Buffer.concat(chunks)));
 		});
+	}
+
+	public static async tagFilesForExpiry(client: S3Client, bucket: string, keys: string[]) {
+		const logger = pino();
+		for (const key of keys) {
+			try {
+				const command = new PutObjectTaggingCommand({
+					Bucket: bucket,
+					Key: key,
+					Tagging: {
+						TagSet: [
+							{
+								Key: 'expiry',
+								Value: 'true'
+							}
+						]
+					}
+				});
+
+				await client.send(command);
+			} catch (error) {
+				logger.error(`Failed to tag file ${key} for expiry: ${error}`);
+			}
+		}
 	}
 }

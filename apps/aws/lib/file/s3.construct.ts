@@ -4,7 +4,8 @@ import {
 	Bucket,
 	type BucketProps,
 	type CorsRule,
-	HttpMethods
+	HttpMethods,
+	LifecycleRule
 } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import type { BucketSet } from '../types.js';
@@ -28,9 +29,18 @@ export function createBuckets(
 		blockPublicAccess: BlockPublicAccess.BLOCK_ALL
 	};
 
+	const expiryLifecycleRule: LifecycleRule = {
+		id: `${envName}-expiry-lifecycle-rule`,
+		expiration: Duration.days(7),
+		tagFilters: {
+			expiry: 'true'
+		}
+	};
+
 	const filesBucketProps: BucketProps = {
 		bucketName: `mmss-${envName}-files`,
 		cors: [corsRule],
+		lifecycleRules: [expiryLifecycleRule],
 		blockPublicAccess: BlockPublicAccess.BLOCK_ALL
 	};
 
