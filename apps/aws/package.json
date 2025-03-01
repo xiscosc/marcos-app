@@ -12,7 +12,7 @@
 		"@types/aws-lambda": "8.10.147",
 		"@types/eslint": "9.6.1",
 		"@types/node": "22.13.4",
-		"aws-cdk": "2.179.0",
+		"aws-cdk": "2.1001.0",
 		"esbuild": "0.25.0",
 		"tsx": "4.19.3",
 		"@repo/eslint-config": "workspace:*",
@@ -20,7 +20,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"aws-cdk-lib": "2.179.0",
+		"aws-cdk-lib": "2.181.1",
 		"aws-lambda": "1.0.7",
 		"constructs": "10.4.2",
 		"dotenv": "16.4.7",
