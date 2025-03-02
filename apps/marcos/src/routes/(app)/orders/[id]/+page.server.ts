@@ -1,6 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, RouteParams } from './$types';
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import {
 	ConfigService,
 	FileService,
@@ -33,14 +32,13 @@ async function setOrderStatus(
 	locals: App.Locals,
 	location?: string
 ): Promise<Order> {
-	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
 
-	if (!appUser.priceManager && status === OrderStatus.DELETED) {
+	if (!AuthService.isAdmin(locals.user) && status === OrderStatus.DELETED) {
 		throw fail(403, {});
 	}
 
-	const orderService = new OrderService(AuthService.generateConfiguration(appUser));
+	const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 
 	const order = await orderService.getOrderById(id);
 	if (!order) {
@@ -57,7 +55,7 @@ async function setOrderStatus(
 
 	await orderService.setOrderStatus(order, status, location);
 	await trackServerEvent(
-		appUser,
+		locals.user!,
 		{
 			event: 'order_status_changed',
 			properties: { status, location },
@@ -103,15 +101,14 @@ async function loadData(
 }
 
 export const load = (async ({ params, locals }) => {
-	const appUser = await AuthUtilities.checkAuth(locals);
 	const promoteForm = await superValidate(zod(promoteOrderSchema), { id: 'promote-order-form' });
 	const locationForm = await superValidate(zod(locationOrderSchema));
 	const statusForm = await superValidate(zod(statusOrderSchema));
 
 	const { id } = params;
 	return {
-		info: loadData(appUser, id),
-		isPriceManager: appUser.priceManager,
+		info: loadData(locals.user!, id),
+		isPriceManager: AuthService.isAdmin(locals.user),
 		promoteForm,
 		locationForm,
 		statusForm
@@ -124,10 +121,8 @@ export const actions = {
 		redirect(303, `/`);
 	},
 	async denote({ locals, params }) {
-		const appUser = await AuthUtilities.checkAuth(locals);
-
 		const { id } = params;
-		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
+		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 
 		const order = await orderService.getOrderById(id);
 		if (!order || order.status === OrderStatus.QUOTE) {
@@ -136,7 +131,7 @@ export const actions = {
 
 		await orderService.moveOrderToQuote(order);
 		await trackServerEvent(
-			appUser,
+			locals.user!,
 			{
 				event: 'order_status_changed',
 				properties: { status: OrderStatus.QUOTE },
@@ -146,10 +141,8 @@ export const actions = {
 		);
 	},
 	promote: async ({ request, locals, params }) => {
-		const appUser = await AuthUtilities.checkAuth(locals);
-
 		const { id } = params;
-		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
+		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 		const order = await orderService.getOrderById(id);
 		if (!order || order.status !== OrderStatus.QUOTE) {
 			return fail(404, { missing: true });
@@ -163,7 +156,7 @@ export const actions = {
 
 		await orderService.moveQuoteToOrder(order, form.data.deliveryDate);
 		await trackServerEvent(
-			appUser,
+			locals.user!,
 			{
 				event: 'order_status_changed',
 				properties: { status: OrderStatus.PENDING },
@@ -204,9 +197,8 @@ export const actions = {
 		const newStatus = formData.get('paymentStatus') as PaymentStatus;
 		const amount = formData.get('amount')?.toString();
 
-		const appUser = await AuthUtilities.checkAuth(locals);
 		const { id } = params;
-		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
+		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 		const order = await orderService.getOrderById(id);
 		if (!order) {
 			return fail(500, { missing: true });
@@ -233,7 +225,7 @@ export const actions = {
 		}
 
 		await trackServerEvent(
-			appUser,
+			locals.user!,
 			{
 				event: 'order_payment_status_changed',
 				properties: { status: newStatus },

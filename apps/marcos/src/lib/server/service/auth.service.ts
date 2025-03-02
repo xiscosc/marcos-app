@@ -8,6 +8,7 @@ import {
 	FILE_TABLE,
 	FILES_BUCKET,
 	LIST_PRICING_TABLE,
+	MAINTENANCE_MODE,
 	MOLD_PRICES_BUCKET,
 	ORDER_AUDIT_TRAIL_TABLE,
 	ORDER_TABLE,
@@ -20,9 +21,11 @@ import {
 	type ICorePublicConfiguration
 } from '@marcsimolduressonsardina/core/config';
 import type { AppUser } from '@marcsimolduressonsardina/core/type';
+import { redirect } from '@sveltejs/kit';
 
 export class AuthService {
-	public static generateConfiguration(user: AppUser): ICoreConfiguration {
+	public static generateConfiguration(user?: AppUser): ICoreConfiguration {
+		if (user == null) redirect(303, '/auth/signin?callbackUrl=/');
 		return {
 			runInAWSLambda: false,
 			user,
@@ -50,7 +53,8 @@ export class AuthService {
 			id: 'public',
 			name: 'public',
 			storeId: PUBLIC_REPOSITORY,
-			priceManager: false
+			priceManager: false,
+			priceMarkUp: 0
 		};
 
 		return AuthService.generateConfiguration(user) as ICorePublicConfiguration;
@@ -70,7 +74,22 @@ export class AuthService {
 			id: session.user.email!,
 			name: session.user.name!,
 			storeId: session.userMetadata.storeId,
-			priceManager: session.userMetadata.priceManager ?? false
+			priceManager: session.userMetadata.priceManager ?? false,
+			priceMarkUp: 0
 		};
+	}
+
+	public static async checkAuth(locals: App.Locals): Promise<void> {
+		const inMaintenance = MAINTENANCE_MODE === 'yes';
+		if (inMaintenance) {
+			redirect(307, '/maintenance');
+		}
+
+		const appUser = locals.user;
+		if (!appUser) redirect(303, '/auth/signin?callbackUrl=/');
+	}
+
+	public static isAdmin(user?: AppUser): boolean {
+		return user?.priceManager ?? false;
 	}
 }

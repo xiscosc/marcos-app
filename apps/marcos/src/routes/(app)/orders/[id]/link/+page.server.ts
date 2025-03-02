@@ -3,7 +3,6 @@ import type { PageServerLoad } from './$types';
 import { linkCustomerSchema } from '$lib/shared/form-schema/customer.form-schema';
 import { zod } from 'sveltekit-superforms/adapters';
 import { fail, redirect } from '@sveltejs/kit';
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service';
 import { CustomerService, OrderService } from '@marcsimolduressonsardina/core/service';
 import { OrderUtilities } from '@marcsimolduressonsardina/core/util';
@@ -11,9 +10,8 @@ import { OrderStatus } from '@marcsimolduressonsardina/core/type';
 import { trackServerEvent } from '@/server/shared/analytics/posthog';
 
 export const load = (async ({ params, locals }) => {
-	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const config = AuthService.generateConfiguration(appUser);
+	const config = AuthService.generateConfiguration(locals.user!);
 	const orderService = new OrderService(config);
 
 	const fullOrder = await orderService.getFullOrderById(id);
@@ -35,10 +33,8 @@ export const load = (async ({ params, locals }) => {
 
 export const actions = {
 	async default({ request, locals, params }) {
-		const appUser = await AuthUtilities.checkAuth(locals);
-
 		const { id } = params;
-		const config = AuthService.generateConfiguration(appUser);
+		const config = AuthService.generateConfiguration(locals.user!);
 		const customerService = new CustomerService(config);
 		const orderService = new OrderService(config, customerService);
 
@@ -58,7 +54,7 @@ export const actions = {
 		if (customer != null) {
 			await orderService.addCustomerToTemporaryOrder(customer, order);
 			trackServerEvent(
-				appUser,
+				locals.user!,
 				{
 					event: 'order_customer_linked_from_phone',
 					orderId: order.id,
@@ -71,7 +67,7 @@ export const actions = {
 				customer = await customerService.createCustomer(form.data.name!, form.data.phone);
 				await orderService.addCustomerToTemporaryOrder(customer, order);
 				trackServerEvent(
-					appUser,
+					locals.user!,
 					{
 						event: 'order_customer_linked_from_new_customer',
 						orderId: order.id,

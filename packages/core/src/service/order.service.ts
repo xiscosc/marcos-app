@@ -631,9 +631,8 @@ export class OrderService {
 
 	private static async generatePublicId(createdAt: Date, customer: Customer): Promise<string> {
 		const { customAlphabet } = await import('nanoid');
-		const middle = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 2)();
-		const date = DateTime.fromJSDate(createdAt);
-		const dateStr = date.toFormat('ddMMyyyy');
+		const middle = customAlphabet('ABCDEFGHIJKLMNPQRSTUVWXYZ123456789', 2)();
+		const dateStr = DateTime.fromJSDate(createdAt).toFormat('ddMMyyyy');
 		const phoneWithoutPlus = customer.phone.replace('+', '');
 		return `${dateStr}/${middle}/${phoneWithoutPlus}`;
 	}

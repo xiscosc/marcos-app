@@ -3,7 +3,6 @@ import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 import { listPriceSchemaEdit } from '@/shared/form-schema/pricing.form-schema';
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service.js';
 import { PricingService } from '@marcsimolduressonsardina/core/service';
 import { PricingUtilites, type EditablePricingTypes } from '@marcsimolduressonsardina/core/util';
@@ -27,11 +26,10 @@ async function getListPrice(id: string, pricingService: PricingService): Promise
 }
 
 export const load = async ({ locals, params }) => {
-	const appUser = await AuthUtilities.checkAuth(locals, true);
 	const { id } = params;
 	const listPrice = await getListPrice(
 		id,
-		new PricingService(AuthService.generateConfiguration(appUser))
+		new PricingService(AuthService.generateConfiguration(locals.user!))
 	);
 	const form = await superValidate(zod(listPriceSchemaEdit));
 	form.data.id = listPrice.id;
@@ -51,14 +49,13 @@ export const load = async ({ locals, params }) => {
 
 export const actions = {
 	async createOrEdit({ request, locals, params }) {
-		const appUser = await AuthUtilities.checkAuth(locals);
 		const form = await superValidate(request, zod(listPriceSchemaEdit));
 		if (!form.valid) {
 			return fail(400, { form });
 		}
 
 		const { id } = params;
-		const pricingService = new PricingService(AuthService.generateConfiguration(appUser));
+		const pricingService = new PricingService(AuthService.generateConfiguration(locals.user!));
 		const listPrice = await getListPrice(id, pricingService);
 
 		const { price, maxD1, maxD2, areas, areasM2 } = PricingUtilites.cleanFormValues(
@@ -94,7 +91,7 @@ export const actions = {
 			return setError(form, '', 'Error actualizando el item. Intente de nuevo.');
 		}
 		await trackServerEvent(
-			appUser,
+			locals.user!,
 			{
 				event: 'price_updated',
 				properties: {
@@ -108,9 +105,8 @@ export const actions = {
 		redirect(302, `/config/prices/list?type=${listPrice.type}`);
 	},
 	async deletePrice({ locals, params }) {
-		const appUser = await AuthUtilities.checkAuth(locals, true);
 		const { id } = params;
-		const pricingService = new PricingService(AuthService.generateConfiguration(appUser));
+		const pricingService = new PricingService(AuthService.generateConfiguration(locals.user!));
 		const listPrice = await getListPrice(id, pricingService);
 		await pricingService.deleteListPrices([listPrice]);
 		redirect(302, `/config/prices/list?type=${listPrice.type}`);

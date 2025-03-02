@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { CalculatedItemService, OrderService } from '@marcsimolduressonsardina/core/service';
+import { OrderService } from '@marcsimolduressonsardina/core/service';
 import { AuthService } from '$lib/server/service/auth.service';
 import { trackAnonymousServerEvent } from '@/server/shared/analytics/posthog';
 

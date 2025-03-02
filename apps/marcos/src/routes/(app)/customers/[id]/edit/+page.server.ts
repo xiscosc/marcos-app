@@ -1,4 +1,3 @@
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { superValidate, setError } from 'sveltekit-superforms';
 import type { PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -11,8 +10,7 @@ import { trackServerEvent } from '@/server/shared/analytics/posthog';
 
 export const load = (async ({ params, locals }) => {
 	const { id } = params;
-	const appUser = await AuthUtilities.checkAuth(locals);
-	const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
+	const customerService = new CustomerService(AuthService.generateConfiguration(locals.user!));
 	const customer = await customerService.getCustomerById(id);
 	if (customer == null) {
 		redirect(302, '/');
@@ -27,14 +25,13 @@ export const load = (async ({ params, locals }) => {
 export const actions = {
 	async default({ request, locals, params }) {
 		const { id } = params;
-		const appUser = await AuthUtilities.checkAuth(locals);
 		const form = await superValidate(request, zod(customerSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });
 		}
 
-		const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
+		const customerService = new CustomerService(AuthService.generateConfiguration(locals.user!));
 		const existingCustomer = await customerService.getCustomerById(id);
 		if (existingCustomer == null) {
 			redirect(302, '/');
@@ -50,7 +47,7 @@ export const actions = {
 		}
 
 		await trackServerEvent(
-			appUser,
+			locals.user!,
 			{
 				event: 'customer_updated',
 				customerId: existingCustomer.id

@@ -10,6 +10,7 @@ declare global {
 		// interface Platform {}
 		interface Locals {
 			posthog: PosthogContext;
+			user?: AppUser;
 		}
 	}
 }

@@ -4,6 +4,7 @@ import type { OrderDimensions, PreCalculatedItemPart } from '@marcsimolduressons
 export type UserMetadata = {
 	priceManager?: boolean;
 	storeId?: string;
+	priceMarkUp?: number;
 };
 
 export type WithMetadata = {

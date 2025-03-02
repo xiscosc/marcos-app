@@ -3,7 +3,6 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { CustomerService } from '@marcsimolduressonsardina/core/service';
 import { AuthService } from '$lib/server/service/auth.service';
 
@@ -12,16 +11,12 @@ const schema = z.object({
 });
 
 export const load = async ({ locals }) => {
-	const appUser = await AuthUtilities.checkAuth(locals);
-
 	const form = await superValidate(zod(schema));
-	return { form, canSeeList: appUser.priceManager };
+	return { form, canSeeList: AuthService.isAdmin(locals.user) };
 };
 
 export const actions = {
 	async default({ request, locals }) {
-		const appUser = await AuthUtilities.checkAuth(locals);
-
 		const form = await superValidate(request, zod(schema));
 
 		if (!form.valid) {
@@ -29,7 +24,7 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
+		const customerService = new CustomerService(AuthService.generateConfiguration(locals.user!));
 		const existingCustomer = await customerService.getCustomerByPhone(form.data.phone);
 		if (existingCustomer) {
 			redirect(302, `/customers/${existingCustomer.id}`);

@@ -1,13 +1,11 @@
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { FileService, OrderService } from '@marcsimolduressonsardina/core/service';
 import type { PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import { AuthService } from '$lib/server/service/auth.service';
 
 export const load = (async ({ params, locals }) => {
-	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const config = AuthService.generateConfiguration(appUser);
+	const config = AuthService.generateConfiguration(locals.user!);
 	const fileService = new FileService(config);
 	const orderService = new OrderService(config);
 

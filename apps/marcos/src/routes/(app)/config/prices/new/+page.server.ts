@@ -3,7 +3,6 @@ import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 import { listPriceSchemaNew } from '@/shared/form-schema/pricing.form-schema';
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { AuthService } from '$lib/server/service/auth.service.js';
 import { PricingService } from '@marcsimolduressonsardina/core/service';
 import { PricingUtilites } from '@marcsimolduressonsardina/core/util';
@@ -16,22 +15,19 @@ import type {
 import { InvalidKeyError } from '@marcsimolduressonsardina/core/error';
 import { trackServerEvent } from '@/server/shared/analytics/posthog';
 
-export const load = async ({ locals }) => {
-	await AuthUtilities.checkAuth(locals, true);
+export const load = async () => {
 	const form = await superValidate(zod(listPriceSchemaNew));
 	return { form };
 };
 
 export const actions = {
 	async createOrEdit({ request, locals }) {
-		const appUser = await AuthUtilities.checkAuth(locals, true);
-
 		const form = await superValidate(request, zod(listPriceSchemaNew));
 		if (!form.valid) {
 			return fail(400, { form });
 		}
 
-		const pricingService = new PricingService(AuthService.generateConfiguration(appUser));
+		const pricingService = new PricingService(AuthService.generateConfiguration(locals.user!));
 		try {
 			const { price, maxD1, maxD2, areas, areasM2 } = PricingUtilites.cleanFormValues(
 				form as unknown as {
@@ -68,7 +64,7 @@ export const actions = {
 		}
 
 		await trackServerEvent(
-			appUser,
+			locals.user!,
 			{
 				event: 'price_created',
 				properties: {

@@ -2,7 +2,6 @@ import { orderSchema, quoteSchema } from '$lib/shared/form-schema/order.form-sch
 import { setError, superValidate, type SuperValidated } from 'sveltekit-superforms';
 import { z } from 'zod';
 import { zod } from 'sveltekit-superforms/adapters';
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { fail, redirect } from '@sveltejs/kit';
 import { PricingHelper } from '../pricing/pricing.helper';
 import { AuthService } from '$lib/server/service/auth.service';
@@ -94,9 +93,8 @@ export class OrderCreationUtilities {
 		orderId?: string,
 		editing = false
 	): Promise<OrderCreationFormData> {
-		const appUser = await AuthUtilities.checkAuth(locals);
 		const form = await superValidate(zod(orderSchema));
-		const config = AuthService.generateConfiguration(appUser);
+		const config = AuthService.generateConfiguration(locals.user!);
 		const pricing = PricingHelper.getPricing(new PricingService(config));
 		const orderService = new OrderService(config);
 		const order = orderId != null ? await orderService.getOrderById(orderId) : undefined;
@@ -133,8 +131,7 @@ export class OrderCreationUtilities {
 	}
 
 	static async handleEditOrder(request: Request, locals: App.Locals, orderId: string) {
-		const appUser = await AuthUtilities.checkAuth(locals);
-		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
+		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 		const order = await orderService.getOrderById(orderId);
 		if (order == null) {
 			return fail(404, {});
@@ -165,7 +162,7 @@ export class OrderCreationUtilities {
 		}
 
 		await trackServerEvent(
-			appUser,
+			locals.user!,
 			{
 				event: 'order_updated',
 				orderId
@@ -181,7 +178,6 @@ export class OrderCreationUtilities {
 		locals: App.Locals,
 		customerId?: string
 	) {
-		const appUser = await AuthUtilities.checkAuth(locals);
 		const schema = isQuote ? quoteSchema : orderSchema;
 		const form = await superValidate(request, zod(schema));
 
@@ -189,7 +185,7 @@ export class OrderCreationUtilities {
 			return fail(400, { form });
 		}
 
-		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
+		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 		let orderId = '';
 
 		try {
@@ -207,7 +203,7 @@ export class OrderCreationUtilities {
 			orderId = fullOrder.order.id;
 
 			await trackServerEvent(
-				appUser,
+				locals.user!,
 				{
 					event: 'order_created',
 					orderId,

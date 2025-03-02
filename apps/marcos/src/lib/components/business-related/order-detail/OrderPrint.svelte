@@ -393,7 +393,7 @@
 			margin: 0 !important;
 		}
 
-		body {
+		main {
 			-webkit-print-color-adjust: exact;
 			print-color-adjust: exact;
 		}

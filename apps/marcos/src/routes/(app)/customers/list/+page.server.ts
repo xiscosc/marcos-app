@@ -1,10 +1,9 @@
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { AuthService } from '@/server/service/auth.service';
 
 export const load = (async ({ locals }) => {
-	const appUser = await AuthUtilities.checkAuth(locals);
-	if (!appUser.priceManager) {
+	if (!AuthService.isAdmin(locals.user)) {
 		error(403);
 	}
 

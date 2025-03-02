@@ -2,6 +2,7 @@ import { PostHog } from 'posthog-node';
 import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
 import { ENV_NAME } from '$env/static/private';
 import type { AppUser } from '@marcsimolduressonsardina/core/type';
+import type { Handle } from '@sveltejs/kit';
 
 export interface IServerEvent {
 	event: string;
@@ -93,3 +94,16 @@ export async function trackAnonymousServerEvent(event: IServerEvent, context: Po
 		console.error('Failed to shutdown PostHog client:', error);
 	}
 }
+
+export const posthogContextHandle: Handle = async ({ event, resolve }) => {
+	// Capture client context
+	event.locals.posthog = {
+		ip: event.getClientAddress(),
+		user_agent: event.request.headers.get('user-agent'),
+		current_url: event.url.toString(),
+		path: event.url.pathname,
+		referrer: event.request.headers.get('referer')
+	};
+
+	return resolve(event);
+};
