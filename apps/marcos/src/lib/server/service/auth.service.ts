@@ -8,6 +8,7 @@ import {
 	FILE_TABLE,
 	FILES_BUCKET,
 	LIST_PRICING_TABLE,
+	MAIN_STORE_ID,
 	MAINTENANCE_MODE,
 	MOLD_PRICES_BUCKET,
 	ORDER_AUDIT_TRAIL_TABLE,
@@ -91,5 +92,9 @@ export class AuthService {
 
 	public static isAdmin(user?: AppUser): boolean {
 		return user?.priceManager ?? false;
+	}
+
+	public static isMainStore(user?: AppUser): boolean {
+		return user?.storeId === MAIN_STORE_ID;
 	}
 }
