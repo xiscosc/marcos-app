@@ -193,10 +193,12 @@ export class OrderCreationUtilities {
 			await trackServerEvent(
 				locals.user!,
 				{
-					event: 'order_created',
+					event: 'external_order_created',
 					orderId,
 					properties: {
-						status: 'external',
+						reference: fullOrder.order.reference,
+						orderPublicId: fullOrder.order.publicId,
+						appliedMarkup: locals.user!.priceMarkUp,
 						amount: fullOrder.totals.total
 					}
 				},
