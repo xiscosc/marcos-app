@@ -10,8 +10,7 @@
 		type PPDimensions,
 		type PreCalculatedItemPart,
 		PricingType,
-		DimensionsType,
-		OrderStatus
+		DimensionsType
 	} from '@marcsimolduressonsardina/core/type';
 	import CartItem from '@/components/business-related/order/CartItem.svelte';
 	import PricingSelectorSection from '@/components/business-related/order-form/PricingSelectorSection.svelte';
@@ -20,7 +19,7 @@
 	import Spacer from '@/components/business-related/order-form/Spacer.svelte';
 	import ChipSet from '@/components/business-related/order-form/ChipSet.svelte';
 	import ProgressBar from '@/components/generic/ProgressBar.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import type { OrderCreationFormData } from '@/server/shared/order/order-creation.utilities';
 	import Box from '@/components/generic/Box.svelte';
 	import Button from '@/components/generic/button/Button.svelte';
@@ -53,10 +52,12 @@
 
 	interface Props {
 		data: OrderCreationFormData;
+		title: string;
 		isNew?: boolean;
+		children?: Snippet;
 	}
 
-	let { data, isNew = true }: Props = $props();
+	let { data, title, isNew = true, children = undefined }: Props = $props();
 
 	const { form, errors, enhance, submitting } = superForm(data.form, {
 		dataType: 'json'
@@ -724,17 +725,7 @@
 <Toaster richColors />
 
 <div class="flex flex-col gap-4">
-	<SimpleHeading icon={IconType.FORM}>
-		{#if data.editing}
-			Editar {#if data.editingStatus === OrderStatus.QUOTE}
-				presupuesto
-			{:else}
-				pedido
-			{/if}
-		{:else}
-			Nuevo Pedido / Presupuesto
-		{/if}
-	</SimpleHeading>
+	<SimpleHeading icon={IconType.FORM}>{title}</SimpleHeading>
 
 	<form use:enhance method="post">
 		<div class="flex flex-col gap-2">
@@ -1231,33 +1222,8 @@
 								</ul>
 							</div>
 						</Box>
-					{:else if data.editing}
-						<Button
-							text={data.editingStatus === OrderStatus.QUOTE
-								? 'Editar presupuesto'
-								: 'Editar pedido'}
-							action={ButtonAction.SUBMIT}
-							formAction="?/editOrder"
-							icon={IconType.EDIT}
-						></Button>
 					{:else}
-						<div class="flex flex-col gap-2 lg:col-span-2 lg:flex-row">
-							<Button
-								text="Crear pedido"
-								action={ButtonAction.SUBMIT}
-								style={ButtonStyle.ORDER_GENERIC}
-								textType={ButtonText.GRAY}
-								formAction="?/createOrder"
-								icon={IconType.ORDER_FINISHED}
-							></Button>
-							<Button
-								text="Crear presupuesto"
-								action={ButtonAction.SUBMIT}
-								style={ButtonStyle.ORDER_QUOTE}
-								formAction="?/createQuote"
-								icon={IconType.ORDER_QUOTE}
-							></Button>
-						</div>
+						{@render children?.()}
 					{/if}
 				</div>
 			{/if}

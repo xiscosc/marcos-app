@@ -6,13 +6,12 @@ import {
 	PreCalculatedItemPart
 } from '../../types/order.type';
 
-type OrderCreationDtoBase = {
+export type OrderCreationDtoBase = {
 	width: number;
 	height: number;
 	pp: number;
 	floatingDistance: number;
 	description: string;
-	isQuote: boolean;
 	predefinedObservations: string[];
 	observations: string;
 	quantity: number;
@@ -28,7 +27,13 @@ type OrderCreationDtoBase = {
 	dimensionsType: DimensionsType;
 };
 
-export type OrderCreationDto = OrderCreationDtoBase & { customerId?: string };
-export type OrderCreationWithCustomerDto = OrderCreationDtoBase & {
+type MainOrderCreationDto = OrderCreationDtoBase & { isQuote: boolean };
+
+export type ExternalOrderCreationDto = OrderCreationDtoBase & {
+	reference: string;
+};
+
+export type OrderCreationDto = MainOrderCreationDto & { customerId?: string };
+export type OrderCreationWithCustomerDto = MainOrderCreationDto & {
 	customer: Customer;
 };

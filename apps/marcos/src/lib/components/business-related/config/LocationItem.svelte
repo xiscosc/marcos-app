@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import Icon from '@/components/generic/icon/Icon.svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		text: string;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let { text, children }: Props = $props();

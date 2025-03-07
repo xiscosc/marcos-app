@@ -5,7 +5,10 @@ import { OrderRepositoryDynamoDb } from '../repository/dynamodb/order.repository
 import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
 import { InvalidDataError } from '../error/invalid-data.error';
-import type { OrderCreationWithCustomerDto } from './dto/order-creation.dto';
+import type {
+	ExternalOrderCreationDto,
+	OrderCreationWithCustomerDto
+} from './dto/order-creation.dto';
 import type { OrderCreationDto } from './dto/order-creation.dto';
 import { DateTime } from 'luxon';
 import { OrderAuditTrailService } from './order-audit-trail.service';
@@ -19,11 +22,15 @@ import {
 	CalculatedItem,
 	CalculatedItemWithPartTypes,
 	DimensionsType,
+	ExternalFullOrder,
+	ExternalOrder,
+	ExternalOrderTotals,
 	FullOrder,
 	Item,
 	Order,
 	OrderStatus,
 	OrderTotals,
+	OrderTotalsBase,
 	PreCalculatedItemPart
 } from '../types/order.type';
 import { SearchUtilities } from '../utilities/search.utilities';
@@ -206,6 +213,15 @@ export class OrderService {
 		});
 	}
 
+	async createExternalOrderFromDto(dto: ExternalOrderCreationDto): Promise<ExternalFullOrder> {
+		const { order, calculatedItem } = await this.generateExternalOrderAndCalculatedItemFromDto(dto);
+		return {
+			order,
+			calculatedItem,
+			totals: OrderService.getTotals(calculatedItem)
+		};
+	}
+
 	async updateOrderFromDto(orderId: string, dto: OrderCreationDto): Promise<Order | null> {
 		if (dto.customerId == null) {
 			throw Error('Customer is required');
@@ -274,7 +290,7 @@ export class OrderService {
 		const oldAmount = order.amountPayed;
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
-		const total = OrderService.getTotals(order, calculatedItem).total;
+		const total = OrderService.getTotalsForOrder(order, calculatedItem).total;
 		order.amountPayed = total;
 		await Promise.all([
 			this.repository.updateAmountPayed(OrderService.toDto(order)),
@@ -286,7 +302,7 @@ export class OrderService {
 		const oldAmount = order.amountPayed;
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
-		const total = OrderService.getTotals(order, calculatedItem).total;
+		const total = OrderService.getTotalsForOrder(order, calculatedItem).total;
 		if (amount < 0) {
 			throw new InvalidDataError('Invalid amount');
 		}
@@ -342,7 +358,7 @@ export class OrderService {
 			return {
 				order,
 				calculatedItem,
-				totals: OrderService.getTotals(order, calculatedItem)
+				totals: OrderService.getTotalsForOrder(order, calculatedItem)
 			};
 		}
 
@@ -395,7 +411,7 @@ export class OrderService {
 		return {
 			calculatedItem: OrderService.addTypesToCalculatedItem(order, calculatedItem),
 			order,
-			totals: OrderService.getTotals(order, calculatedItem)
+			totals: OrderService.getTotalsForOrder(order, calculatedItem)
 		};
 	}
 
@@ -413,7 +429,7 @@ export class OrderService {
 				calculatedItem
 			),
 			order: orderMap.get(calculatedItem.orderId)!,
-			totals: OrderService.getTotals(orderMap.get(calculatedItem.orderId)!, calculatedItem)
+			totals: OrderService.getTotalsForOrder(orderMap.get(calculatedItem.orderId)!, calculatedItem)
 		}));
 	}
 
@@ -440,6 +456,53 @@ export class OrderService {
 			this.orderAuditTrailService.logOrderFullChanges(order, originalOrder)
 		]);
 		return order;
+	}
+
+	private async generateExternalOrderAndCalculatedItemFromDto(
+		dto: ExternalOrderCreationDto
+	): Promise<{ order: ExternalOrder; calculatedItem: CalculatedItem }> {
+		const createdAt = DateTime.now().toJSDate();
+		const order: ExternalOrder = {
+			id: uuidv4(),
+			publicId: await this.generateExternalPublicId(createdAt),
+			reference: dto.reference,
+			createdAt,
+			storeId: this.config.storeId,
+			user: this.config.user,
+			hasArrow: dto.hasArrow,
+			item: {
+				width: dto.width,
+				height: dto.height,
+				pp: dto.pp,
+				floatingDistance: dto.floatingDistance,
+				ppDimensions: dto.ppDimensions,
+				description: dto.description,
+				predefinedObservations: dto.predefinedObservations,
+				observations: dto.observations,
+				quantity: dto.quantity,
+				deliveryDate: dto.deliveryDate,
+				dimensionsType: dto.dimensionsType,
+				partsToCalculate: OrderService.optimizePartsToCalculate(dto.partsToCalculate),
+				exteriorWidth: dto.exteriorWidth,
+				exteriorHeight: dto.exteriorHeight,
+				instantDelivery: dto.instantDelivery
+			}
+		};
+
+		OrderService.verifyItem(order.item);
+		const calculatedItem = await this.calculatedItemService.createCalculatedItem(
+			order,
+			dto.discount,
+			dto.extraParts
+		);
+		return { order, calculatedItem };
+	}
+
+	private async generateExternalPublicId(createdAt: Date): Promise<string> {
+		const { customAlphabet } = await import('nanoid');
+		const middle = customAlphabet('ABCDEFGHIJKLMNPQRSTUVWXYZ123456789', 4)();
+		const dateStr = DateTime.fromJSDate(createdAt).toFormat('ddMMyyyy');
+		return `${dateStr}/${middle}/${this.config.storeId}`.toUpperCase();
 	}
 
 	private async generateOrderAndCalculatedItemFromDto(
@@ -665,7 +728,7 @@ export class OrderService {
 		};
 	}
 
-	private static getTotals(order: Order, calculatedItem: CalculatedItem): OrderTotals {
+	private static getTotals(calculatedItem: CalculatedItem): OrderTotalsBase | ExternalOrderTotals {
 		const unitPrice = CalculatedItemUtilities.calculatePartsCost(
 			calculatedItem.parts,
 			true,
@@ -678,7 +741,6 @@ export class OrderService {
 		);
 
 		const total = unitPrice * calculatedItem.quantity;
-		const remainingAmount = total - order.amountPayed;
 
 		return {
 			unitPrice: unitPrice,
@@ -686,7 +748,16 @@ export class OrderService {
 			totalWithoutDiscount: unitPriceWithoutDiscount * calculatedItem.quantity,
 			total,
 			discountNotAllowedPresent:
-				calculatedItem.parts.some((part) => !part.discountAllowed) && calculatedItem.discount > 0,
+				calculatedItem.parts.some((part) => !part.discountAllowed) && calculatedItem.discount > 0
+		};
+	}
+
+	private static getTotalsForOrder(order: Order, calculatedItem: CalculatedItem): OrderTotals {
+		const totalsBase = OrderService.getTotals(calculatedItem);
+		const remainingAmount = totalsBase.total - order.amountPayed;
+
+		return {
+			...totalsBase,
 			payed: remainingAmount <= 0,
 			remainingAmount
 		};

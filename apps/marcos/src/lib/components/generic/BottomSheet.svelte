@@ -38,7 +38,7 @@
 </script>
 
 <Sheet.Root>
-	<Sheet.Trigger class={`${customTriggerStyle ? '' : classes} lg:hidden`} {disabled}>
+	<Sheet.Trigger class={`${customTriggerStyle ? '' : classes} lg:hidden`} {disabled} type="button">
 		{@render trigger()}
 	</Sheet.Trigger>
 	<Sheet.Content
@@ -71,7 +71,11 @@
 </Sheet.Root>
 
 <Dialog.Root>
-	<Dialog.Trigger class={`${customTriggerStyle ? '' : classes} hidden lg:block`} {disabled}>
+	<Dialog.Trigger
+		class={`${customTriggerStyle ? '' : classes} hidden lg:block`}
+		{disabled}
+		type="button"
+	>
 		{@render trigger()}
 	</Dialog.Trigger>
 	<Dialog.Content

@@ -53,3 +53,7 @@
 		iconSize={IconSize.BIG}
 	></Button>
 </div>
+
+<div class="flex flex-row items-center justify-center pt-3">
+	<span class="text-xs text-gray-500"> Tienda principal </span>
+</div>

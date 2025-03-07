@@ -29,19 +29,21 @@ import { OrderDimensions } from '../types/order.type';
 
 export class PricingService {
 	private listPricingRepository: ListPricingRepositoryDynamoDb;
+	private markup: number;
 
 	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
 		this.listPricingRepository = new ListPricingRepositoryDynamoDb(config);
+		this.markup = config.user.priceManager ? 0 : config.user.priceMarkUp / 100;
 	}
 
 	public async getPricingList(type: PricingType): Promise<ListPrice[]> {
 		const prices = await this.listPricingRepository.getAllPricesByType(type);
-		return prices.map(PricingService.fromDto);
+		return this.getPricesWithMarkup(prices.map(PricingService.fromDto));
 	}
 
 	public async getPriceListByInternalId(id: string): Promise<ListPrice | undefined> {
 		const priceDto = await this.listPricingRepository.getByInternalId(id);
-		return priceDto ? PricingService.fromDto(priceDto) : undefined;
+		return priceDto ? this.getPriceWithMarkup(PricingService.fromDto(priceDto)) : undefined;
 	}
 
 	public async batchStoreListPrices(type: PricingType, prices: ListPrice[]): Promise<void> {
@@ -120,7 +122,7 @@ export class PricingService {
 		PricingService.checkMaxMinDimensions(orderDimensions, pricing);
 		const price = PricingService.getPriceByType(orderDimensions, pricing);
 		return {
-			price: Math.max(price, pricing.minPrice),
+			price: this.calculateMarkup(Math.max(price, pricing.minPrice)),
 			description: pricing.description,
 			discountAllowed: pricing.discountAllowed,
 			floating: pricing.floating
@@ -133,7 +135,7 @@ export class PricingService {
 			throw Error('Price not found');
 		}
 
-		return PricingService.fromDto(priceDto);
+		return this.getPriceWithMarkup(PricingService.fromDto(priceDto));
 	}
 
 	private async getFabricPriceList(
@@ -151,13 +153,38 @@ export class PricingService {
 
 		const { d1, d2 } = PricingService.cleanAndOrderTotalDimensions(orderDimensions);
 		const moldPrice = await this.getPriceFromListById(PricingType.MOLD, moldFabricId);
-		return PricingUtilites.generateCrossbarPricing(
+		const fabricPrice = PricingUtilites.generateCrossbarPricing(
 			id,
 			moldPrice.price,
 			moldPrice.description,
 			PricingUtilites.getFabricCrossbarDimension(id, d1, d2),
 			moldPrice.id
 		);
+
+		return this.getPriceWithMarkup(fabricPrice);
+	}
+
+	private calculateMarkup(price: number): number {
+		return Math.round(price * (1 + this.markup) * 100) / 100;
+	}
+
+	private getPriceWithMarkup(listPrice: ListPrice): ListPrice {
+		if (this.markup === 0) {
+			return listPrice;
+		}
+
+		return {
+			...listPrice,
+			price: this.calculateMarkup(listPrice.price)
+		};
+	}
+
+	private getPricesWithMarkup(listPrices: ListPrice[]): ListPrice[] {
+		if (this.markup === 0) {
+			return listPrices;
+		}
+
+		return listPrices.map(this.getPriceWithMarkup);
 	}
 
 	private static getPriceByType(orderDimensions: OrderDimensions, priceInfo: ListPrice): number {

@@ -1,4 +1,5 @@
-import { OrderCreationUtilities } from '$lib/server/shared/order/order-creation.utilities';
+import { OrderCreationUtilities } from '@/server/shared/order/order-creation.utilities';
+import { OrderActionNames } from '@/shared/mappings/order.mapping';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ params, locals }) => {
@@ -7,7 +8,7 @@ export const load = (async ({ params, locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	async editOrder({ request, locals, params }) {
+	[OrderActionNames.EDIT_ORDER]: async ({ request, locals, params }) => {
 		const { id } = params;
 		return await OrderCreationUtilities.handleEditOrder(request, locals, id);
 	}

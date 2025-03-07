@@ -6,7 +6,8 @@ import {
 	CalculatedItemPart,
 	Order,
 	OrderDimensions,
-	PreCalculatedItemPart
+	PreCalculatedItemPart,
+	ExternalOrder
 } from '../types/order.type';
 import { CalculatedItemUtilities } from '../utilities/calculated-item.utilites';
 import { PricingType } from '../types/pricing.type';
@@ -30,7 +31,7 @@ export class CalculatedItemService {
 	}
 
 	public async createCalculatedItem(
-		order: Order,
+		order: Order | ExternalOrder,
 		discount: number,
 		extraParts: CalculatedItemPart[]
 	): Promise<CalculatedItem> {

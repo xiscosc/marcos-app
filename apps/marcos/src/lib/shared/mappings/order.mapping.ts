@@ -20,3 +20,10 @@ export const orderStatusMap: Record<OrderStatus, string> = {
 	[OrderStatus.QUOTE]: 'Presupuesto',
 	[OrderStatus.DELETED]: 'Eliminado'
 };
+
+export enum OrderActionNames {
+	CREATE_ORDER = 'createOrder',
+	CREATE_QUOTE = 'createQuote',
+	EDIT_ORDER = 'editOrder',
+	CREATE_EXTERNAL_ORDER = 'createExternalOrder'
+}

@@ -4,6 +4,8 @@ import {
 	OrderStatus,
 	PricingType,
 	type CalculatedItem,
+	type ExternalFullOrder,
+	type ExternalOrder,
 	type FullOrder,
 	type Order
 } from '@marcsimolduressonsardina/core/type';
@@ -11,7 +13,7 @@ import { CalculatedItemUtilities, otherExtraId } from '@marcsimolduressonsardina
 import { customerMoldIds, discountMap } from './mappings/order.mapping';
 
 export class OrderUtilities {
-	public static getOrderMolds(order: Order): string[] {
+	public static getOrderMolds(order: Order | ExternalOrder): string[] {
 		return order.item.partsToCalculate
 			.filter((p) => p.type === PricingType.MOLD)
 			.map(
@@ -21,7 +23,7 @@ export class OrderUtilities {
 	}
 
 	public static getOrderElementByPricingType(
-		order: Order,
+		order: Order | ExternalOrder,
 		calculatedItem: CalculatedItem,
 		pricingType: PricingType
 	): string[] {
@@ -36,7 +38,7 @@ export class OrderUtilities {
 		return calculatedItem.parts.filter((p) => p.priceId === otherExtraId).map((p) => p.description);
 	}
 
-	public static getWorkingDimensions(order: Order): string {
+	public static getWorkingDimensions(order: Order | ExternalOrder): string {
 		const item = order.item;
 		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
 			item.width,
@@ -127,17 +129,23 @@ export class OrderUtilities {
 	}
 
 	public static hydrateFullOrderDates(fullOrders: FullOrder[]): FullOrder[] {
-		return fullOrders.map((fo) => ({
-			...fo,
+		return fullOrders.map((fo) => OrderUtilities.hydrateFullOrder(fo) as FullOrder);
+	}
+
+	public static hydrateFullOrder(
+		fullOrder: FullOrder | ExternalFullOrder
+	): FullOrder | ExternalFullOrder {
+		return {
+			...fullOrder,
 			order: {
-				...fo.order,
+				...fullOrder.order,
 				item: {
-					...fo.order.item,
-					deliveryDate: new Date(fo.order.item.deliveryDate)
+					...fullOrder.order.item,
+					deliveryDate: new Date(fullOrder.order.item.deliveryDate)
 				},
-				createdAt: new Date(fo.order.createdAt)
+				createdAt: new Date(fullOrder.order.createdAt)
 			}
-		}));
+		} as FullOrder | ExternalFullOrder;
 	}
 
 	private static formatNumber(num: number): string | number {

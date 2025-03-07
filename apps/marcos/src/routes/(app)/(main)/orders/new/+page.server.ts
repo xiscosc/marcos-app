@@ -1,5 +1,6 @@
+import { OrderCreationUtilities } from '@/server/shared/order/order-creation.utilities';
+import { OrderActionNames } from '@/shared/mappings/order.mapping';
 import type { PageServerLoad } from './$types';
-import { OrderCreationUtilities } from '$lib/server/shared/order/order-creation.utilities';
 
 export const load = (async ({ locals, url }) => {
 	const orderId = url.searchParams.get('originId');
@@ -14,11 +15,10 @@ export const load = (async ({ locals, url }) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	async createOrder({ request, locals }) {
-		return await OrderCreationUtilities.handleCreateOrder(false, request, locals);
+	[OrderActionNames.CREATE_ORDER]: async ({ request, locals }) => {
+		return await OrderCreationUtilities.handleCreateOrder(request, locals);
 	},
-
-	async createQuote({ request, locals }) {
-		return await OrderCreationUtilities.handleCreateOrder(true, request, locals);
+	[OrderActionNames.CREATE_QUOTE]: async ({ request, locals }) => {
+		return await OrderCreationUtilities.handleCreateQuote(request, locals);
 	}
 };

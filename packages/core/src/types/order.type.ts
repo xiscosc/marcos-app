@@ -81,12 +81,28 @@ export type Order = {
 	publicId: string;
 };
 
-export type OrderTotals = {
+export type ExternalOrder = {
+	id: string;
+	reference: string;
+	storeId: string;
+	createdAt: Date;
+	item: Item;
+	hasArrow: boolean;
+	user: StaticUser;
+	publicId: string;
+};
+
+export type OrderTotalsBase = {
 	totalWithoutDiscount: number;
 	total: number;
 	unitPrice: number;
 	unitPriceWithoutDiscount: number;
 	discountNotAllowedPresent: boolean;
+};
+
+export type ExternalOrderTotals = OrderTotalsBase;
+
+export type OrderTotals = OrderTotalsBase & {
 	payed: boolean;
 	remainingAmount: number;
 };
@@ -95,6 +111,12 @@ export type FullOrder = {
 	order: Order;
 	calculatedItem: CalculatedItemWithPartTypes;
 	totals: OrderTotals;
+};
+
+export type ExternalFullOrder = {
+	order: ExternalOrder;
+	calculatedItem: CalculatedItemWithPartTypes;
+	totals: ExternalOrderTotals;
 };
 
 export enum OrderStatus {
