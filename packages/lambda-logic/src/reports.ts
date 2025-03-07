@@ -21,7 +21,7 @@ export async function lambdaGenerateReports(
 		storeId: storeId ?? '',
 		name: 'AWS LAMBDA',
 		priceManager: true,
-		priceMarkUp: 0
+		priceMarkup: 0
 	};
 
 	const configuration: ICoreConfigurationForAWSLambda = {

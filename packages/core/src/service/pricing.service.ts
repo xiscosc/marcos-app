@@ -33,12 +33,12 @@ export class PricingService {
 
 	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
 		this.listPricingRepository = new ListPricingRepositoryDynamoDb(config);
-		this.markup = config.user.priceManager ? 0 : config.user.priceMarkUp / 100;
+		this.markup = config.user.priceManager ? 0 : config.user.priceMarkup / 100;
 	}
 
 	public async getPricingList(type: PricingType): Promise<ListPrice[]> {
 		const prices = await this.listPricingRepository.getAllPricesByType(type);
-		return this.getPricesWithMarkup(prices.map(PricingService.fromDto));
+		return this.getPricesWithMarkup(prices.map((p) => PricingService.fromDto(p)));
 	}
 
 	public async getPriceListByInternalId(id: string): Promise<ListPrice | undefined> {
@@ -184,7 +184,7 @@ export class PricingService {
 			return listPrices;
 		}
 
-		return listPrices.map(this.getPriceWithMarkup);
+		return listPrices.map((lp) => this.getPriceWithMarkup(lp));
 	}
 
 	private static getPriceByType(orderDimensions: OrderDimensions, priceInfo: ListPrice): number {

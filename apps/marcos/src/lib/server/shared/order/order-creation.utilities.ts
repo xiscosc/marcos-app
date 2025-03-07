@@ -198,7 +198,7 @@ export class OrderCreationUtilities {
 					properties: {
 						reference: fullOrder.order.reference,
 						orderPublicId: fullOrder.order.publicId,
-						appliedMarkup: locals.user!.priceMarkUp,
+						appliedMarkup: locals.user!.priceMarkup,
 						amount: fullOrder.totals.total
 					}
 				},

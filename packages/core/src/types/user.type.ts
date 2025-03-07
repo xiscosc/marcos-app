@@ -6,5 +6,5 @@ export interface StaticUser {
 
 export interface AppUser extends StaticUser {
 	priceManager: boolean;
-	priceMarkUp: number;
+	priceMarkup: number;
 }

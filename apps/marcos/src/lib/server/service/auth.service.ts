@@ -55,7 +55,7 @@ export class AuthService {
 			name: 'public',
 			storeId: PUBLIC_REPOSITORY,
 			priceManager: false,
-			priceMarkUp: 0
+			priceMarkup: 0
 		};
 
 		return AuthService.generateConfiguration(user) as ICorePublicConfiguration;
@@ -76,7 +76,7 @@ export class AuthService {
 			name: session.user.name!,
 			storeId: session.userMetadata.storeId,
 			priceManager: session.userMetadata.priceManager ?? false,
-			priceMarkUp: 0
+			priceMarkup: session.userMetadata.priceMarkup ?? 0
 		};
 	}
 
