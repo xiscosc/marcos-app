@@ -13,6 +13,8 @@ import { CalculatedItemUtilities, otherExtraId } from '@marcsimolduressonsardina
 import { customerMoldIds, discountMap } from './mappings/order.mapping';
 
 export class OrderUtilities {
+	private static bullCharacter = '\u2022';
+
 	public static getOrderMolds(order: Order | ExternalOrder): string[] {
 		return order.item.partsToCalculate
 			.filter((p) => p.type === PricingType.MOLD)
@@ -146,6 +148,25 @@ export class OrderUtilities {
 				createdAt: new Date(fullOrder.order.createdAt)
 			}
 		} as FullOrder | ExternalFullOrder;
+	}
+
+	public static groupInPairs(arr: string[]): string[][] {
+		const result: string[][] = [];
+
+		for (let i = 0; i < arr.length; i += 2) {
+			const pair: string[] = [arr[i], arr[i + 1] || ''];
+			result.push(pair);
+		}
+
+		return result;
+	}
+
+	public static getPrintableListRepresentatiom(element: string): string {
+		if (element.length > 0) {
+			return `${OrderUtilities.bullCharacter} ${element}`;
+		}
+
+		return '';
 	}
 
 	private static formatNumber(num: number): string | number {

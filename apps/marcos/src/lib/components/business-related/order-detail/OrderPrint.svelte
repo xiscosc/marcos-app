@@ -10,6 +10,7 @@
 		type FullOrder
 	} from '@marcsimolduressonsardina/core/type';
 	import Qr from '@/components/generic/Qr.svelte';
+	import { weekDayMap } from '@/shared/mappings/order.mapping';
 
 	let { fullOrder, print = false }: { fullOrder: FullOrder; print?: boolean } = $props();
 
@@ -25,16 +26,6 @@
 			.flat(),
 		...OrderUtilities.getExtras(calculatedItem)
 	];
-
-	export const weekDayMap: Record<string, string> = {
-		['Mon']: 'Lun',
-		['Tue']: 'Mar',
-		['Wed']: 'Mie',
-		['Thu']: 'Jue',
-		['Fri']: 'Vie',
-		['Sat']: 'Sab',
-		['Sun']: 'Dom'
-	};
 
 	const enWeekDay = DateTime.fromJSDate(order.item.deliveryDate).weekdayShort as string;
 	const esWeekDay = weekDayMap[enWeekDay] ?? enWeekDay;
@@ -59,19 +50,6 @@
 	} else {
 		statusInfo.push('PRESUPUESTO');
 	}
-
-	function groupInPairs(arr: string[]): string[][] {
-		const result: string[][] = [];
-
-		for (let i = 0; i < arr.length; i += 2) {
-			const pair: string[] = [arr[i], arr[i + 1] || ''];
-			result.push(pair);
-		}
-
-		return result;
-	}
-
-	const bullCharacter = '\u2022';
 
 	onMount(() => {
 		if (print) {
@@ -236,12 +214,14 @@
 								<tr>
 									<th colspan="2" class="list-th"> Otros </th>
 								</tr>
-								{#each groupInPairs(others) as pair}
+								{#each OrderUtilities.groupInPairs(others) as pair}
 									<tr>
-										<td class="list-td"> {bullCharacter} {pair[0]} </td>
+										<td class="list-td">
+											{OrderUtilities.getPrintableListRepresentatiom(pair[0])}
+										</td>
 										<td class="list-td">
 											{#if pair[1].length > 0}
-												{bullCharacter} {pair[1]}
+												{OrderUtilities.getPrintableListRepresentatiom(pair[1])}
 											{/if}
 										</td>
 									</tr>
@@ -267,13 +247,13 @@
 										</td>
 									</tr>
 								{/if}
-								{#each groupInPairs(order.item.predefinedObservations) as pair}
+								{#each OrderUtilities.groupInPairs(order.item.predefinedObservations) as pair}
 									<tr>
-										<td class="list-td"> {bullCharacter} {pair[0]} </td>
 										<td class="list-td">
-											{#if pair[1].length > 0}
-												{bullCharacter} {pair[1]}
-											{/if}
+											{OrderUtilities.getPrintableListRepresentatiom(pair[0])}
+										</td>
+										<td class="list-td">
+											{OrderUtilities.getPrintableListRepresentatiom(pair[1])}
 										</td>
 									</tr>
 								{/each}

@@ -27,3 +27,13 @@ export enum OrderActionNames {
 	EDIT_ORDER = 'editOrder',
 	CREATE_EXTERNAL_ORDER = 'createExternalOrder'
 }
+
+export const weekDayMap: Record<string, string> = {
+	['Mon']: 'Lun',
+	['Tue']: 'Mar',
+	['Wed']: 'Mie',
+	['Thu']: 'Jue',
+	['Fri']: 'Vie',
+	['Sat']: 'Sab',
+	['Sun']: 'Dom'
+};
