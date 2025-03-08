@@ -73,8 +73,8 @@ importers:
         specifier: 22.13.4
         version: 22.13.4
       aws-cdk:
-        specifier: 2.1001.0
-        version: 2.1001.0
+        specifier: 2.1003.0
+        version: 2.1003.0
       esbuild:
         specifier: 0.25.0
         version: 0.25.0
@@ -612,6 +612,7 @@ packages:
 
   '@effect/schema@0.75.5':
     resolution: {integrity: sha512-TQInulTVCuF+9EIbJpyLP6dvxbQJMphrnRqgexm/Ze39rSjfhJuufF7XvU3SxTgg3HnL7B/kpORTJbHhlE6thw==}
+    deprecated: this package has been merged into the main effect package
     peerDependencies:
       effect: ^3.9.2
 
@@ -1852,8 +1853,8 @@ packages:
       - yaml
       - mime-types
 
-  aws-cdk@2.1001.0:
-    resolution: {integrity: sha512-Wp6fKNXcxBm+f8U1GkLV4gEgqq1pu5uwyDCMBg7ZB/6CtP+PsD/mPhuKyMULNWucDvYN8oy70XLOkMnxa3NWFw==}
+  aws-cdk@2.1003.0:
+    resolution: {integrity: sha512-FORPDGW8oUg4tXFlhX+lv/j+152LO9wwi3/CwNr1WY3c3HwJUtc0fZGb2B3+Fzy6NhLWGHJclUsJPEhjEt8Nhg==}
     engines: {node: '>= 14.15.0'}
     hasBin: true
 
@@ -5574,7 +5575,7 @@ snapshots:
       '@aws-cdk/cloud-assembly-schema': 39.2.20
       constructs: 10.4.2
 
-  aws-cdk@2.1001.0:
+  aws-cdk@2.1003.0:
     optionalDependencies:
       fsevents: 2.3.2
 
