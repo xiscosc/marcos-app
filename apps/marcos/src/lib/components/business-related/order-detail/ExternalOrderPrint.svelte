@@ -69,8 +69,8 @@
 					<table class="inner-table">
 						<tbody>
 							<tr>
-								<td>
-									<h4>PEDIDO EXTERNO {order.publicId}</h4>
+								<td class="title">
+									PEDIDO EXTERNO {order.publicId}
 								</td>
 							</tr>
 						</tbody>
@@ -327,6 +327,12 @@
 
 	.inner-td {
 		padding: 0;
+	}
+
+	.title {
+		padding: 6px !important;
+		font-weight: 700;
+		font-size: small !important;
 	}
 
 	.inner-table th {

@@ -122,7 +122,7 @@ export class PricingService {
 		PricingService.checkMaxMinDimensions(orderDimensions, pricing);
 		const price = PricingService.getPriceByType(orderDimensions, pricing);
 		return {
-			price: this.calculateMarkup(Math.max(price, pricing.minPrice)),
+			price: Math.max(price, pricing.minPrice),
 			description: pricing.description,
 			discountAllowed: pricing.discountAllowed,
 			floating: pricing.floating
@@ -175,7 +175,16 @@ export class PricingService {
 
 		return {
 			...listPrice,
-			price: this.calculateMarkup(listPrice.price)
+			price: this.calculateMarkup(listPrice.price),
+			minPrice: this.calculateMarkup(listPrice.minPrice),
+			areas: listPrice.areas.map((area) => ({
+				...area,
+				price: this.calculateMarkup(area.price)
+			})),
+			areasM2: listPrice.areasM2.map((area) => ({
+				...area,
+				price: this.calculateMarkup(area.price)
+			}))
 		};
 	}
 
