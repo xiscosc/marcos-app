@@ -70,7 +70,7 @@
 						<tbody>
 							<tr>
 								<td>
-									<h5>PEDIDO EXTERNO {order.publicId}</h5>
+									<h4>PEDIDO EXTERNO {order.publicId}</h4>
 								</td>
 							</tr>
 						</tbody>
