@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { identifyUser } from '@/shared/analytics.utilities';
+	import { initPosthog } from '@/shared/analytics.utilities';
 	import ExternalOrderPrint from '@/components/business-related/order-detail/ExternalOrderPrint.svelte';
 	import { onMount } from 'svelte';
 	import type { ExternalFullOrder } from '@marcsimolduressonsardina/core/type';
@@ -12,8 +12,9 @@
 	}
 
 	let { data }: Props = $props();
-	identifyUser(data.user);
+	initPosthog(data.envName, data.user);
 	let fullOrder = $state<ExternalFullOrder | undefined>(undefined);
+	let notFound = $state(false);
 
 	onMount(() => {
 		if (browser) {
@@ -22,6 +23,8 @@
 			if (orderString) {
 				const parserOrder = JSON.parse(orderString);
 				fullOrder = OrderUtilities.hydrateFullOrder(parserOrder) as ExternalFullOrder;
+			} else {
+				notFound = true;
 			}
 		}
 	});
@@ -29,6 +32,8 @@
 
 {#if fullOrder}
 	<ExternalOrderPrint {fullOrder} print></ExternalOrderPrint>
+{:else if notFound}
+	<div>No se encontró el pedido</div>
 {:else}
 	<div>Cargando...</div>
 {/if}
