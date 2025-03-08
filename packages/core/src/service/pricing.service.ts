@@ -138,6 +138,14 @@ export class PricingService {
 		return this.getPriceWithMarkup(PricingService.fromDto(priceDto));
 	}
 
+	public calculatePriceWithoutMarkup(price: number): number {
+		if (this.markup === 0) {
+			return price;
+		}
+
+		return Math.round((price / (1 + this.markup)) * 100) / 100;
+	}
+
 	private async getFabricPriceList(
 		id: string,
 		orderDimensions: OrderDimensions,

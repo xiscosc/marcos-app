@@ -100,7 +100,9 @@ export type OrderTotalsBase = {
 	discountNotAllowedPresent: boolean;
 };
 
-export type ExternalOrderTotals = OrderTotalsBase;
+export type ExternalOrderTotals = OrderTotalsBase & {
+	totalWithoutMarkup: number;
+};
 
 export type OrderTotals = OrderTotalsBase & {
 	payed: boolean;

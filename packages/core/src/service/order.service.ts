@@ -40,6 +40,7 @@ import { PricingType } from '../types/pricing.type';
 import { UserService } from './user.service';
 import { tempCustomerUuid, OrderUtilities, quoteDeliveryDate } from '../utilities/order.utilities';
 import { StaticUser } from '../types';
+import { PricingService } from './pricing.service';
 
 export interface ISameDayOrderCounters {
 	finishedCount: number;
@@ -57,6 +58,7 @@ export class OrderService {
 	private customerService: CustomerService;
 	private orderAuditTrailService: OrderAuditTrailService;
 	private calculatedItemService: CalculatedItemService;
+	private pricingService: PricingService;
 
 	constructor(
 		private readonly config: ICoreConfiguration | ICoreConfigurationForAWSLambda,
@@ -66,7 +68,8 @@ export class OrderService {
 		this.repository = new OrderRepositoryDynamoDb(config);
 		this.customerService = customerService ?? new CustomerService(config);
 		this.orderAuditTrailService = orderAuditTrailService ?? new OrderAuditTrailService(config);
-		this.calculatedItemService = new CalculatedItemService(config);
+		this.pricingService = new PricingService(config);
+		this.calculatedItemService = new CalculatedItemService(config, this.pricingService);
 	}
 
 	async getOrderById(orderId: string): Promise<Order | null> {
@@ -218,7 +221,7 @@ export class OrderService {
 		return {
 			order,
 			calculatedItem,
-			totals: OrderService.getTotals(calculatedItem)
+			totals: this.getTotalsForExternalOrder(calculatedItem)
 		};
 	}
 
@@ -564,6 +567,14 @@ export class OrderService {
 			dto.extraParts
 		);
 		return { order, calculatedItem };
+	}
+
+	private getTotalsForExternalOrder(calculatedItem: CalculatedItem): ExternalOrderTotals {
+		const totalsBase = OrderService.getTotals(calculatedItem);
+		return {
+			...totalsBase,
+			totalWithoutMarkup: this.pricingService.calculatePriceWithoutMarkup(totalsBase.total)
+		};
 	}
 
 	private static optimizePartsToCalculate(parts: PreCalculatedItemPart[]): PreCalculatedItemPart[] {

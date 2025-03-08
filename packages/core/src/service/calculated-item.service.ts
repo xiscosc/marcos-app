@@ -20,9 +20,12 @@ export class CalculatedItemService {
 	private calculatedItemRepository: CalculatedItemRepositoryDynamoDb;
 	private pricingProvider: PricingService;
 
-	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
+	constructor(
+		config: ICoreConfiguration | ICoreConfigurationForAWSLambda,
+		pricingService?: PricingService
+	) {
 		this.calculatedItemRepository = new CalculatedItemRepositoryDynamoDb(config);
-		this.pricingProvider = new PricingService(config);
+		this.pricingProvider = pricingService ?? new PricingService(config);
 	}
 
 	public async getCalculatedItem(orderId: string): Promise<CalculatedItem | null> {

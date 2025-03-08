@@ -19,11 +19,7 @@ import type {
 	OrderCreationDto,
 	OrderCreationDtoBase
 } from '@marcsimolduressonsardina/core/dto';
-import {
-	CalculatedItemService,
-	OrderService,
-	PricingService
-} from '@marcsimolduressonsardina/core/service';
+import { OrderService, PricingService } from '@marcsimolduressonsardina/core/service';
 import { InvalidSizeError } from '@marcsimolduressonsardina/core/error';
 import { cornersId, otherExtraId, quoteDeliveryDate } from '@marcsimolduressonsardina/core/util';
 import { trackServerEvent } from '../analytics/posthog';
@@ -83,10 +79,10 @@ export class OrderCreationUtilities {
 		const config = AuthService.generateConfiguration(locals.user!);
 		const pricing = PricingHelper.getPricing(new PricingService(config));
 		const orderService = new OrderService(config);
-		const order = orderId != null ? await orderService.getOrderById(orderId) : undefined;
-		if (order != null) {
-			const calculatedItemService = new CalculatedItemService(config);
-			const calculatedItem = await calculatedItemService.getCalculatedItem(order.id);
+		const fullOrder = orderId != null ? await orderService.getFullOrderById(orderId) : undefined;
+		if (fullOrder != null) {
+			const order = fullOrder.order;
+			const calculatedItem = fullOrder.calculatedItem;
 
 			if (calculatedItem != null) {
 				if (editing && order.status !== OrderStatus.QUOTE) {
@@ -117,7 +113,7 @@ export class OrderCreationUtilities {
 			form,
 			pricing,
 			editing,
-			editingStatus: editing ? order?.status : undefined,
+			editingStatus: editing ? fullOrder?.order.status : undefined,
 			userMarkup: locals.user!.priceMarkup
 		};
 	}
@@ -206,7 +202,7 @@ export class OrderCreationUtilities {
 						reference: fullOrder.order.reference,
 						orderPublicId: fullOrder.order.publicId,
 						appliedMarkup: locals.user!.priceMarkup,
-						amount: fullOrder.totals.total
+						amount: fullOrder.totals
 					}
 				},
 				locals.posthog
