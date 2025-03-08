@@ -30,7 +30,6 @@
 	let searchOrders: Promise<FullOrder[]> | undefined = $state(undefined);
 	let listOrders: Promise<FullOrder[]> | undefined = $state(undefined);
 	let paginatedListOrders: Promise<FullOrder[]> | undefined = $state(undefined);
-	let loading = $state(false);
 	let lastKey: Record<string, string | number> | undefined = $state();
 	let paginationAvailable = $derived(searchValue.length === 0 && lastKey != null);
 
@@ -82,11 +81,9 @@
 
 	const debounce = (v: string) => {
 		clearTimeout(timer);
-		loading = true;
 		searchOrders = undefined;
 		timer = setTimeout(() => {
 			searchOrders = search(v);
-			loading = false;
 		}, 400);
 	};
 
@@ -96,18 +93,7 @@
 
 	async function changeStatus(newStatus: OrderStatus) {
 		goto('?status=' + newStatus.toString());
-		lastKey = undefined;
-		listOrders = undefined;
-		searchOrders = undefined;
-		status = newStatus;
-		if (searchValue.length > 0) {
-			searchOrders = search(searchValue);
-		} else {
-			listOrders = getList();
-		}
 	}
-
-	$inspect(status);
 </script>
 
 <div class="space flex w-full flex-col gap-4">
