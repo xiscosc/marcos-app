@@ -32,8 +32,7 @@ function getPropertiesFromContext(context: PosthogContext) {
 		$user_agent: context.user_agent,
 		$referrer: context.referrer,
 		$current_url: context.current_url,
-		env: ENV_NAME,
-		store: 'main'
+		env: ENV_NAME
 	};
 }
 
@@ -58,7 +57,8 @@ export async function trackServerEvent(
 			...event.properties,
 			orderId: event.orderId,
 			customerId: event.customerId,
-			...getPropertiesFromContext(context)
+			...getPropertiesFromContext(context),
+			store: user.storeId
 		}
 	});
 
