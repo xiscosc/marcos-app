@@ -30,6 +30,17 @@ export class CalculatedItemUtilities {
 		};
 	}
 
+	public static getCornersPricing(userMarkup: number): CalculatedItemPart {
+		return {
+			description: 'Cantoneras',
+			price: (2.5 * (1 + userMarkup / 100) * 100) / 100,
+			quantity: 1,
+			priceId: cornersId,
+			discountAllowed: true,
+			floating: false
+		};
+	}
+
 	public static sortByPricingType(
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		arr: any[],

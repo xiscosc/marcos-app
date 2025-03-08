@@ -40,7 +40,6 @@
 	import Textarea from '@/components/ui/textarea/textarea.svelte';
 	import {
 		CalculatedItemUtilities,
-		cornersId,
 		fabricDefaultPricing,
 		fabricIds,
 		otherExtraId,
@@ -92,16 +91,7 @@
 	let extraParts: CalculatedItemPart[] = $state.raw(
 		$form.extraParts.length > 0
 			? $form.extraParts
-			: [
-					{
-						description: 'Cantoneras',
-						price: 2.5,
-						quantity: 1,
-						priceId: cornersId,
-						discountAllowed: true,
-						floating: false
-					}
-				]
+			: [CalculatedItemUtilities.getCornersPricing(data.userMarkup)]
 	);
 
 	// Fabric vars

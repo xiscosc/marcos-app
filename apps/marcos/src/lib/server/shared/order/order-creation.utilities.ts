@@ -36,6 +36,7 @@ export type OrderCreationFormData = {
 	form: SuperValidated<OrderTypeForm | QuoteTypeForm>;
 	editing: boolean;
 	editingStatus?: OrderStatus;
+	userMarkup: number;
 };
 
 export class OrderCreationUtilities {
@@ -112,7 +113,13 @@ export class OrderCreationUtilities {
 			}
 		}
 
-		return { form, pricing, editing, editingStatus: editing ? order?.status : undefined };
+		return {
+			form,
+			pricing,
+			editing,
+			editingStatus: editing ? order?.status : undefined,
+			userMarkup: locals.user!.priceMarkup
+		};
 	}
 
 	static async handleEditOrder(request: Request, locals: App.Locals, orderId: string) {
