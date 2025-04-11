@@ -1,24 +1,13 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import Progress from '@/components/ui/progress/progress.svelte';
-
-	let progressValue = $state(0);
-
-	function animateToFull() {
-		progressValue = 0; // Reset progress
-		const interval = setInterval(() => {
-			progressValue += 1; // Increment progress
-			if (progressValue >= 100) {
-				clearInterval(interval); // Stop animation at 100%
-			}
-		}, 5); // Adjust the speed (20ms for smoother animation)
-	}
-
-	onMount(() => {
-		animateToFull();
-	});
+	import Icon from '@/components/generic/icon/Icon.svelte';
+	import { IconSize, IconType } from '@/components/generic/icon/icon.enum';
 </script>
 
-<div class="py-10">
-	<Progress value={progressValue} />
+<div class="py-6">
+	<div class="flex w-full flex-col items-center justify-center">
+		<div class="animate-bounce">
+			<Icon size={IconSize.XXXL} type={IconType.LOADING} />
+		</div>
+		<span class="text-md text-gray-600">Aplicando cambios...</span>
+	</div>
 </div>

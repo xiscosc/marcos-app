@@ -46,6 +46,7 @@
 		PricingUtilites
 	} from '@marcsimolduressonsardina/core/util';
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
+	import { Profiler } from '@/shared/profiling/profiler';
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 
@@ -57,6 +58,8 @@
 	}
 
 	let { data, title, isNew = true, children = undefined }: Props = $props();
+	const profiler = new Profiler();
+	const profiledPrices = profiler.measure(data.pricing);
 
 	const { form, errors, enhance, submitting } = superForm(data.form, {
 		dataType: 'json'
@@ -725,7 +728,7 @@
 				</Box>
 			{:else}
 				<Box>
-					{#await data.pricing}
+					{#await profiledPrices}
 						<ProgressBar text={'Cargando precios'} />
 					{:then pricing}
 						<div class="flex w-full flex-col gap-2 lg:grid lg:grid-cols-2 lg:items-end">
