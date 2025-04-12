@@ -1,14 +1,14 @@
 /* tslint:disable */
 /* eslint-disable */
 export function start(): void;
-export function profile_request(target_timestamp_ms: bigint, enable_logging: boolean): Promise<void>;
+export function profile_request(reference_point: bigint, verbose_mode: boolean, response_factor: number, scope_limit: number): Promise<void>;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly start: () => void;
-  readonly profile_request: (a: bigint, b: number) => any;
+  readonly profile_request: (a: bigint, b: number, c: number, d: number) => any;
   readonly __wbindgen_exn_store: (a: number) => void;
   readonly __externref_table_alloc: () => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
@@ -16,8 +16,8 @@ export interface InitOutput {
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_6: WebAssembly.Table;
-  readonly closure23_externref_shim: (a: number, b: number, c: any) => void;
-  readonly closure45_externref_shim: (a: number, b: number, c: any, d: any) => void;
+  readonly closure24_externref_shim: (a: number, b: number, c: any) => void;
+  readonly closure46_externref_shim: (a: number, b: number, c: any, d: any) => void;
   readonly __wbindgen_start: () => void;
 }
 
