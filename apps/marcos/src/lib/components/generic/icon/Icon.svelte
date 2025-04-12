@@ -52,7 +52,8 @@
 		TicketPercent,
 		ChevronsUpDown,
 		UserPen,
-		FileText
+		FileText,
+		CalendarCheck
 	} from 'lucide-svelte';
 	import { IconSize, IconType } from '@/components/generic/icon/icon.enum';
 	import { siWhatsapp } from 'simple-icons';
@@ -125,7 +126,8 @@
 		[IconType.TICKET_DISCOUNT]: TicketPercent,
 		[IconType.COLLAPSE]: ChevronsUpDown,
 		[IconType.WORKER]: UserPen,
-		[IconType.DOCUMENT]: FileText
+		[IconType.DOCUMENT]: FileText,
+		[IconType.DAY]: CalendarCheck
 	};
 
 	// Reactive declarations using Svelte 5 runes

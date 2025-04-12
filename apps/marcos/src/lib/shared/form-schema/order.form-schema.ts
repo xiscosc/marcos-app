@@ -47,7 +47,8 @@ export const baseOderSchema = z.object({
 	hasArrow: z.boolean().default(false),
 	exteriorWidth: z.number().optional(),
 	exteriorHeight: z.number().optional(),
-	instantDelivery: z.boolean().default(false)
+	instantDelivery: z.boolean().default(false),
+	markup: z.number().min(0).default(0).optional()
 });
 
 export const orderSchema = baseOderSchema

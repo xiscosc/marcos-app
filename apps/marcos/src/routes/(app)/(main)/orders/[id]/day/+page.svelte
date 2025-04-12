@@ -26,7 +26,7 @@
 	{#await data.orders}
 		<ProgressBar text={'Cargando pedidos del día'} />
 	{:then fullOrders}
-		<SimpleHeading icon={IconType.ORDER_DEFAULT}>
+		<SimpleHeading icon={IconType.DAY}>
 			<div class="flex flex-col lg:flex-row lg:gap-2">
 				<span>Pedidos del mismo día</span>
 				<span class="text-gray-600">{fullOrders[0].order.customer.name}</span>
@@ -58,7 +58,7 @@
 		{#if whatsAppNotified}
 			<Banner
 				icon={IconType.SENT}
-				colorName={getStatusUIInfo(OrderStatus.PICKED_UP).colorName}
+				color={getStatusUIInfo(OrderStatus.PICKED_UP).bannerColor}
 				title="Cliente avisado"
 				text="El mensaje de finalizado se ha enviado para todos los pedidos"
 			></Banner>

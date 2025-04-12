@@ -40,12 +40,14 @@
 	import Textarea from '@/components/ui/textarea/textarea.svelte';
 	import {
 		CalculatedItemUtilities,
+		cornersId,
 		fabricDefaultPricing,
 		fabricIds,
 		otherExtraId,
 		PricingUtilites
 	} from '@marcsimolduressonsardina/core/util';
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
+	import Banner from '@/components/generic/Banner.svelte';
 	import { Profiler } from '@/shared/profiling/profiler';
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
@@ -55,9 +57,10 @@
 		title: string;
 		isNew?: boolean;
 		children?: Snippet;
+		isExternal?: boolean;
 	}
 
-	let { data, title, isNew = true, children = undefined }: Props = $props();
+	let { data, title, isNew = true, children = undefined, isExternal = false }: Props = $props();
 	const profiler = new Profiler();
 	const profiledPrices = profiler.measure(data.pricing);
 
@@ -92,9 +95,7 @@
 
 	let partsToCalulatePreview: TempParts = $state.raw([]);
 	let extraParts: CalculatedItemPart[] = $state.raw(
-		$form.extraParts.length > 0
-			? $form.extraParts
-			: [CalculatedItemUtilities.getCornersPricing(data.userMarkup)]
+		$form.extraParts.length > 0 ? $form.extraParts : [CalculatedItemUtilities.getCornersPricing()]
 	);
 
 	// Fabric vars
@@ -209,6 +210,15 @@
 		$form.extraParts = extraParts;
 	}
 
+	function updateMarkupOnCorners() {
+		const cornersPart = extraParts.find((p) => p.priceId === cornersId);
+		if (cornersPart) {
+			deleteExtraPart(cornersPart);
+			extraParts = [...extraParts, CalculatedItemUtilities.getCornersPricing($form.markup ?? 0)];
+			$form.extraParts = extraParts;
+		}
+	}
+
 	async function addFromPricingSelector(
 		pricingType: PricingType,
 		value?: string,
@@ -245,9 +255,11 @@
 		partToCalculate: PreCalculatedItemPart
 	): Promise<CalculatedItemPart | undefined> {
 		const orderDimensions = getOrderDimensions();
+		const markup = $form.markup;
 		const request: PreCalculatedItemPartRequest = {
 			orderDimensions,
-			partToCalculate
+			partToCalculate,
+			markup: markup ?? 0
 		};
 		const response = await fetch('/api/prices', {
 			method: 'POST',
@@ -727,6 +739,27 @@
 					<ProgressBar text={'Guardando'} />
 				</Box>
 			{:else}
+				{#if isExternal}
+					<Box>
+						<div class="flex w-full flex-col gap-2 lg:grid lg:grid-cols-2 lg:items-end">
+							<Spacer title={'Datos tienda externa'} line={false} />
+							<div class="flex flex-col gap-2 lg:col-span-2">
+								<Label for="height">Margen (%):</Label>
+								<Input
+									type="number"
+									step="1"
+									min="0"
+									name="height"
+									bind:value={$form.markup}
+									onchange={() => {
+										handleDimensionsChangeEvent();
+										updateMarkupOnCorners();
+									}}
+								/>
+							</div>
+						</div>
+					</Box>
+				{/if}
 				<Box>
 					{#await profiledPrices}
 						<ProgressBar text={'Cargando precios'} />
@@ -1031,6 +1064,17 @@
 							)}
 
 							<Spacer title={'Elementos extra'} />
+
+							{#if isExternal}
+								<div class="col-span-2">
+									<Banner
+										icon={IconType.ALERT}
+										text="A los precios de los elementos extra no se les aplica el margen. Introduzca el precio con el margen ya aplicado."
+										color="amber"
+										title="Aviso"
+									></Banner>
+								</div>
+							{/if}
 
 							<div class="flex flex-col gap-2 lg:col-span-2">
 								<Label for="otherElementName">Nombre del elemento:</Label>

@@ -35,7 +35,7 @@
 						{#if data.orderCounters.pendingCount > 0}
 							<Banner
 								icon={IconType.ALERT}
-								colorName={getStatusUIInfo(OrderStatus.PENDING).colorName}
+								color={getStatusUIInfo(OrderStatus.PENDING).bannerColor}
 								title="Hay pedidos pendientes"
 								text="Tienes pedidos pendientes del mismo día. Puedes enviar el mensaje de finalizado
 										de este pedido o revisar los otros pedidos del día."
@@ -43,7 +43,7 @@
 						{:else}
 							<Banner
 								icon={IconType.ALERT}
-								colorName={getStatusUIInfo(OrderStatus.FINISHED).colorName}
+								color={getStatusUIInfo(OrderStatus.FINISHED).bannerColor}
 								title="Todos los pedidos del día están finalizados"
 								text=""
 							></Banner>
@@ -51,7 +51,7 @@
 						{#if data.order.notified || whatsAppNotified}
 							<Banner
 								icon={IconType.SENT}
-								colorName={getStatusUIInfo(OrderStatus.PICKED_UP).colorName}
+								color={getStatusUIInfo(OrderStatus.PICKED_UP).bannerColor}
 								title="Cliente avisado"
 								text=""
 							></Banner>

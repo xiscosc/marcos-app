@@ -2,14 +2,16 @@ import type { PreCalculatedItemPartRequest } from '@/type/api.type';
 import { json } from '@sveltejs/kit';
 import { AuthService } from '@/server/service/auth.service';
 import { InvalidSizeError } from '@marcsimolduressonsardina/core/error';
-import { CalculatedItemService } from '@marcsimolduressonsardina/core/service';
+import { CalculatedItemService, PricingService } from '@marcsimolduressonsardina/core/service';
 
 export async function POST({ request, locals }) {
 	const pricingRequest = (await request.json()) as PreCalculatedItemPartRequest;
 
 	try {
+		const config = AuthService.generateConfiguration(locals.user!);
 		const calculatedItemService = new CalculatedItemService(
-			AuthService.generateConfiguration(locals.user!)
+			config,
+			new PricingService(config, pricingRequest.markup)
 		);
 		const part = await calculatedItemService.calculatePart(
 			pricingRequest.partToCalculate,

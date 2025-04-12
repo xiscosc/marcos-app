@@ -60,7 +60,7 @@
 <div class="flex flex-col gap-2">
 	<Banner
 		icon={IconType.USER}
-		colorName="teal"
+		color="teal"
 		title="Vincular cliente al {data.orderName}"
 		text="Rellene sólo el teléfono, si el cliente no existe, tendrá que poner su nombre. También puede buscar por nombre."
 	></Banner>

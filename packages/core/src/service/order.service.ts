@@ -63,12 +63,13 @@ export class OrderService {
 	constructor(
 		private readonly config: ICoreConfiguration | ICoreConfigurationForAWSLambda,
 		customerService?: CustomerService,
-		orderAuditTrailService?: OrderAuditTrailService
+		orderAuditTrailService?: OrderAuditTrailService,
+		pricingService?: PricingService
 	) {
 		this.repository = new OrderRepositoryDynamoDb(config);
 		this.customerService = customerService ?? new CustomerService(config);
 		this.orderAuditTrailService = orderAuditTrailService ?? new OrderAuditTrailService(config);
-		this.pricingService = new PricingService(config);
+		this.pricingService = pricingService ?? new PricingService(config);
 		this.calculatedItemService = new CalculatedItemService(config, this.pricingService);
 	}
 
@@ -218,10 +219,12 @@ export class OrderService {
 
 	async createExternalOrderFromDto(dto: ExternalOrderCreationDto): Promise<ExternalFullOrder> {
 		const { order, calculatedItem } = await this.generateExternalOrderAndCalculatedItemFromDto(dto);
+		const totals = this.getTotalsForExternalOrder(calculatedItem, dto.markup);
+		order.reference = OrderService.generateReferenceForExternalOrder(totals);
 		return {
 			order,
 			calculatedItem,
-			totals: this.getTotalsForExternalOrder(calculatedItem)
+			totals
 		};
 	}
 
@@ -355,7 +358,10 @@ export class OrderService {
 			);
 			if (publicCustomer == null) return null;
 			const order = OrderService.fromDto(orderDto, publicCustomer);
-			const publicCalculatedItemService = new CalculatedItemService(config);
+			const publicCalculatedItemService = new CalculatedItemService(
+				config,
+				new PricingService(config)
+			);
 			const calculatedItem = await publicCalculatedItemService.getCalculatedItem(order.id);
 			if (calculatedItem == null) return null;
 			return {
@@ -468,7 +474,7 @@ export class OrderService {
 		const order: ExternalOrder = {
 			id: uuidv4(),
 			publicId: await this.generateExternalPublicId(createdAt),
-			reference: dto.reference,
+			reference: '',
 			createdAt,
 			storeId: this.config.storeId,
 			user: this.config.user,
@@ -569,12 +575,22 @@ export class OrderService {
 		return { order, calculatedItem };
 	}
 
-	private getTotalsForExternalOrder(calculatedItem: CalculatedItem): ExternalOrderTotals {
+	private getTotalsForExternalOrder(
+		calculatedItem: CalculatedItem,
+		markup: number
+	): ExternalOrderTotals {
 		const totalsBase = OrderService.getTotals(calculatedItem);
 		return {
 			...totalsBase,
+			markup,
 			totalWithoutMarkup: this.pricingService.calculatePriceWithoutMarkup(totalsBase.total)
 		};
+	}
+
+	private static generateReferenceForExternalOrder(totals: ExternalOrderTotals): string {
+		const totalStr = totals.total.toFixed(2).replace('.', '');
+		const totalWithoutMarkupStr = totals.totalWithoutMarkup.toFixed(2).replace('.', '');
+		return `${totalStr}/${totals.markup}/${totalWithoutMarkupStr}`;
 	}
 
 	private static optimizePartsToCalculate(parts: PreCalculatedItemPart[]): PreCalculatedItemPart[] {

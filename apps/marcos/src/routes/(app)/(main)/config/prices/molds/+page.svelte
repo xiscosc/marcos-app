@@ -142,7 +142,7 @@
 				title="Formato del archivo"
 				icon={IconType.QUESTION}
 				text="Columna A: Casillero, Columna B: Referencia, Columna C: Precio, Columna D: Flotante (casilla igual a S)"
-				colorName="indigo"
+				color="indigo"
 			/>
 			<div
 				class="flex w-full flex-col place-content-center items-center justify-center space-y-4 px-2 py-4"

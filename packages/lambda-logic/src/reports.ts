@@ -20,8 +20,7 @@ export async function lambdaGenerateReports(
 		id: 'automation@lambda.aws',
 		storeId: storeId ?? '',
 		name: 'AWS LAMBDA',
-		priceManager: true,
-		priceMarkup: 0
+		priceManager: true
 	};
 
 	const configuration: ICoreConfigurationForAWSLambda = {

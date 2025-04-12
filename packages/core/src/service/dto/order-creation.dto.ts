@@ -30,7 +30,7 @@ export type OrderCreationDtoBase = {
 type MainOrderCreationDto = OrderCreationDtoBase & { isQuote: boolean };
 
 export type ExternalOrderCreationDto = OrderCreationDtoBase & {
-	reference: string;
+	markup: number;
 };
 
 export type OrderCreationDto = MainOrderCreationDto & { customerId?: string };

@@ -129,6 +129,13 @@
 								textType={ButtonText.GRAY}
 								icon={IconType.ORDER_DEFAULT}
 								style={ButtonStyle.ORDER_GENERIC}
+								text="Pedidos del cliente"
+								link={`/customers/${info.fullOrder.order.customer.id}/orders`}
+							></Button>
+							<Button
+								textType={ButtonText.GRAY}
+								icon={IconType.DAY}
+								style={ButtonStyle.ORDER_GENERIC}
 								text="Pedidos del día"
 								link={`/orders/${info.fullOrder.order.id}/day`}
 							></Button>

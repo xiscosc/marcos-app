@@ -30,7 +30,7 @@ export class CalculatedItemUtilities {
 		};
 	}
 
-	public static getCornersPricing(userMarkup: number): CalculatedItemPart {
+	public static getCornersPricing(userMarkup: number = 0): CalculatedItemPart {
 		return {
 			description: 'Cantoneras',
 			price: (2.5 * (1 + userMarkup / 100) * 100) / 100,

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { goto } from '$app/navigation';
+	import { DateTime } from 'luxon';
 	import type { PageProps } from './$types';
 	import OrderForm from '@/components/business-related/order-form/OrderForm.svelte';
 	import NewExternalOrderSubmitButtons from '@/components/business-related/order-form/submit-buttons/NewExternalOrderSubmitButtons.svelte';
@@ -9,21 +9,25 @@
 
 	let { data, form }: PageProps = $props();
 	let loading = $state(false);
-	let reference = $state('');
 	$effect(() => {
 		if (form?.fullOrder && browser) {
 			loading = true;
 			if (form.fullOrder) {
 				try {
 					const externalFullOrder = form.fullOrder;
-					externalFullOrder.order.reference = reference;
-					localStorage.setItem(
-						`order-${externalFullOrder.order.id}`,
-						JSON.stringify(externalFullOrder)
-					);
-					goto(`/external/orders/${externalFullOrder.order.id}/print`);
+
+					// Calculate expiration date (48 hours from now) using Luxon
+					const expirationDate = DateTime.now().plus({ hours: 48 }).toJSDate();
+					const expires = `expires=${expirationDate.toUTCString()}`;
+
+					// Set cookie with order data and expiration
+					document.cookie = `order-${externalFullOrder.order.id}=${encodeURIComponent(JSON.stringify(externalFullOrder))}; ${expires}; path=/; SameSite=Strict`;
+
+					// Redirect to the print page for this order
+
+					window.location.href = `/external/orders/${externalFullOrder.order.id}/print`;
 				} catch (error) {
-					console.error('Failed to store order in localStorage:', error);
+					console.error('Failed to store order in cookie:', error);
 				}
 			}
 		}
@@ -35,7 +39,7 @@
 		<ProgressBar text="Creando nota..." />
 	</Box>
 {:else}
-	<OrderForm data={data.orderCreationFormData} title="Crear nota">
-		<NewExternalOrderSubmitButtons bind:reference />
+	<OrderForm data={data.orderCreationFormData} title="Crear nota" isExternal>
+		<NewExternalOrderSubmitButtons />
 	</OrderForm>
 {/if}
