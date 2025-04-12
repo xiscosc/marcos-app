@@ -2,14 +2,18 @@
 	import { IconSize, type IconType } from '@/components/generic/icon/icon.enum';
 	import Icon from '@/components/generic/icon/Icon.svelte';
 
-	interface Props {
-		colorName: string;
-		icon: IconType;
-		title: string;
-		text: string;
-	}
+	export type BannerColor =
+		| 'blue'
+		| 'red'
+		| 'green'
+		| 'purple'
+		| 'amber'
+		| 'violet'
+		| 'indigo'
+		| 'teal'
+		| 'sky';
 
-	const colorVariants: Record<string, string> = {
+	const colorVariants: Record<BannerColor, string> = {
 		blue: 'bg-blue-100 border-blue-500',
 		red: 'bg-red-100 border-red-500',
 		green: 'bg-green-100 border-green-500',
@@ -21,7 +25,7 @@
 		sky: 'bg-sky-100 border-sky-500'
 	};
 
-	const textColorVariants: Record<string, string> = {
+	const textColorVariants: Record<BannerColor, string> = {
 		blue: 'text-blue-800',
 		red: 'text-red-800',
 		green: 'text-green-800',
@@ -33,12 +37,19 @@
 		sky: 'text-sky-800'
 	};
 
-	let { colorName, icon, title, text }: Props = $props();
+	interface Props {
+		color: BannerColor;
+		icon: IconType;
+		title: string;
+		text: string;
+	}
+
+	let { color, icon, title, text }: Props = $props();
 </script>
 
-<div class={`rounded-md border ${colorVariants[colorName]} p-6`}>
+<div class={`rounded-md border ${colorVariants[color]} p-6`}>
 	<div class="flex flex-col gap-3">
-		<div class={`flex items-center gap-2 ${textColorVariants[colorName]}`}>
+		<div class={`flex items-center gap-2 ${textColorVariants[color]}`}>
 			<Icon type={icon} size={IconSize.XL} />
 			<h3 class="text-xl font-bold">{title}</h3>
 		</div>

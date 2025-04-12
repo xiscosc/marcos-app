@@ -47,6 +47,7 @@
 		PricingUtilites
 	} from '@marcsimolduressonsardina/core/util';
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
+	import Banner from '@/components/generic/Banner.svelte';
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 
@@ -1060,6 +1061,17 @@
 							)}
 
 							<Spacer title={'Elementos extra'} />
+
+							{#if isExternal}
+								<div class="col-span-2">
+									<Banner
+										icon={IconType.ALERT}
+										text="A los precios de los elementos extra no se les aplica el margen. Introduzca el precio con el margen ya aplicado."
+										color="amber"
+										title="Aviso"
+									></Banner>
+								</div>
+							{/if}
 
 							<div class="flex flex-col gap-2 lg:col-span-2">
 								<Label for="otherElementName">Nombre del elemento:</Label>

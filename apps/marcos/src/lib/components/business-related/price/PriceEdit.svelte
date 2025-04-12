@@ -281,7 +281,7 @@
 										<Banner
 											icon={IconType.QUESTION}
 											title="Área mayor o igual que (≥)"
-											colorName="blue"
+											color="blue"
 											text="No existe la posibilidad de introducir un precio del tipo mayor o igual que, todos
 								deben ser menor o igual que. Para solucionar este problema, introduzca un valor para
 								área máxima lo suficientemente grande para el último trozo (Área ≤ 200 m2)."

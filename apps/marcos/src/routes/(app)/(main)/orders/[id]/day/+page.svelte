@@ -58,7 +58,7 @@
 		{#if whatsAppNotified}
 			<Banner
 				icon={IconType.SENT}
-				colorName={getStatusUIInfo(OrderStatus.PICKED_UP).colorName}
+				color={getStatusUIInfo(OrderStatus.PICKED_UP).bannerColor}
 				title="Cliente avisado"
 				text="El mensaje de finalizado se ha enviado para todos los pedidos"
 			></Banner>
