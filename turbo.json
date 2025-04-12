@@ -31,7 +31,8 @@
 				"AUTH_AUTH0_ISSUER",
 				"MAINTENANCE_MODE",
 				"ENV_NAME",
-				"MAIN_STORE_ID"
+				"MAIN_STORE_ID",
+				"PUBLIC_PROFILER_CONFIG"
 			]
 		},
 		"lint": {
