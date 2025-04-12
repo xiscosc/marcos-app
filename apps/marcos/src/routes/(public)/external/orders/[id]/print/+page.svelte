@@ -16,13 +16,34 @@
 	let fullOrder = $state<ExternalFullOrder | undefined>(undefined);
 	let notFound = $state(false);
 
+	// Helper function to get a specific cookie by name
+	function getCookie(name: string): string | undefined {
+		if (!browser) return undefined;
+
+		const cookies = document.cookie.split(';');
+		for (let cookie of cookies) {
+			const [cookieName, cookieValue] = cookie.trim().split('=');
+			if (cookieName === name) {
+				return cookieValue;
+			}
+		}
+		return undefined;
+	}
+
 	onMount(() => {
 		if (browser) {
 			const orderId = page.params.id;
-			const orderString = localStorage.getItem(`order-${orderId}`);
+			const cookieName = `order-${orderId}`;
+			const orderString = getCookie(cookieName);
+
 			if (orderString) {
-				const parserOrder = JSON.parse(orderString);
-				fullOrder = OrderUtilities.hydrateFullOrder(parserOrder) as ExternalFullOrder;
+				try {
+					const parsedOrder = JSON.parse(decodeURIComponent(orderString));
+					fullOrder = OrderUtilities.hydrateFullOrder(parsedOrder) as ExternalFullOrder;
+				} catch (error) {
+					console.error('Error parsing order from cookie:', error);
+					notFound = true;
+				}
 			} else {
 				notFound = true;
 			}

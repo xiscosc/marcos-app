@@ -32,7 +32,6 @@ export type OrderCreationFormData = {
 	form: SuperValidated<OrderTypeForm | QuoteTypeForm>;
 	editing: boolean;
 	editingStatus?: OrderStatus;
-	userMarkup: number;
 };
 
 export class OrderCreationUtilities {
@@ -66,7 +65,7 @@ export class OrderCreationUtilities {
 		const orderDto = OrderCreationUtilities.getOrderCreationDtoBase(form, deliveryDate);
 		return {
 			...orderDto,
-			reference: ''
+			markup: form.data.markup ?? 0
 		};
 	}
 
@@ -77,8 +76,9 @@ export class OrderCreationUtilities {
 	): Promise<OrderCreationFormData> {
 		const form = await superValidate(zod(orderSchema));
 		const config = AuthService.generateConfiguration(locals.user!);
-		const pricing = PricingHelper.getPricing(new PricingService(config));
-		const orderService = new OrderService(config);
+		const pricingService = new PricingService(config);
+		const pricing = PricingHelper.getPricing(pricingService);
+		const orderService = new OrderService(config, undefined, undefined, pricingService);
 		const fullOrder = orderId != null ? await orderService.getFullOrderById(orderId) : undefined;
 		if (fullOrder != null) {
 			const order = fullOrder.order;
@@ -113,8 +113,7 @@ export class OrderCreationUtilities {
 			form,
 			pricing,
 			editing,
-			editingStatus: editing ? fullOrder?.order.status : undefined,
-			userMarkup: locals.user!.priceMarkup
+			editingStatus: editing ? fullOrder?.order.status : undefined
 		};
 	}
 
@@ -180,7 +179,10 @@ export class OrderCreationUtilities {
 			return fail(400, { form });
 		}
 
-		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
+		const markup = form.data.markup ?? 0;
+		const config = AuthService.generateConfiguration(locals.user!);
+		const pricingService = new PricingService(config, markup);
+		const orderService = new OrderService(config, undefined, undefined, pricingService);
 		let orderId = '';
 		let fullOrder: ExternalFullOrder | undefined;
 
@@ -201,7 +203,6 @@ export class OrderCreationUtilities {
 					properties: {
 						reference: fullOrder.order.reference,
 						orderPublicId: fullOrder.order.publicId,
-						appliedMarkup: locals.user!.priceMarkup,
 						amount: fullOrder.totals
 					}
 				},

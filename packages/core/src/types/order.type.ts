@@ -102,6 +102,7 @@ export type OrderTotalsBase = {
 
 export type ExternalOrderTotals = OrderTotalsBase & {
 	totalWithoutMarkup: number;
+	markup: number;
 };
 
 export type OrderTotals = OrderTotalsBase & {

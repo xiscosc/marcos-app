@@ -4,7 +4,6 @@ import type { OrderDimensions, PreCalculatedItemPart } from '@marcsimolduressons
 export type UserMetadata = {
 	priceManager?: boolean;
 	storeId?: string;
-	priceMarkup?: number;
 };
 
 export type WithMetadata = {
@@ -16,4 +15,5 @@ export type CustomSession = WithMetadata & Session;
 export type PreCalculatedItemPartRequest = {
 	partToCalculate: PreCalculatedItemPart;
 	orderDimensions: OrderDimensions;
+	markup?: number;
 };

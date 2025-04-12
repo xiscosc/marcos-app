@@ -31,9 +31,9 @@ export class PricingService {
 	private listPricingRepository: ListPricingRepositoryDynamoDb;
 	private markup: number;
 
-	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
+	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda, markup?: number) {
+		this.markup = markup ? markup / 100 : 0;
 		this.listPricingRepository = new ListPricingRepositoryDynamoDb(config);
-		this.markup = config.user.priceManager ? 0 : config.user.priceMarkup / 100;
 	}
 
 	public async getPricingList(type: PricingType): Promise<ListPrice[]> {
