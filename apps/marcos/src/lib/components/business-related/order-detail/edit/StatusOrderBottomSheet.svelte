@@ -4,14 +4,13 @@
 	import BottomSheet from '@/components/generic/BottomSheet.svelte';
 	import { ButtonAction, ButtonText } from '@/components/generic/button/button.enum';
 	import Button from '@/components/generic/button/Button.svelte';
-	import { orderStatusMap } from '@/shared/mappings/order.mapping';
+	import { OrderActionNames, orderStatusMap } from '@/shared/mappings/order.mapping';
 	import { OrderUtilities } from '@/shared/order.utilities';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '@/ui/ui.helper';
 	import Divider from '@/components/generic/Divider.svelte';
 	import { OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core/type';
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
-	import { IconType } from '@/components/generic/icon/icon.enum';
 	import type { StatusOrderSchema } from '@/shared/form-schema/order.form-schema';
 	import { Profiler } from '@/shared/profiling/profiler';
 
@@ -58,7 +57,12 @@
 	{/snippet}
 
 	{#snippet action()}
-		<form method="POST" use:enhance action="?/changeOrderStatus" class="flex flex-col gap-2">
+		<form
+			method="POST"
+			use:enhance
+			action={`?/${OrderActionNames.CHANGE_STATUS}`}
+			class="flex flex-col gap-2"
+		>
 			{#if $submitting}
 				<BottomSheetLoading />
 			{:else}
@@ -109,8 +113,6 @@
 						style={getStatusUIInfo(OrderStatus.PENDING, true).colors}
 					></Button>
 				{/if}
-
-				<Button text="Guardar" icon={IconType.EDIT} action={ButtonAction.SUBMIT}></Button>
 			{/if}
 		</form>
 	{/snippet}

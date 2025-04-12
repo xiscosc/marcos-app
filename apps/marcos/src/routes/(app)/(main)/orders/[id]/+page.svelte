@@ -38,7 +38,8 @@
 
 	let { data }: Props = $props();
 	const profiler = new Profiler();
-	const measuredInfo = profiler.measure(data.info);
+
+	let derivedInfo = $derived(profiler.measure(data.info));
 
 	$effect(() => {
 		if (data.info) {
@@ -97,7 +98,7 @@
 
 <div class="flex flex-col gap-3">
 	<SimpleHeading icon={IconType.ORDER_DEFAULT}>Detalles del pedido</SimpleHeading>
-	{#await measuredInfo}
+	{#await derivedInfo}
 		<div class="flex w-full flex-col gap-3 lg:block lg:columns-2">
 			<OrderSkeletonHeader></OrderSkeletonHeader>
 			{@render loadingSection('Detalles')}

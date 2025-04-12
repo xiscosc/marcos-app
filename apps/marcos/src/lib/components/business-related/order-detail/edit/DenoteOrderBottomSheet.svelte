@@ -5,6 +5,7 @@
 	import Button from '@/components/generic/button/Button.svelte';
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
+	import { OrderActionNames } from '@/shared/mappings/order.mapping';
 	let sheetLoading = $state(false);
 
 	const enhanceSheetForm = () => {
@@ -32,7 +33,12 @@ precios y fotos del pedido. Se eliminarán pagos a cuenta y fecha de entrega."
 	{/snippet}
 
 	{#snippet action()}
-		<form use:enhance={enhanceSheetForm} class="w-full" method="post" action="?/denote">
+		<form
+			use:enhance={enhanceSheetForm}
+			class="w-full"
+			method="post"
+			action={`?/${OrderActionNames.DENOTE}`}
+		>
 			{#if sheetLoading}
 				<BottomSheetLoading />
 			{:else}

@@ -6,6 +6,7 @@
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
 	import { OrderStatus, type Order } from '@marcsimolduressonsardina/core/type';
+	import { OrderActionNames } from '@/shared/mappings/order.mapping';
 	let sheetLoading = $state(false);
 
 	interface Props {
@@ -38,7 +39,12 @@
 	{/snippet}
 
 	{#snippet action()}
-		<form class="w-full" method="post" action="?/deleteOrder" use:enhance={enhanceSheetForm}>
+		<form
+			class="w-full"
+			method="post"
+			action={`?/${OrderActionNames.DELETE}`}
+			use:enhance={enhanceSheetForm}
+		>
 			{#if sheetLoading}
 				<BottomSheetLoading />
 			{:else}

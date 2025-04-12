@@ -12,6 +12,7 @@
 	import { dateProxy, superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
+	import { OrderActionNames } from '@/shared/mappings/order.mapping';
 	interface Props {
 		data: SuperValidated<Infer<PromoteOrderSchema>>;
 	}
@@ -40,7 +41,12 @@ pedido conservará todos los elementos, precios y fotos del presupuesto."
 	{/snippet}
 
 	{#snippet action()}
-		<form method="POST" use:enhance action="?/promote" class="flex flex-col gap-2">
+		<form
+			method="POST"
+			use:enhance
+			action={`?/${OrderActionNames.PROMOTE}`}
+			class="flex flex-col gap-2"
+		>
 			{#if $submitting}
 				<BottomSheetLoading />
 			{:else}

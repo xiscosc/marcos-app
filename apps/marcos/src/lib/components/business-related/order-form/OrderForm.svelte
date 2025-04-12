@@ -62,7 +62,7 @@
 
 	let { data, title, isNew = true, children = undefined, isExternal = false }: Props = $props();
 	const profiler = new Profiler();
-	const profiledPrices = profiler.measure(data.pricing);
+	let profiledPrices = $derived(profiler.measure(data.pricing));
 
 	const { form, errors, enhance, submitting } = superForm(data.form, {
 		dataType: 'json'

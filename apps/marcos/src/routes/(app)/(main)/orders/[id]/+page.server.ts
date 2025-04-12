@@ -25,6 +25,7 @@ import {
 	statusOrderSchema
 } from '$lib/shared/form-schema/order.form-schema';
 import { trackServerEvent } from '@/server/shared/analytics/posthog';
+import { OrderActionNames } from '@/shared/mappings/order.mapping';
 
 async function setOrderStatus(
 	status: OrderStatus,
@@ -116,11 +117,11 @@ export const load = (async ({ params, locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	async deleteOrder({ params, locals }) {
+	[OrderActionNames.DELETE]: async ({ params, locals }) => {
 		await setOrderStatus(OrderStatus.DELETED, params, locals);
 		redirect(303, `/`);
 	},
-	async denote({ locals, params }) {
+	[OrderActionNames.DENOTE]: async ({ locals, params }) => {
 		const { id } = params;
 		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 
@@ -140,7 +141,7 @@ export const actions = {
 			locals.posthog
 		);
 	},
-	promote: async ({ request, locals, params }) => {
+	[OrderActionNames.PROMOTE]: async ({ request, locals, params }) => {
 		const { id } = params;
 		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 		const order = await orderService.getOrderById(id);
@@ -169,7 +170,7 @@ export const actions = {
 			form
 		};
 	},
-	saveLocation: async ({ request, locals, params }) => {
+	[OrderActionNames.SAVE_LOCATION]: async ({ request, locals, params }) => {
 		const form = await superValidate(request, zod(locationOrderSchema));
 		if (!form.valid) {
 			return fail(400, { form });
@@ -180,7 +181,7 @@ export const actions = {
 			form
 		};
 	},
-	async changeOrderStatus({ request, locals, params }) {
+	[OrderActionNames.CHANGE_STATUS]: async ({ request, locals, params }) => {
 		const form = await superValidate(request, zod(statusOrderSchema));
 		if (!form.valid) {
 			return fail(400, { form });
@@ -192,7 +193,7 @@ export const actions = {
 			form
 		};
 	},
-	async changePayment({ request, locals, params }) {
+	[OrderActionNames.CHANGE_PAYMENT]: async ({ request, locals, params }) => {
 		const formData = await request.formData();
 		const newStatus = formData.get('paymentStatus') as PaymentStatus;
 		const amount = formData.get('amount')?.toString();

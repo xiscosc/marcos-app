@@ -14,7 +14,7 @@
 
 	let { data }: Props = $props();
 	const profiler = new Profiler();
-	const measuredCustomers = profiler.measure(data.customers);
+	let measuredCustomers = $derived(profiler.measure(data.customers));
 </script>
 
 <div class="flex flex-col gap-4">

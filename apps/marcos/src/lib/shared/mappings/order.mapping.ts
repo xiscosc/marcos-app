@@ -25,7 +25,13 @@ export enum OrderActionNames {
 	CREATE_ORDER = 'createOrder',
 	CREATE_QUOTE = 'createQuote',
 	EDIT_ORDER = 'editOrder',
-	CREATE_EXTERNAL_ORDER = 'createExternalOrder'
+	CREATE_EXTERNAL_ORDER = 'createExternalOrder',
+	CHANGE_STATUS = 'changeOrderStatus',
+	PROMOTE = 'promoteOrder',
+	DELETE = 'deleteOrder',
+	DENOTE = 'denoteOrder',
+	SAVE_LOCATION = 'saveLocation',
+	CHANGE_PAYMENT = 'changePayment'
 }
 
 export const weekDayMap: Record<string, string> = {

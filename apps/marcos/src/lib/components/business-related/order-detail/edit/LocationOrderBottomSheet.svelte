@@ -13,6 +13,7 @@
 	import BottomSheet from '@/components/generic/BottomSheet.svelte';
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
 	import * as NativeSelect from '@/components/ui/native-select/index.js';
+	import { OrderActionNames } from '@/shared/mappings/order.mapping';
 
 	interface Props {
 		data: SuperValidated<Infer<LocationOrderSchema>>;
@@ -44,7 +45,12 @@
 		></Button>
 	{/snippet}
 	{#snippet action()}
-		<form method="post" use:enhance action="?/saveLocation" class="flex flex-col gap-2">
+		<form
+			method="post"
+			use:enhance
+			action={`?/${OrderActionNames.SAVE_LOCATION}`}
+			class="flex flex-col gap-2"
+		>
 			{#if $submitting}
 				<BottomSheetLoading />
 			{:else}

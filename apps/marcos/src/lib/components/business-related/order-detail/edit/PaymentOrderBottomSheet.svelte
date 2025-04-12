@@ -8,6 +8,7 @@
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import Input from '@/components/ui/input/input.svelte';
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
+	import { OrderActionNames } from '@/shared/mappings/order.mapping';
 
 	interface Props {
 		fullOrder: FullOrder;
@@ -69,7 +70,7 @@
 					{#if !totals.payed}
 						<form
 							method="post"
-							action="?/changePayment"
+							action={`?/${OrderActionNames.CHANGE_PAYMENT}`}
 							use:enhance={() => {
 								loading = true;
 								return async ({ update }) => {
@@ -92,7 +93,7 @@
 					{#if order.amountPayed !== 0}
 						<form
 							method="post"
-							action="?/changePayment"
+							action={`?/${OrderActionNames.CHANGE_PAYMENT}`}
 							use:enhance={() => {
 								loading = true;
 								return async ({ update }) => {
@@ -117,7 +118,7 @@
 					<form
 						method="post"
 						class="flex flex-col gap-2"
-						action="?/changePayment"
+						action={`?/${OrderActionNames.CHANGE_PAYMENT}`}
 						use:enhance={() => {
 							loading = true;
 							return async ({ update }) => {
