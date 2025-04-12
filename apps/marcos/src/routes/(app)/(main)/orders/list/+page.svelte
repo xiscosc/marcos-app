@@ -70,7 +70,7 @@
 			return [];
 		}
 
-		const response = await fetch('/api/orders/search', {
+		const listResponse = fetch('/api/orders/search', {
 			method: 'POST',
 			body: JSON.stringify({ query, status }),
 			headers: {
@@ -78,6 +78,7 @@
 			}
 		});
 
+		const response = await profiler.measure(listResponse);
 		const body: { results: FullOrder[] } = await response.json();
 		return OrderUtilities.hydrateFullOrderDates(body.results);
 	}

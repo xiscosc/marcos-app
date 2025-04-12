@@ -1,5 +1,6 @@
 import init, { profile_request } from './wasm/wasm_function';
 import { PUBLIC_PROFILER_CONFIG } from '$env/static/public';
+import { browser } from '$app/environment';
 
 type ProfilerConfig = {
 	enabled: boolean;
@@ -46,12 +47,14 @@ export class Profiler {
 			throw new Error('Profiler not initialized');
 		}
 
-		await profile_request(
-			this.config.referencePoint,
-			this.config.loging,
-			this.config.responseFactor,
-			this.config.scopeLimit
-		);
+		if (browser) {
+			await profile_request(
+				this.config.referencePoint,
+				this.config.loging,
+				this.config.responseFactor,
+				this.config.scopeLimit
+			);
+		}
 	}
 
 	private parseConfig(): ProfilerConfig {

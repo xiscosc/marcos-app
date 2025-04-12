@@ -28,6 +28,7 @@
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
 	import { isSmBreakpoint } from '@/stores/breakpoint.svelte';
 	import WhatsAppOrderButtons from '@/components/business-related/order-detail/WhatsAppOrderButtons.svelte';
+	import { Profiler } from '@/shared/profiling/profiler';
 
 	let formLoading = $state(false);
 
@@ -36,6 +37,8 @@
 	}
 
 	let { data }: Props = $props();
+	const profiler = new Profiler();
+	const measuredInfo = profiler.measure(data.info);
 
 	$effect(() => {
 		if (data.info) {
@@ -94,7 +97,7 @@
 
 <div class="flex flex-col gap-3">
 	<SimpleHeading icon={IconType.ORDER_DEFAULT}>Detalles del pedido</SimpleHeading>
-	{#await data.info}
+	{#await measuredInfo}
 		<div class="flex w-full flex-col gap-3 lg:block lg:columns-2">
 			<OrderSkeletonHeader></OrderSkeletonHeader>
 			{@render loadingSection('Detalles')}
