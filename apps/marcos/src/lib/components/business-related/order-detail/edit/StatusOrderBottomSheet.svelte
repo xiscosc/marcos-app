@@ -13,6 +13,7 @@
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import type { StatusOrderSchema } from '@/shared/form-schema/order.form-schema';
+	import { Profiler } from '@/shared/profiling/profiler';
 
 	interface Props {
 		data: SuperValidated<Infer<StatusOrderSchema>>;
@@ -21,8 +22,10 @@
 	}
 
 	let { data, locations, fullOrder }: Props = $props();
+	const profiler = new Profiler();
 	const form = superForm(data, {
-		onSubmit({ formData }) {
+		onSubmit: async ({ formData }) => {
+			await profiler.measureStandalone();
 			formData.set('status', newStatus ?? '');
 		}
 	});

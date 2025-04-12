@@ -6,19 +6,22 @@
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import Box from '@/components/generic/Box.svelte';
 	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
+	import { Profiler } from '@/shared/profiling/profiler';
 
 	interface Props {
 		data: PageData;
 	}
 
 	let { data }: Props = $props();
+	const profiler = new Profiler();
+	const measuredCustomers = profiler.measure(data.customers);
 </script>
 
 <div class="flex flex-col gap-4">
 	<SimpleHeading icon={IconType.SEARCH}>
 		Búsqueda de clientes - {data.decodedSearchQuery}
 	</SimpleHeading>
-	{#await data.customers}
+	{#await measuredCustomers}
 		<Box><ProgressBar text={'Buscando clientes'} /></Box>
 	{:then customers}
 		<div class="flex w-full flex-col gap-1 lg:grid lg:grid-cols-4">

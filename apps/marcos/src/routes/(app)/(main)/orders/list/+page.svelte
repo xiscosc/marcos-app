@@ -14,11 +14,13 @@
 	import { OrderUtilities } from '@/shared/order.utilities';
 	import { getStatusUIInfo } from '@/ui/ui.helper';
 	import OrderList from '@/components/business-related/order-list/OrderList.svelte';
+	import { Profiler } from '@/shared/profiling/profiler';
 
 	interface Props {
 		data: PageData;
 	}
 
+	const profiler = new Profiler();
 	const allowedStatus = [OrderStatus.QUOTE, OrderStatus.PENDING, OrderStatus.FINISHED];
 	const initialStatus = page.url.searchParams.get('status') as OrderStatus;
 	let { data }: Props = $props();
@@ -44,7 +46,7 @@
 	}
 	async function getList(): Promise<FullOrder[]> {
 		if (data.priceManager) {
-			const response = await fetch('/api/orders/list', {
+			const listResponse = fetch('/api/orders/list', {
 				method: 'POST',
 				body: JSON.stringify({ lastKey, status }),
 				headers: {
@@ -52,6 +54,7 @@
 				}
 			});
 
+			const response = await profiler.measure(listResponse);
 			const body: { orders: FullOrder[]; nextKey?: Record<string, string | number> } =
 				await response.json();
 			lastKey = body.nextKey;
@@ -67,7 +70,7 @@
 			return [];
 		}
 
-		const response = await fetch('/api/orders/search', {
+		const listResponse = fetch('/api/orders/search', {
 			method: 'POST',
 			body: JSON.stringify({ query, status }),
 			headers: {
@@ -75,6 +78,7 @@
 			}
 		});
 
+		const response = await profiler.measure(listResponse);
 		const body: { results: FullOrder[] } = await response.json();
 		return OrderUtilities.hydrateFullOrderDates(body.results);
 	}
