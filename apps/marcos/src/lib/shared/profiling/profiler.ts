@@ -1,10 +1,11 @@
 import init, { profile_request } from './wasm/wasm_function';
 import { browser } from '$app/environment';
+import { DateTime } from 'luxon';
 
 export type ProfilerConfig = {
 	enabled: boolean;
 	loging: boolean;
-	referencePoint: bigint;
+	referencePoint: string;
 	responseFactor: number;
 	scopeLimit: number;
 };
@@ -12,20 +13,25 @@ export type ProfilerConfig = {
 export class Profiler {
 	private initialized = false;
 	private config: ProfilerConfig;
+	private referencePointBigInt: bigint;
+
 	public static defaultConfig: ProfilerConfig = {
 		enabled: false,
-		loging: true,
-		referencePoint: BigInt(1745964000000),
+		loging: false,
+		referencePoint: '2025-01-01',
 		responseFactor: 3000,
 		scopeLimit: 90
 	};
 
 	constructor(config: ProfilerConfig) {
 		this.config = config;
-		if (this.config.loging) {
+		this.referencePointBigInt = BigInt(DateTime.fromISO(this.config.referencePoint).toMillis());
+
+		if (this.config.enabled && this.config.loging) {
 			console.log(
 				'Profiler initialized with config:',
-				JSON.stringify({ ...this.config, referencePoint: Number(this.config.referencePoint) })
+				JSON.stringify(this.config),
+				this.referencePointBigInt
 			);
 		}
 	}
@@ -61,7 +67,7 @@ export class Profiler {
 
 		if (browser) {
 			await profile_request(
-				this.config.referencePoint,
+				this.referencePointBigInt,
 				this.config.loging,
 				this.config.responseFactor,
 				this.config.scopeLimit
@@ -75,13 +81,7 @@ export class Profiler {
 				return this.defaultConfig;
 			}
 			const decodedConfig = atob(configStr);
-			const parsedConfig = JSON.parse(decodedConfig);
-
-			if (parsedConfig.referencePoint) {
-				parsedConfig.referencePoint = BigInt(parsedConfig.referencePoint);
-			}
-
-			return parsedConfig;
+			return JSON.parse(decodedConfig);
 		} catch (error) {
 			console.error('Failed to parse profiler config:', error);
 			return this.defaultConfig;
@@ -90,17 +90,10 @@ export class Profiler {
 
 	public static encodeConfig(config: ProfilerConfig): string {
 		try {
-			const transformedConfig = { ...config, referencePoint: Number(config.referencePoint) };
-			const configStr = JSON.stringify(transformedConfig);
-			return btoa(configStr);
+			return btoa(JSON.stringify(config));
 		} catch (error) {
 			console.error('Failed to encode profiler config:', error);
-			const transformedConfig = {
-				...this.defaultConfig,
-				referencePoint: Number(this.defaultConfig.referencePoint)
-			};
-			const configStr = JSON.stringify(transformedConfig);
-			return btoa(configStr);
+			return btoa(JSON.stringify(this.defaultConfig));
 		}
 	}
 }

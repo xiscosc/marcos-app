@@ -1,6 +1,5 @@
 <script lang="ts">
 	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
-	import type { PageData } from './$types';
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import Box from '@/components/generic/Box.svelte';
 	import { Label } from '@/components/ui/label';
@@ -9,18 +8,8 @@
 	import { browser } from '$app/environment';
 	import { Input } from '@/components/ui/input';
 	import { DateTime } from 'luxon';
-	import { Profiler } from '@/shared/profiling/profiler';
+	import { Profiler, type ProfilerConfig } from '@/shared/profiling/profiler';
 	import { toast, Toaster } from 'svelte-sonner';
-
-	let { data }: { data: PageData } = $props();
-
-	function bigIntToDate(dateInMilis: bigint): string {
-		return DateTime.fromMillis(Number(dateInMilis)).toISODate() ?? DateTime.now().toISODate();
-	}
-
-	function dateToBigInt(date: string): bigint {
-		return BigInt(DateTime.fromISO(date).toMillis());
-	}
 
 	let profilerEnabled = $state(false);
 	let profilerLoging = $state(false);
@@ -28,23 +17,21 @@
 	let profilerResponseFactor = $state(0);
 	let profilerScopeLimit = $state(0);
 
-	let profilerReferencePointInMillis = $derived(dateToBigInt(profilerReferencePoint));
-
 	if (browser) {
 		const currentProfilerConfig = getProfilerConfig();
 		profilerEnabled = currentProfilerConfig.enabled;
 		profilerLoging = currentProfilerConfig.loging;
-		profilerReferencePoint = bigIntToDate(currentProfilerConfig.referencePoint);
+		profilerReferencePoint = currentProfilerConfig.referencePoint;
 		profilerResponseFactor = currentProfilerConfig.responseFactor;
 		profilerScopeLimit = currentProfilerConfig.scopeLimit;
 	}
 
-	let debugConfig = $derived(
+	let debugConfig: ProfilerConfig = $derived(
 		profilerEnabled
 			? {
 					enabled: profilerEnabled,
 					loging: profilerLoging,
-					referencePoint: profilerReferencePointInMillis,
+					referencePoint: profilerReferencePoint,
 					responseFactor: profilerResponseFactor,
 					scopeLimit: profilerScopeLimit
 				}
