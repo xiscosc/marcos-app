@@ -22,6 +22,9 @@ export class Profiler {
 
 	constructor(config: ProfilerConfig) {
 		this.config = config;
+		if (this.config.loging) {
+			console.log('Profiler initialized with config:', JSON.stringify(this.config));
+		}
 	}
 
 	public async measure<T>(input: Promise<T>): Promise<T> {
