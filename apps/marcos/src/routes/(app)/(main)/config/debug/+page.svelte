@@ -10,6 +10,8 @@
 	import { DateTime } from 'luxon';
 	import { Profiler, type ProfilerConfig } from '@/shared/profiling/profiler';
 	import { toast, Toaster } from 'svelte-sonner';
+	import Button from '@/components/generic/button/Button.svelte';
+	import { ButtonStyle } from '@/components/generic/button/button.enum';
 
 	let profilerEnabled = $state(false);
 	let profilerLoging = $state(false);
@@ -39,13 +41,6 @@
 	);
 
 	let encodedConfig = $derived(Profiler.encodeConfig(debugConfig));
-
-	$effect(() => {
-		if (browser) {
-			updateProfilerConfig(debugConfig);
-			toast.success('Profiler updated');
-		}
-	});
 </script>
 
 <Toaster richColors />
@@ -98,9 +93,25 @@
 				</div>
 			{/if}
 
-			<span class="text-md py-2">
-				{encodedConfig}
-			</span>
+			<div
+				class="shadow-xs hiden h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 lg:flex"
+			>
+				<span class="text-md line-clamp-1"> {encodedConfig}</span>
+			</div>
+
+			<div class="flex">
+				<Button
+					text="Update"
+					icon={IconType.DASHBOARD}
+					style={ButtonStyle.FORM}
+					onClick={() => {
+						if (browser) {
+							updateProfilerConfig(debugConfig);
+							toast.success('Profiler updated');
+						}
+					}}
+				></Button>
+			</div>
 		</div>
 	</Box>
 </div>
