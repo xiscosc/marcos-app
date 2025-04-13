@@ -14,6 +14,7 @@
 	import Icon from '@/components/generic/icon/Icon.svelte';
 	import ProgressBar from '@/components/generic/ProgressBar.svelte';
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
+	import { getGlobalProfiler } from '@/stores/profiler.store';
 
 	interface Props {
 		data: PageData;
@@ -33,7 +34,7 @@
 			return;
 		}
 
-		const response = await fetch('/api/customers/search', {
+		const listResponse = fetch('/api/customers/search', {
 			method: 'POST',
 			body: JSON.stringify({ query: searchQuery }),
 			headers: {
@@ -41,6 +42,7 @@
 			}
 		});
 
+		const response = await getGlobalProfiler().measure(listResponse);
 		const body: { customers: Customer[] } = await response.json();
 		customers = [...body.customers];
 		loading = false;

@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { IconSize, IconType } from '@/components/generic/icon/icon.enum';
 	import Icon from '@/components/generic/icon/Icon.svelte';
-	import { isMdBreakpoint } from '@/stores/breakpoint.svelte';
+	import { isMdBreakpoint } from '@/stores/breakpoint.store';
 
 	interface Props {
 		children: Snippet;

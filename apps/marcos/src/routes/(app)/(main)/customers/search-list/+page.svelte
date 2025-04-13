@@ -6,15 +6,14 @@
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import Box from '@/components/generic/Box.svelte';
 	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
-	import { Profiler } from '@/shared/profiling/profiler';
+	import { getGlobalProfiler } from '@/stores/profiler.store';
 
 	interface Props {
 		data: PageData;
 	}
 
 	let { data }: Props = $props();
-	const profiler = new Profiler();
-	let measuredCustomers = $derived(profiler.measure(data.customers));
+	let measuredCustomers = $derived(getGlobalProfiler().measure(data.customers));
 </script>
 
 <div class="flex flex-col gap-4">

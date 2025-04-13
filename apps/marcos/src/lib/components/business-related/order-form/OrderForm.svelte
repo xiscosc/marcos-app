@@ -48,7 +48,7 @@
 	} from '@marcsimolduressonsardina/core/util';
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
 	import Banner from '@/components/generic/Banner.svelte';
-	import { Profiler } from '@/shared/profiling/profiler';
+	import { getGlobalProfiler } from '@/stores/profiler.store';
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 
@@ -61,8 +61,7 @@
 	}
 
 	let { data, title, isNew = true, children = undefined, isExternal = false }: Props = $props();
-	const profiler = new Profiler();
-	let profiledPrices = $derived(profiler.measure(data.pricing));
+	let profiledPrices = $derived(getGlobalProfiler().measure(data.pricing));
 
 	const { form, errors, enhance, submitting } = superForm(data.form, {
 		dataType: 'json'

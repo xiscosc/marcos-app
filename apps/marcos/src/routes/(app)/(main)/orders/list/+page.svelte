@@ -14,13 +14,12 @@
 	import { OrderUtilities } from '@/shared/order.utilities';
 	import { getStatusUIInfo } from '@/ui/ui.helper';
 	import OrderList from '@/components/business-related/order-list/OrderList.svelte';
-	import { Profiler } from '@/shared/profiling/profiler';
+	import { getGlobalProfiler } from '@/stores/profiler.store';
 
 	interface Props {
 		data: PageData;
 	}
 
-	const profiler = new Profiler();
 	const allowedStatus = [OrderStatus.QUOTE, OrderStatus.PENDING, OrderStatus.FINISHED];
 	const initialStatus = page.url.searchParams.get('status') as OrderStatus;
 	let { data }: Props = $props();
@@ -54,7 +53,7 @@
 				}
 			});
 
-			const response = await profiler.measure(listResponse);
+			const response = await getGlobalProfiler().measure(listResponse);
 			const body: { orders: FullOrder[]; nextKey?: Record<string, string | number> } =
 				await response.json();
 			lastKey = body.nextKey;
@@ -78,7 +77,7 @@
 			}
 		});
 
-		const response = await profiler.measure(listResponse);
+		const response = await getGlobalProfiler().measure(listResponse);
 		const body: { results: FullOrder[] } = await response.json();
 		return OrderUtilities.hydrateFullOrderDates(body.results);
 	}

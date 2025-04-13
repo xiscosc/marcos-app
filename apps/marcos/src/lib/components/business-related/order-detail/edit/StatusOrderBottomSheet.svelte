@@ -12,7 +12,7 @@
 	import { OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core/type';
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
 	import type { StatusOrderSchema } from '@/shared/form-schema/order.form-schema';
-	import { Profiler } from '@/shared/profiling/profiler';
+	import { getGlobalProfiler } from '@/stores/profiler.store';
 
 	interface Props {
 		data: SuperValidated<Infer<StatusOrderSchema>>;
@@ -21,10 +21,9 @@
 	}
 
 	let { data, locations, fullOrder }: Props = $props();
-	const profiler = new Profiler();
 	const form = superForm(data, {
 		onSubmit: async ({ formData }) => {
-			await profiler.measureStandalone();
+			await getGlobalProfiler().measureStandalone();
 			formData.set('status', newStatus ?? '');
 		}
 	});

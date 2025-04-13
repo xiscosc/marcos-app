@@ -26,9 +26,9 @@
 	import Step from '@/components/generic/Step.svelte';
 	import { DateTime } from 'luxon';
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
-	import { isSmBreakpoint } from '@/stores/breakpoint.svelte';
+	import { isSmBreakpoint } from '@/stores/breakpoint.store';
 	import WhatsAppOrderButtons from '@/components/business-related/order-detail/WhatsAppOrderButtons.svelte';
-	import { Profiler } from '@/shared/profiling/profiler';
+	import { getGlobalProfiler } from '@/stores/profiler.store';
 
 	let formLoading = $state(false);
 
@@ -37,9 +37,8 @@
 	}
 
 	let { data }: Props = $props();
-	const profiler = new Profiler();
 
-	let derivedInfo = $derived(profiler.measure(data.info));
+	let derivedInfo = $derived(getGlobalProfiler().measure(data.info));
 
 	$effect(() => {
 		if (data.info) {

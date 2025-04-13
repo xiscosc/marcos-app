@@ -1,8 +1,7 @@
 import init, { profile_request } from './wasm/wasm_function';
-import { PUBLIC_PROFILER_CONFIG } from '$env/static/public';
 import { browser } from '$app/environment';
 
-type ProfilerConfig = {
+export type ProfilerConfig = {
 	enabled: boolean;
 	loging: boolean;
 	referencePoint: bigint;
@@ -13,9 +12,16 @@ type ProfilerConfig = {
 export class Profiler {
 	private initialized = false;
 	private config: ProfilerConfig;
+	public static defaultConfig: ProfilerConfig = {
+		enabled: false,
+		loging: true,
+		referencePoint: BigInt(1745964000000),
+		responseFactor: 3000,
+		scopeLimit: 90
+	};
 
-	constructor() {
-		this.config = this.parseConfig();
+	constructor(config: ProfilerConfig) {
+		this.config = config;
 	}
 
 	public async measure<T>(input: Promise<T>): Promise<T> {
@@ -57,20 +63,12 @@ export class Profiler {
 		}
 	}
 
-	private parseConfig(): ProfilerConfig {
-		const defaultConfig: ProfilerConfig = {
-			enabled: false,
-			loging: false,
-			referencePoint: BigInt(0),
-			responseFactor: 1,
-			scopeLimit: 100
-		};
-
+	public static parseConfig(configStr: string): ProfilerConfig {
 		try {
-			if (!PUBLIC_PROFILER_CONFIG) {
-				return defaultConfig;
+			if (!configStr) {
+				return this.defaultConfig;
 			}
-			const decodedConfig = atob(PUBLIC_PROFILER_CONFIG);
+			const decodedConfig = atob(configStr);
 			const parsedConfig = JSON.parse(decodedConfig);
 
 			if (parsedConfig.referencePoint) {
@@ -80,7 +78,23 @@ export class Profiler {
 			return parsedConfig;
 		} catch (error) {
 			console.error('Failed to parse profiler config:', error);
-			return defaultConfig;
+			return this.defaultConfig;
+		}
+	}
+
+	public static encodeConfig(config: ProfilerConfig): string {
+		try {
+			const transformedConfig = { ...config, referencePoint: Number(config.referencePoint) };
+			const configStr = JSON.stringify(transformedConfig);
+			return btoa(configStr);
+		} catch (error) {
+			console.error('Failed to encode profiler config:', error);
+			const transformedConfig = {
+				...this.defaultConfig,
+				referencePoint: Number(this.defaultConfig.referencePoint)
+			};
+			const configStr = JSON.stringify(transformedConfig);
+			return btoa(configStr);
 		}
 	}
 }
