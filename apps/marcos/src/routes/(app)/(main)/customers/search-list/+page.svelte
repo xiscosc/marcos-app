@@ -6,7 +6,7 @@
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import Box from '@/components/generic/Box.svelte';
 	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
-	import { getGlobalProfiler } from '@/stores/profiler.store';
+	import { getGlobalProfiler } from '@/state/profiler/profiler.state';
 
 	interface Props {
 		data: PageData;

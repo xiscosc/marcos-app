@@ -14,7 +14,7 @@
 	import Icon from '@/components/generic/icon/Icon.svelte';
 	import ProgressBar from '@/components/generic/ProgressBar.svelte';
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
-	import { getGlobalProfiler } from '@/stores/profiler.store';
+	import { getGlobalProfiler } from '@/state/profiler/profiler.state';
 
 	interface Props {
 		data: PageData;

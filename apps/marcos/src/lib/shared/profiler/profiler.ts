@@ -15,14 +15,6 @@ export class Profiler {
 	private config: ProfilerConfig;
 	private referencePointBigInt: bigint;
 
-	public static defaultConfig: ProfilerConfig = {
-		enabled: false,
-		loging: false,
-		referencePoint: '2025-01-01',
-		responseFactor: 3000,
-		scopeLimit: 90
-	};
-
 	constructor(config: ProfilerConfig) {
 		this.config = config;
 		this.referencePointBigInt = BigInt(DateTime.fromISO(this.config.referencePoint).toMillis());
@@ -30,6 +22,19 @@ export class Profiler {
 		if (this.config.enabled && this.config.loging) {
 			console.log(
 				'Profiler initialized with config:',
+				JSON.stringify(this.config),
+				this.referencePointBigInt
+			);
+		}
+	}
+
+	public updateConfig(newConfig: ProfilerConfig): void {
+		this.config = newConfig;
+		this.referencePointBigInt = BigInt(DateTime.fromISO(this.config.referencePoint).toMillis());
+
+		if (this.config.enabled && this.config.loging) {
+			console.log(
+				'Profiler updated with config:',
 				JSON.stringify(this.config),
 				this.referencePointBigInt
 			);
@@ -72,28 +77,6 @@ export class Profiler {
 				this.config.responseFactor,
 				this.config.scopeLimit
 			);
-		}
-	}
-
-	public static parseConfig(configStr: string): ProfilerConfig {
-		try {
-			if (!configStr) {
-				return this.defaultConfig;
-			}
-			const decodedConfig = atob(configStr);
-			return JSON.parse(decodedConfig);
-		} catch (error) {
-			console.error('Failed to parse profiler config:', error);
-			return this.defaultConfig;
-		}
-	}
-
-	public static encodeConfig(config: ProfilerConfig): string {
-		try {
-			return btoa(JSON.stringify(config));
-		} catch (error) {
-			console.error('Failed to encode profiler config:', error);
-			return btoa(JSON.stringify(this.defaultConfig));
 		}
 	}
 }

@@ -48,7 +48,7 @@
 	} from '@marcsimolduressonsardina/core/util';
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
 	import Banner from '@/components/generic/Banner.svelte';
-	import { getGlobalProfiler } from '@/stores/profiler.store';
+	import { getGlobalProfiler } from '@/state/profiler/profiler.state';
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 

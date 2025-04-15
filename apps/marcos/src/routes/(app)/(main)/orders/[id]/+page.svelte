@@ -28,7 +28,7 @@
 	import OrderPriceDetails from '@/components/business-related/order-detail/OrderPriceDetails.svelte';
 	import { isSmBreakpoint } from '@/stores/breakpoint.store';
 	import WhatsAppOrderButtons from '@/components/business-related/order-detail/WhatsAppOrderButtons.svelte';
-	import { getGlobalProfiler } from '@/stores/profiler.store';
+	import { getGlobalProfiler } from '@/state/profiler/profiler.state';
 
 	let formLoading = $state(false);
 

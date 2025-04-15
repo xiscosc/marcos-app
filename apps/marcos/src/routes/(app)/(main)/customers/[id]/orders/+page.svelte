@@ -4,7 +4,7 @@
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import OrderList from '@/components/business-related/order-list/OrderList.svelte';
 	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
-	import { getGlobalProfiler } from '@/stores/profiler.store';
+	import { getGlobalProfiler } from '@/state/profiler/profiler.state';
 
 	interface Props {
 		data: PageData;

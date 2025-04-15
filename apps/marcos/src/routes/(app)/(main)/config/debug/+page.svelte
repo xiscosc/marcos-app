@@ -4,23 +4,24 @@
 	import Box from '@/components/generic/Box.svelte';
 	import { Label } from '@/components/ui/label';
 	import { Switch } from '@/components/ui/switch';
-	import { getProfilerConfig, updateProfilerConfig } from '@/stores/profiler.store';
 	import { browser } from '$app/environment';
 	import { Input } from '@/components/ui/input';
 	import { DateTime } from 'luxon';
-	import { Profiler, type ProfilerConfig } from '@/shared/profiling/profiler';
+	import { Profiler, type ProfilerConfig } from '@/shared/profiler/profiler';
 	import { toast, Toaster } from 'svelte-sonner';
 	import Button from '@/components/generic/button/Button.svelte';
 	import { ButtonStyle } from '@/components/generic/button/button.enum';
+	import { ProfilerState } from '@/state/profiler/profiler.state';
 
 	let profilerEnabled = $state(false);
 	let profilerLoging = $state(false);
 	let profilerReferencePoint = $state(DateTime.now().toISODate());
 	let profilerResponseFactor = $state(0);
 	let profilerScopeLimit = $state(0);
+	const profilerState = new ProfilerState();
 
 	if (browser) {
-		const currentProfilerConfig = getProfilerConfig();
+		const currentProfilerConfig = profilerState.getConfig();
 		profilerEnabled = currentProfilerConfig.enabled;
 		profilerLoging = currentProfilerConfig.loging;
 		profilerReferencePoint = currentProfilerConfig.referencePoint;
@@ -37,10 +38,10 @@
 					responseFactor: profilerResponseFactor,
 					scopeLimit: profilerScopeLimit
 				}
-			: { ...Profiler.defaultConfig, enabled: false }
+			: { ...ProfilerState.defaultConfig, enabled: false }
 	);
 
-	let encodedConfig = $derived(Profiler.encodeConfig(debugConfig));
+	let encodedConfig = $derived(ProfilerState.encodeConfig(debugConfig));
 </script>
 
 <Toaster richColors />
@@ -96,7 +97,7 @@
 			<div
 				class="shadow-xs hiden h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2 lg:flex"
 			>
-				<span class="text-md line-clamp-1"> {encodedConfig}</span>
+				<span class="text-md break-words"> {encodedConfig}</span>
 			</div>
 
 			<div class="flex">
@@ -106,7 +107,7 @@
 					style={ButtonStyle.FORM}
 					onClick={() => {
 						if (browser) {
-							updateProfilerConfig(debugConfig);
+							profilerState.updateConfig(debugConfig);
 							toast.success('Profiler updated');
 						}
 					}}

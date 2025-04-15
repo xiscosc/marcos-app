@@ -14,7 +14,7 @@
 	import { OrderUtilities } from '@/shared/order.utilities';
 	import { getStatusUIInfo } from '@/ui/ui.helper';
 	import OrderList from '@/components/business-related/order-list/OrderList.svelte';
-	import { getGlobalProfiler } from '@/stores/profiler.store';
+	import { getGlobalProfiler } from '@/state/profiler/profiler.state';
 
 	interface Props {
 		data: PageData;
