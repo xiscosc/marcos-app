@@ -1,0 +1,59 @@
+import { superValidate, setError } from 'sveltekit-superforms';
+import type { PageServerLoad } from './$types';
+import { zod } from 'sveltekit-superforms/adapters';
+import { customerSchema } from '$lib/shared/form-schema/customer.form-schema';
+import { fail, redirect } from '@sveltejs/kit';
+import { AuthService } from '$lib/server/service/auth.service';
+import { CustomerService } from '@marcsimolduressonsardina/core/service';
+import { InvalidKeyError } from '@marcsimolduressonsardina/core/error';
+import { trackServerEvent } from '@/server/shared/analytics/posthog';
+
+export const load = (async ({ params, locals }) => {
+	const { id } = params;
+	const customerService = new CustomerService(AuthService.generateConfiguration(locals.user!));
+	const customer = await customerService.getCustomerById(id);
+	if (customer == null) {
+		redirect(302, '/');
+	}
+
+	const form = await superValidate(zod(customerSchema));
+	form.data.phone = customer.phone;
+	form.data.name = customer.name;
+	return { form };
+}) satisfies PageServerLoad;
+
+export const actions = {
+	async default({ request, locals, params }) {
+		const { id } = params;
+		const form = await superValidate(request, zod(customerSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		const customerService = new CustomerService(AuthService.generateConfiguration(locals.user!));
+		const existingCustomer = await customerService.getCustomerById(id);
+		if (existingCustomer == null) {
+			redirect(302, '/');
+		}
+
+		try {
+			await customerService.updateCustomerData(existingCustomer, form.data.name, form.data.phone);
+		} catch (error) {
+			if (error instanceof InvalidKeyError) {
+				return setError(form, 'phone', 'Número de teléfono ya en uso');
+			}
+			throw fail(500);
+		}
+
+		await trackServerEvent(
+			locals.user!,
+			{
+				event: 'customer_updated',
+				customerId: existingCustomer.id
+			},
+			locals.posthog
+		);
+		redirect(302, `/customers/${existingCustomer.id}`);
+	}
+};

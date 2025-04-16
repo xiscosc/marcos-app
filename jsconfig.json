@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["apps/marcos/src/lib/*"]
+		}
+	},
+	"include": ["apps/marcos/src/**/*.js", "apps/marcos/src/**/*.svelte"]
+}

@@ -1,0 +1,11 @@
+{
+	"typescript.preferences.importModuleSpecifier": "non-relative",
+	"javascript.preferences.importModuleSpecifier": "non-relative",
+	"svelte.plugin.svelte.compilerWarnings": {
+		"css-unused-selector": "ignore"
+	},
+	"editor.formatOnSave": true,
+	"[svelte]": {
+		"editor.defaultFormatter": "svelte.svelte-vscode"
+	}
+}

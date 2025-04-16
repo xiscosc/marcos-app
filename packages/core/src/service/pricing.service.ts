@@ -29,19 +29,21 @@ import { OrderDimensions } from '../types/order.type';
 
 export class PricingService {
 	private listPricingRepository: ListPricingRepositoryDynamoDb;
+	private markup: number;
 
-	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
+	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda, markup?: number) {
+		this.markup = markup ? markup / 100 : 0;
 		this.listPricingRepository = new ListPricingRepositoryDynamoDb(config);
 	}
 
 	public async getPricingList(type: PricingType): Promise<ListPrice[]> {
 		const prices = await this.listPricingRepository.getAllPricesByType(type);
-		return prices.map(PricingService.fromDto);
+		return this.getPricesWithMarkup(prices.map((p) => PricingService.fromDto(p)));
 	}
 
 	public async getPriceListByInternalId(id: string): Promise<ListPrice | undefined> {
 		const priceDto = await this.listPricingRepository.getByInternalId(id);
-		return priceDto ? PricingService.fromDto(priceDto) : undefined;
+		return priceDto ? this.getPriceWithMarkup(PricingService.fromDto(priceDto)) : undefined;
 	}
 
 	public async batchStoreListPrices(type: PricingType, prices: ListPrice[]): Promise<void> {
@@ -133,7 +135,15 @@ export class PricingService {
 			throw Error('Price not found');
 		}
 
-		return PricingService.fromDto(priceDto);
+		return this.getPriceWithMarkup(PricingService.fromDto(priceDto));
+	}
+
+	public calculatePriceWithoutMarkup(price: number): number {
+		if (this.markup === 0) {
+			return price;
+		}
+
+		return Math.round((price / (1 + this.markup)) * 100) / 100;
 	}
 
 	private async getFabricPriceList(
@@ -151,13 +161,47 @@ export class PricingService {
 
 		const { d1, d2 } = PricingService.cleanAndOrderTotalDimensions(orderDimensions);
 		const moldPrice = await this.getPriceFromListById(PricingType.MOLD, moldFabricId);
-		return PricingUtilites.generateCrossbarPricing(
+		const fabricPrice = PricingUtilites.generateCrossbarPricing(
 			id,
 			moldPrice.price,
 			moldPrice.description,
 			PricingUtilites.getFabricCrossbarDimension(id, d1, d2),
 			moldPrice.id
 		);
+
+		return this.getPriceWithMarkup(fabricPrice);
+	}
+
+	private calculateMarkup(price: number): number {
+		return Math.round(price * (1 + this.markup) * 100) / 100;
+	}
+
+	private getPriceWithMarkup(listPrice: ListPrice): ListPrice {
+		if (this.markup === 0) {
+			return listPrice;
+		}
+
+		return {
+			...listPrice,
+			price: this.calculateMarkup(listPrice.price),
+			minPrice: this.calculateMarkup(listPrice.minPrice),
+			areas: listPrice.areas.map((area) => ({
+				...area,
+				price: this.calculateMarkup(area.price)
+			})),
+			areasM2: listPrice.areasM2.map((area) => ({
+				...area,
+				price: this.calculateMarkup(area.price)
+			}))
+		};
+	}
+
+	private getPricesWithMarkup(listPrices: ListPrice[]): ListPrice[] {
+		if (this.markup === 0) {
+			return listPrices;
+		}
+
+		return listPrices.map((lp) => this.getPriceWithMarkup(lp));
 	}
 
 	private static getPriceByType(orderDimensions: OrderDimensions, priceInfo: ListPrice): number {

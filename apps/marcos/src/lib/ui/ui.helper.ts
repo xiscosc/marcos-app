@@ -1,42 +1,36 @@
 import { OrderStatus } from '@marcsimolduressonsardina/core/type';
-import { ButtonStyle } from '$lib/components/button/button.enum';
-import { IconType } from '$lib/components/icon/icon.enum';
+import { ButtonStyle } from '@/components/generic/button/button.enum';
+import { IconType } from '@/components/generic/icon/icon.enum';
+import type { BannerColor } from '@/components/generic/Banner.svelte';
 
 interface IUIInfo {
 	colors: ButtonStyle;
 	staticColor: string;
-	colorName: string;
-	gradientClasses: string;
+	bannerColor: BannerColor;
 	statusIcon: IconType;
 }
 
-const redGradientClasses = 'from-red-800 via-red-700 to-red-600';
-
 export function getStatusUIInfo(status: OrderStatus, getVariant: boolean = false): IUIInfo {
 	let colors = ButtonStyle.ORDER_GENERIC;
-	let gradientClasses = '';
 	let staticColor = '';
-	let colorName = '';
+	let bannerColor = 'blue' as BannerColor;
 	let statusIcon = IconType.ORDER_DEFAULT;
 	switch (status) {
 		case OrderStatus.PENDING:
 			staticColor = 'bg-blue-700';
-			colorName = 'blue';
-			gradientClasses = 'from-blue-800 via-blue-700 to-blue-600';
+			bannerColor = 'blue';
 			colors = getVariant ? ButtonStyle.ORDER_PENDING_VARIANT : ButtonStyle.ORDER_PENDING;
 			statusIcon = IconType.ORDER_PENDING;
 			break;
 		case OrderStatus.FINISHED:
 			staticColor = 'bg-amber-600';
-			colorName = 'amber';
-			gradientClasses = 'from-orange-600 via-orange-500 to-orange-400';
+			bannerColor = 'amber';
 			colors = getVariant ? ButtonStyle.ORDER_FINISHED_VARIANT : ButtonStyle.ORDER_FINISHED;
 			statusIcon = IconType.ORDER_FINISHED;
 			break;
 		case OrderStatus.PICKED_UP:
 			staticColor = 'bg-green-700';
-			colorName = 'green';
-			gradientClasses = 'from-green-800 via-green-700 to-green-600';
+			bannerColor = 'green';
 			colors = getVariant ? ButtonStyle.ORDER_PICKED_UP_VARIANT : ButtonStyle.ORDER_PICKED_UP;
 			statusIcon = IconType.ORDER_PICKED_UP;
 			break;
@@ -44,14 +38,13 @@ export function getStatusUIInfo(status: OrderStatus, getVariant: boolean = false
 			break;
 		case OrderStatus.QUOTE:
 			staticColor = 'bg-purple-700';
-			colorName = 'purple';
-			gradientClasses = 'from-purple-800 via-purple-700 to-purple-600';
+			bannerColor = 'purple';
 			colors = getVariant ? ButtonStyle.ORDER_QUOTE_VARIANT : ButtonStyle.ORDER_QUOTE;
 			statusIcon = IconType.ORDER_QUOTE;
 			break;
 	}
 
-	return { statusIcon, colors, gradientClasses, staticColor, colorName };
+	return { statusIcon, colors, staticColor, bannerColor };
 }
 
 export function getStatusUIInfoWithPaymentInfo(
@@ -65,9 +58,8 @@ export function getStatusUIInfoWithPaymentInfo(
 		return {
 			...uiInfo,
 			colors: getVariant ? ButtonStyle.DELETE_VARIANT : ButtonStyle.DELETE,
-			gradientClasses: redGradientClasses,
 			staticColor: 'bg-red-600',
-			colorName: 'red'
+			bannerColor: 'red'
 		};
 	}
 

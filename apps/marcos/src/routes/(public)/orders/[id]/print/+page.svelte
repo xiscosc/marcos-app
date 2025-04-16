@@ -1,15 +1,13 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import OrderPrint from '$lib/components/order/OrderPrint.svelte';
 	import { identifyUser } from '@/shared/analytics.utilities';
+	import OrderPrint from '@/components/business-related/order-detail/OrderPrint.svelte';
 	interface Props {
 		data: PageData;
 	}
 
 	let { data }: Props = $props();
 	identifyUser(data.user);
-	const order = data.order!;
-	const calculatedItem = data.calculatedItem!;
 </script>
 
-<OrderPrint {order} {calculatedItem} print></OrderPrint>
+<OrderPrint fullOrder={data.fullOrder} print></OrderPrint>

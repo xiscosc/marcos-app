@@ -6,7 +6,8 @@ import {
 	CalculatedItemPart,
 	Order,
 	OrderDimensions,
-	PreCalculatedItemPart
+	PreCalculatedItemPart,
+	ExternalOrder
 } from '../types/order.type';
 import { CalculatedItemUtilities } from '../utilities/calculated-item.utilites';
 import { PricingType } from '../types/pricing.type';
@@ -19,9 +20,12 @@ export class CalculatedItemService {
 	private calculatedItemRepository: CalculatedItemRepositoryDynamoDb;
 	private pricingProvider: PricingService;
 
-	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
+	constructor(
+		config: ICoreConfiguration | ICoreConfigurationForAWSLambda,
+		pricingService: PricingService
+	) {
 		this.calculatedItemRepository = new CalculatedItemRepositoryDynamoDb(config);
-		this.pricingProvider = new PricingService(config);
+		this.pricingProvider = pricingService;
 	}
 
 	public async getCalculatedItem(orderId: string): Promise<CalculatedItem | null> {
@@ -30,7 +34,7 @@ export class CalculatedItemService {
 	}
 
 	public async createCalculatedItem(
-		order: Order,
+		order: Order | ExternalOrder,
 		discount: number,
 		extraParts: CalculatedItemPart[]
 	): Promise<CalculatedItem> {

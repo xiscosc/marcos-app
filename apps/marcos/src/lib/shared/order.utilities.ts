@@ -1,45 +1,21 @@
 import { PUBLIC_DOMAIN_URL } from '$env/static/public';
 
-import { DateTime } from 'luxon';
-import { z } from 'zod';
 import {
-	DimensionsType,
 	OrderStatus,
 	PricingType,
 	type CalculatedItem,
-	type CalculatedItemPart,
-	type CalculatedItemPartWithType,
-	type Order,
-	type PreCalculatedItemPart
+	type ExternalFullOrder,
+	type ExternalOrder,
+	type FullOrder,
+	type Order
 } from '@marcsimolduressonsardina/core/type';
-import {
-	allPricingTypes,
-	CalculatedItemUtilities,
-	otherExtraId
-} from '@marcsimolduressonsardina/core/util';
+import { CalculatedItemUtilities, otherExtraId } from '@marcsimolduressonsardina/core/util';
+import { customerMoldIds, discountMap } from './mappings/order.mapping';
 
 export class OrderUtilities {
-	public static addPricingTypeToCalculatedParts(
-		preparts: PreCalculatedItemPart[],
-		parts: CalculatedItemPart[]
-	): CalculatedItemPartWithType[] {
-		// Create a map of PreCalculatedItemPart based on id for quick lookup
-		const prepartsMap = new Map<string, PreCalculatedItemPart>(
-			preparts.map((prepart) => [prepart.id, prepart])
-		);
+	private static bullCharacter = '\u2022';
 
-		// Map through the parts and match them with corresponding preparts using the priceId and id
-		return parts.map((part) => {
-			const matchingPrepart = prepartsMap.get(part.priceId);
-
-			return {
-				...part,
-				type: matchingPrepart?.type // If a matching prepart exists, set the type, otherwise undefined
-			};
-		});
-	}
-
-	public static getOrderMolds(order: Order): string[] {
+	public static getOrderMolds(order: Order | ExternalOrder): string[] {
 		return order.item.partsToCalculate
 			.filter((p) => p.type === PricingType.MOLD)
 			.map(
@@ -49,7 +25,7 @@ export class OrderUtilities {
 	}
 
 	public static getOrderElementByPricingType(
-		order: Order,
+		order: Order | ExternalOrder,
 		calculatedItem: CalculatedItem,
 		pricingType: PricingType
 	): string[] {
@@ -64,7 +40,7 @@ export class OrderUtilities {
 		return calculatedItem.parts.filter((p) => p.priceId === otherExtraId).map((p) => p.description);
 	}
 
-	public static getWorkingDimensions(order: Order): string {
+	public static getWorkingDimensions(order: Order | ExternalOrder): string {
 		const item = order.item;
 		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
 			item.width,
@@ -96,13 +72,17 @@ export class OrderUtilities {
 		return molds.length === 0 ? undefined : molds[0];
 	}
 
+	public static getOrderPublicUrl(order: Order): string {
+		return `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
+	}
+
 	public static getWhatsappTicketText(order: Order): string {
-		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
+		const url = OrderUtilities.getOrderPublicUrl(order);
 		return `Su pedido \`\`\`${order.publicId}\`\`\` ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappQuoteText(order: Order): string {
-		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
+		const url = OrderUtilities.getOrderPublicUrl(order);
 		return `Aquí tiene una copia de su presupuesto \`\`\`${order.publicId}\`\`\` :  ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
@@ -110,12 +90,12 @@ export class OrderUtilities {
 		const greeting =
 			'Nuestro horario es de lunes a viernes de 09:00 a 18:00 y los sábados de 09:30 a 13:15. Marcs i Moldures Son Sardina.';
 		if (orders.length === 1) {
-			const url = `${PUBLIC_DOMAIN_URL}/s/${orders[0].shortId}`;
+			const url = OrderUtilities.getOrderPublicUrl(orders[0]);
 			return `Hemos terminado su pedido \`\`\`${orders[0].publicId}\`\`\` puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
 		} else {
 			const orderLines = orders
 				.map(
-					(order) => `* \`\`\`${order.publicId}\`\`\` \n ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
+					(order) => `* \`\`\`${order.publicId}\`\`\` \n ${OrderUtilities.getOrderPublicUrl(order)}`
 				)
 				.join('\n');
 
@@ -137,12 +117,6 @@ export class OrderUtilities {
 		return `${discount}%`;
 	}
 
-	public static getYesterday(): Date {
-		const now = DateTime.now();
-		const yesterday = now.minus({ days: 1 });
-		return yesterday.toJSDate();
-	}
-
 	public static getPossibleNextStatuses(currentStatus: OrderStatus): OrderStatus[] {
 		switch (currentStatus) {
 			case OrderStatus.PENDING:
@@ -156,6 +130,45 @@ export class OrderUtilities {
 		}
 	}
 
+	public static hydrateFullOrderDates(fullOrders: FullOrder[]): FullOrder[] {
+		return fullOrders.map((fo) => OrderUtilities.hydrateFullOrder(fo) as FullOrder);
+	}
+
+	public static hydrateFullOrder(
+		fullOrder: FullOrder | ExternalFullOrder
+	): FullOrder | ExternalFullOrder {
+		return {
+			...fullOrder,
+			order: {
+				...fullOrder.order,
+				item: {
+					...fullOrder.order.item,
+					deliveryDate: new Date(fullOrder.order.item.deliveryDate)
+				},
+				createdAt: new Date(fullOrder.order.createdAt)
+			}
+		} as FullOrder | ExternalFullOrder;
+	}
+
+	public static groupInPairs(arr: string[]): string[][] {
+		const result: string[][] = [];
+
+		for (let i = 0; i < arr.length; i += 2) {
+			const pair: string[] = [arr[i], arr[i + 1] || ''];
+			result.push(pair);
+		}
+
+		return result;
+	}
+
+	public static getPrintableListRepresentatiom(element: string): string {
+		if (element.length > 0) {
+			return `${OrderUtilities.bullCharacter} ${element}`;
+		}
+
+		return '';
+	}
+
 	private static formatNumber(num: number): string | number {
 		// Check if the number has decimals
 		if (num % 1 !== 0) {
@@ -167,136 +180,3 @@ export class OrderUtilities {
 		return num;
 	}
 }
-
-export const customerMoldIds = ['2_MARCO DEL CLIENTE', '1_SIN MARCO'];
-
-export const discountMap: Record<string, number> = {
-	'0': 0,
-	'1': 10,
-	'2': 15,
-	'20': 20,
-	'25': 25,
-	'30': 30,
-	'50': 50,
-	'100': 100
-};
-
-export const orderStatusMap: Record<OrderStatus, string> = {
-	[OrderStatus.FINISHED]: 'Finalizado',
-	[OrderStatus.PICKED_UP]: 'Recogido',
-	[OrderStatus.PENDING]: 'Pendiente',
-	[OrderStatus.QUOTE]: 'Presupuesto',
-	[OrderStatus.DELETED]: 'Eliminado'
-};
-
-const extraPartSchema = z.object({
-	priceId: z.string().default(otherExtraId),
-	price: z.number().min(0).default(0),
-	quantity: z.number().int().min(1).default(1),
-	discountAllowed: z.boolean().default(true),
-	description: z.string().default(''),
-	floating: z.boolean().default(false)
-});
-
-const partToCalculateSchema = z.object({
-	id: z.string(),
-	quantity: z.number().int().min(1).default(1),
-	type: z.enum(allPricingTypes as [string, ...string[]]),
-	moldId: z.string().optional(),
-	extraInfo: z.string().optional()
-});
-
-const ppDimensionsSchema = z.object({
-	up: z.number().min(0),
-	down: z.number().min(0),
-	left: z.number().min(0),
-	right: z.number().min(0)
-});
-
-export const baseOderSchema = z.object({
-	width: z.number().min(0),
-	height: z.number().min(0),
-	description: z.string().default(''),
-	floatingDistance: z.number().min(0).default(0),
-	observations: z.string().default(''),
-	quantity: z.number().int().min(1).default(1),
-	dimenstionsType: z
-		.enum(Object.values(DimensionsType) as [string, ...string[]])
-		.default(DimensionsType.NORMAL),
-	pp: z.coerce.number().min(0).default(0),
-	ppDimensions: ppDimensionsSchema.optional(),
-	discount: z.string().default(''),
-	extraParts: z.array(extraPartSchema),
-	partsToCalculate: z.array(partToCalculateSchema),
-	predefinedDescriptions: z.array(z.string()).default([]),
-	predefinedObservations: z.array(z.string()).default([]),
-	hasArrow: z.boolean().default(false),
-	exteriorWidth: z.number().optional(),
-	exteriorHeight: z.number().optional(),
-	instantDelivery: z.boolean().default(false)
-});
-
-export const orderSchema = baseOderSchema
-	.extend({
-		deliveryDate: z.date().optional()
-	})
-	.superRefine((data, ctx) => {
-		const yesterday = OrderUtilities.getYesterday();
-
-		// If isExpress is false and deliveryDate is missing or invalid
-		if (!data.instantDelivery && (!data.deliveryDate || data.deliveryDate < yesterday)) {
-			ctx.addIssue({
-				code: 'custom', // Add the required 'code' property
-				path: ['deliveryDate'], // The path of the property causing the error
-				message: 'If not instantDelivery, delivery date must be set and after yesterday'
-			});
-		}
-	});
-
-export const promoteOrderSchema = z.object({
-	deliveryDate: z.date({ message: 'La fecha es obligatoria' }).min(OrderUtilities.getYesterday(), {
-		message: 'La fecha no es correcta, debe ser igual o posterior a hoy'
-	})
-});
-
-export type PromoteOrderSchema = typeof promoteOrderSchema;
-
-export const quoteSchema = baseOderSchema.extend({
-	deliveryDate: z.date().optional()
-});
-
-export const locationOrderSchema = z.object({
-	location: z.string().min(1, { message: 'La ubicación no puede estar vacía' })
-});
-
-export const statusOrderSchema = z
-	.object({
-		status: z.enum([OrderStatus.FINISHED, OrderStatus.PENDING, OrderStatus.PICKED_UP] as [
-			string,
-			...string[]
-		]),
-		location: z.string().optional()
-	})
-	.refine((data) => data.location != null || data.status !== OrderStatus.FINISHED.toString(), {
-		message: 'La ubicación es obligatoria para pedidos finalizados',
-		path: ['location']
-	});
-
-export type LocationOrderSchema = typeof locationOrderSchema;
-
-export type StatusOrderSchema = typeof statusOrderSchema;
-
-export const orderPublicIdSchema = z.object({
-	id: z
-		.string({ message: 'El id es obligatorio' })
-		.min(13, { message: 'El id debe tener al menos 13 caracteres' })
-		.refine(
-			(value) => {
-				const slashCount = (value.match(/\//g) || []).length;
-				return slashCount === 2;
-			},
-			{ message: 'El id debe contener exactamente 2 barras (/)' }
-		)
-});
-
-export type OrderPublicIdSchema = typeof orderPublicIdSchema;

@@ -2,4 +2,3 @@
 export * from './calculated-item.utilites';
 export * from './order.utilities';
 export * from './pricing.utilites';
-export * from './search.utilities';

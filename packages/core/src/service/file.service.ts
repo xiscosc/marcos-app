@@ -111,7 +111,7 @@ export class FileService {
 		}
 
 		if (fileDto.optimizedKey == null) {
-			fileDto.optimizedKey = `optimized/${fileDto.key}${optimizationAndThumbnailTypeInfo?.optimizedExtension ?? ''}}`;
+			fileDto.optimizedKey = `optimized/${fileDto.key}${optimizationAndThumbnailTypeInfo?.optimizedExtension ?? ''}`;
 			await S3Util.uploadToS3(
 				this.s3Client,
 				this.config.filesBucket!,
@@ -133,6 +133,10 @@ export class FileService {
 		}
 
 		await this.repository.createFile(fileDto);
+
+		if (fileDto.optimizedKey != null) {
+			await S3Util.tagFilesForExpiry(this.s3Client, this.config.filesBucket!, [fileDto.key]);
+		}
 	}
 
 	public async getFile(orderId: string, id: string): Promise<File | undefined> {
@@ -194,7 +198,7 @@ export class FileService {
 		if (dto == null) return;
 		await Promise.all([
 			this.repository.deleteFile(orderId, id),
-			S3Util.batchDeleteFiles(
+			S3Util.tagFilesForExpiry(
 				this.s3Client,
 				this.config.filesBucket!,
 				FileService.getAllFileKeys(dto)
@@ -202,25 +206,6 @@ export class FileService {
 			this.orderAuditTrailServiceOrder.logOrderFileDeleted(
 				orderId,
 				`${dto.originalFilename} || ${dto.fileUuid}`
-			)
-		]);
-	}
-
-	public async deleteAllOrderFiles(orderId: string) {
-		const dtos = await this.repository.getFilesByOrder(orderId);
-		if (dtos.length === 0) return;
-		await Promise.all([
-			this.repository.deleteFiles(dtos),
-			S3Util.batchDeleteFiles(
-				this.s3Client,
-				this.config.filesBucket!,
-				dtos.map((dto) => FileService.getAllFileKeys(dto)).flat()
-			),
-			...dtos.map((dto) =>
-				this.orderAuditTrailServiceOrder.logOrderFileDeleted(
-					orderId,
-					`${dto.originalFilename} || ${dto.fileUuid}`
-				)
 			)
 		]);
 	}

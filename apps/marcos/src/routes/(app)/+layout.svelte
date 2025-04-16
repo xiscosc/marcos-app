@@ -2,10 +2,10 @@
 	import type { LayoutData } from './$types';
 	import { navigating } from '$app/state';
 	import '../../app.css';
-	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { IconType } from '$lib/components/icon/icon.enum';
-	import Icon from '$lib/components/icon/Icon.svelte';
-	import Box from '$lib/components/Box.svelte';
+	import ProgressBar from '@/components/generic/ProgressBar.svelte';
+	import { IconType } from '@/components/generic/icon/icon.enum';
+	import Icon from '@/components/generic/icon/Icon.svelte';
+	import Box from '@/components/generic/Box.svelte';
 	import { type Snippet } from 'svelte';
 	import { initPosthog } from '@/shared/analytics.utilities';
 

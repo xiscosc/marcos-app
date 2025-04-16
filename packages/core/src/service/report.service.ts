@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 import { OrderAuditTrailService } from './order-audit-trail.service';
 import { OrderService } from './order.service';
-import { CalculatedItemUtilities } from '../utilities/calculated-item.utilites';
 import {
 	DailyReport,
 	DashboardReport,
@@ -57,7 +56,7 @@ export class ReportService {
 		const orderEntries = orders.map((fullOrder) => ({
 			id: fullOrder.order.id,
 			customerId: fullOrder.order.customer.id,
-			total: CalculatedItemUtilities.getTotal(fullOrder.calculatedItem)
+			total: fullOrder.totals.total
 		}));
 
 		const parts = orders

@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { type Snippet, onMount } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
-	import { initPosthog } from '@/shared/analytics.utilities';
 
 	interface Props {
 		data: LayoutData;
 		children?: Snippet;
 	}
 
-	let { data, children }: Props = $props();
+	let { children }: Props = $props();
 </script>
 
 <svelte:head>

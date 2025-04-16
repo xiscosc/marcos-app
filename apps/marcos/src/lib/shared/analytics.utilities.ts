@@ -12,7 +12,7 @@ export function initPosthog(envName: string, appUser?: AppUser) {
 			loaded: (ph) => {
 				ph.register({
 					env: envName,
-					store: 'main'
+					store: appUser ? appUser.storeId : 'not_available'
 				});
 			}
 		});

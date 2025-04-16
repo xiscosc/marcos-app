@@ -1,8 +1,7 @@
-import { orderSchema, quoteSchema } from '$lib/shared/order.utilities';
+import { orderSchema, quoteSchema } from '$lib/shared/form-schema/order.form-schema';
 import { setError, superValidate, type SuperValidated } from 'sveltekit-superforms';
 import { z } from 'zod';
 import { zod } from 'sveltekit-superforms/adapters';
-import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { fail, redirect } from '@sveltejs/kit';
 import { PricingHelper } from '../pricing/pricing.helper';
 import { AuthService } from '$lib/server/service/auth.service';
@@ -12,21 +11,17 @@ import {
 	type AllPrices,
 	type CalculatedItem,
 	type CalculatedItemPart,
+	type ExternalFullOrder,
 	type PricingType
 } from '@marcsimolduressonsardina/core/type';
-import type { OrderCreationDto } from '@marcsimolduressonsardina/core/dto';
-import {
-	CalculatedItemService,
-	OrderService,
-	PricingService
-} from '@marcsimolduressonsardina/core/service';
+import type {
+	ExternalOrderCreationDto,
+	OrderCreationDto,
+	OrderCreationDtoBase
+} from '@marcsimolduressonsardina/core/dto';
+import { OrderService, PricingService } from '@marcsimolduressonsardina/core/service';
 import { InvalidSizeError } from '@marcsimolduressonsardina/core/error';
-import {
-	CalculatedItemUtilities,
-	cornersId,
-	otherExtraId,
-	quoteDeliveryDate
-} from '@marcsimolduressonsardina/core/util';
+import { cornersId, otherExtraId, quoteDeliveryDate } from '@marcsimolduressonsardina/core/util';
 import { trackServerEvent } from '../analytics/posthog';
 
 type OrderTypeForm = z.infer<typeof orderSchema>;
@@ -45,52 +40,32 @@ export class OrderCreationUtilities {
 		isQuote: boolean,
 		customerId?: string
 	): OrderCreationDto {
-		const partsToCalculate = form.data.partsToCalculate.map((part) => ({
-			id: part.id,
-			quantity: part.quantity,
-			type: part.type as PricingType,
-			moldId: part.moldId,
-			extraInfo: part.extraInfo
-		}));
-
 		const deliveryDate =
 			isQuote || form.data.instantDelivery ? quoteDeliveryDate : form.data.deliveryDate;
 		if (deliveryDate == null) {
 			throw Error('Delivery date can not be empty');
 		}
 
-		const { exteriorHeight, exteriorWidth } = OrderCreationUtilities.getExteriorDimensions(
-			form.data.dimenstionsType as DimensionsType,
-			form.data.exteriorWidth,
-			form.data.exteriorHeight
-		);
-
-		const description =
-			form.data.description.length === 0
-				? form.data.predefinedDescriptions.join(', ')
-				: form.data.description;
-
+		const orderCreationDtoBase = OrderCreationUtilities.getOrderCreationDtoBase(form, deliveryDate);
 		return {
-			customerId,
+			...orderCreationDtoBase,
 			isQuote,
-			width: form.data.width,
-			height: form.data.height,
-			pp: form.data.pp ?? 0,
-			floatingDistance: form.data.floatingDistance,
-			description,
-			predefinedObservations: form.data.predefinedObservations,
-			observations: form.data.observations,
-			quantity: form.data.quantity,
-			deliveryDate,
-			partsToCalculate: partsToCalculate,
-			extraParts: form.data.extraParts,
-			discount: parseInt(form.data.discount),
-			hasArrow: form.data.hasArrow,
-			ppDimensions: form.data.ppDimensions,
-			exteriorWidth: exteriorWidth,
-			exteriorHeight: exteriorHeight,
-			dimensionsType: form.data.dimenstionsType as DimensionsType,
-			instantDelivery: form.data.instantDelivery
+			customerId
+		};
+	}
+
+	static createExternalOrderDtoFromForm(
+		form: SuperValidated<OrderTypeForm>
+	): ExternalOrderCreationDto {
+		const deliveryDate = form.data.instantDelivery ? quoteDeliveryDate : form.data.deliveryDate;
+		if (deliveryDate == null) {
+			throw Error('Delivery date can not be empty');
+		}
+
+		const orderDto = OrderCreationUtilities.getOrderCreationDtoBase(form, deliveryDate);
+		return {
+			...orderDto,
+			markup: form.data.markup ?? 0
 		};
 	}
 
@@ -99,15 +74,15 @@ export class OrderCreationUtilities {
 		orderId?: string,
 		editing = false
 	): Promise<OrderCreationFormData> {
-		const appUser = await AuthUtilities.checkAuth(locals);
 		const form = await superValidate(zod(orderSchema));
-		const config = AuthService.generateConfiguration(appUser);
-		const pricing = PricingHelper.getPricing(new PricingService(config));
-		const orderService = new OrderService(config);
-		const order = orderId != null ? await orderService.getOrderById(orderId) : undefined;
-		if (order != null) {
-			const calculatedItemService = new CalculatedItemService(config);
-			const calculatedItem = await calculatedItemService.getCalculatedItem(order.id);
+		const config = AuthService.generateConfiguration(locals.user!);
+		const pricingService = new PricingService(config);
+		const pricing = PricingHelper.getPricing(pricingService);
+		const orderService = new OrderService(config, undefined, undefined, pricingService);
+		const fullOrder = orderId != null ? await orderService.getFullOrderById(orderId) : undefined;
+		if (fullOrder != null) {
+			const order = fullOrder.order;
+			const calculatedItem = fullOrder.calculatedItem;
 
 			if (calculatedItem != null) {
 				if (editing && order.status !== OrderStatus.QUOTE) {
@@ -134,12 +109,16 @@ export class OrderCreationUtilities {
 			}
 		}
 
-		return { form, pricing, editing, editingStatus: editing ? order?.status : undefined };
+		return {
+			form,
+			pricing,
+			editing,
+			editingStatus: editing ? fullOrder?.order.status : undefined
+		};
 	}
 
 	static async handleEditOrder(request: Request, locals: App.Locals, orderId: string) {
-		const appUser = await AuthUtilities.checkAuth(locals);
-		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
+		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 		const order = await orderService.getOrderById(orderId);
 		if (order == null) {
 			return fail(404, {});
@@ -170,7 +149,7 @@ export class OrderCreationUtilities {
 		}
 
 		await trackServerEvent(
-			appUser,
+			locals.user!,
 			{
 				event: 'order_updated',
 				orderId
@@ -180,13 +159,74 @@ export class OrderCreationUtilities {
 		redirect(302, `/orders/${orderId}`);
 	}
 
-	static async handleCreateOrder(
+	static async handleCreateOrder(request: Request, locals: App.Locals, customerId?: string) {
+		return await OrderCreationUtilities.handleCreateOrderOrQuote(
+			false,
+			request,
+			locals,
+			customerId
+		);
+	}
+
+	static async handleCreateQuote(request: Request, locals: App.Locals, customerId?: string) {
+		return await OrderCreationUtilities.handleCreateOrderOrQuote(true, request, locals, customerId);
+	}
+
+	static async handleCreateExternalOrder(request: Request, locals: App.Locals) {
+		const form = await superValidate(request, zod(orderSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		const markup = form.data.markup ?? 0;
+		const config = AuthService.generateConfiguration(locals.user!);
+		const pricingService = new PricingService(config, markup);
+		const orderService = new OrderService(config, undefined, undefined, pricingService);
+		let orderId = '';
+		let fullOrder: ExternalFullOrder | undefined;
+
+		try {
+			const orderDto = await OrderCreationUtilities.createExternalOrderDtoFromForm(form);
+			fullOrder = await orderService.createExternalOrderFromDto(orderDto);
+			if (fullOrder === null) {
+				return setError(form, '', 'Error creando el pedido / presupuesto. Intente de nuevo.');
+			}
+
+			orderId = fullOrder.order.id;
+
+			await trackServerEvent(
+				locals.user!,
+				{
+					event: 'external_order_created',
+					orderId,
+					properties: {
+						reference: fullOrder.order.reference,
+						orderPublicId: fullOrder.order.publicId,
+						amount: fullOrder.totals
+					}
+				},
+				locals.posthog
+			);
+
+			// Note: This cookie will be included in the redirect response
+		} catch (error: unknown) {
+			if (error instanceof InvalidSizeError) {
+				return setError(form, '', error.message);
+			}
+
+			return setError(form, '', 'Error creando el pedido / presupuesto. Intente de nuevo.');
+		}
+
+		return { form, fullOrder };
+	}
+
+	private static async handleCreateOrderOrQuote(
 		isQuote: boolean,
 		request: Request,
 		locals: App.Locals,
 		customerId?: string
 	) {
-		const appUser = await AuthUtilities.checkAuth(locals);
 		const schema = isQuote ? quoteSchema : orderSchema;
 		const form = await superValidate(request, zod(schema));
 
@@ -194,7 +234,7 @@ export class OrderCreationUtilities {
 			return fail(400, { form });
 		}
 
-		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
+		const orderService = new OrderService(AuthService.generateConfiguration(locals.user!));
 		let orderId = '';
 
 		try {
@@ -212,13 +252,13 @@ export class OrderCreationUtilities {
 			orderId = fullOrder.order.id;
 
 			await trackServerEvent(
-				appUser,
+				locals.user!,
 				{
 					event: 'order_created',
 					orderId,
 					properties: {
 						status: isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING,
-						amount: CalculatedItemUtilities.getTotal(fullOrder.calculatedItem)
+						amount: fullOrder.totals.total
 					}
 				},
 				locals.posthog
@@ -253,5 +293,50 @@ export class OrderCreationUtilities {
 		}
 
 		return { exteriorHeight: undefined, exteriorWidth: undefined };
+	}
+
+	private static getOrderCreationDtoBase(
+		form: SuperValidated<OrderTypeForm | QuoteTypeForm>,
+		deliveryDate: Date
+	): OrderCreationDtoBase {
+		const partsToCalculate = form.data.partsToCalculate.map((part) => ({
+			id: part.id,
+			quantity: part.quantity,
+			type: part.type as PricingType,
+			moldId: part.moldId,
+			extraInfo: part.extraInfo
+		}));
+
+		const { exteriorHeight, exteriorWidth } = OrderCreationUtilities.getExteriorDimensions(
+			form.data.dimenstionsType as DimensionsType,
+			form.data.exteriorWidth,
+			form.data.exteriorHeight
+		);
+
+		const description =
+			form.data.description.length === 0
+				? form.data.predefinedDescriptions.join(', ')
+				: form.data.description;
+
+		return {
+			width: form.data.width,
+			height: form.data.height,
+			pp: form.data.pp ?? 0,
+			floatingDistance: form.data.floatingDistance,
+			description,
+			predefinedObservations: form.data.predefinedObservations,
+			observations: form.data.observations,
+			quantity: form.data.quantity,
+			deliveryDate,
+			partsToCalculate: partsToCalculate,
+			extraParts: form.data.extraParts,
+			discount: parseInt(form.data.discount),
+			hasArrow: form.data.hasArrow,
+			ppDimensions: form.data.ppDimensions,
+			exteriorWidth: exteriorWidth,
+			exteriorHeight: exteriorHeight,
+			dimensionsType: form.data.dimenstionsType as DimensionsType,
+			instantDelivery: form.data.instantDelivery
+		};
 	}
 }

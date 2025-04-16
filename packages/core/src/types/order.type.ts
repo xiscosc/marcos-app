@@ -61,6 +61,10 @@ export type CalculatedItem = {
 	quantity: number;
 };
 
+export type CalculatedItemWithPartTypes = CalculatedItem & {
+	parts: CalculatedItemPartWithType[];
+};
+
 export type Order = {
 	id: string;
 	shortId: string;
@@ -77,9 +81,45 @@ export type Order = {
 	publicId: string;
 };
 
+export type ExternalOrder = {
+	id: string;
+	reference: string;
+	storeId: string;
+	createdAt: Date;
+	item: Item;
+	hasArrow: boolean;
+	user: StaticUser;
+	publicId: string;
+};
+
+export type OrderTotalsBase = {
+	totalWithoutDiscount: number;
+	total: number;
+	unitPrice: number;
+	unitPriceWithoutDiscount: number;
+	discountNotAllowedPresent: boolean;
+};
+
+export type ExternalOrderTotals = OrderTotalsBase & {
+	totalWithoutMarkup: number;
+	markup: number;
+};
+
+export type OrderTotals = OrderTotalsBase & {
+	payed: boolean;
+	remainingAmount: number;
+};
+
 export type FullOrder = {
 	order: Order;
-	calculatedItem: CalculatedItem;
+	calculatedItem: CalculatedItemWithPartTypes;
+	totals: OrderTotals;
+};
+
+export type ExternalFullOrder = {
+	order: ExternalOrder;
+	calculatedItem: CalculatedItemWithPartTypes;
+	totals: ExternalOrderTotals;
 };
 
 export enum OrderStatus {

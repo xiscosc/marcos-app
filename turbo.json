@@ -30,7 +30,9 @@
 				"AUTH_AUTH0_SECRET",
 				"AUTH_AUTH0_ISSUER",
 				"MAINTENANCE_MODE",
-				"ENV_NAME"
+				"ENV_NAME",
+				"MAIN_STORE_ID",
+				"PUBLIC_PROFILER_CONFIG"
 			]
 		},
 		"lint": {
