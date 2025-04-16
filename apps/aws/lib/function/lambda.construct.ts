@@ -23,7 +23,7 @@ export function createLambdas(
 
 	const sharpLayer = new LayerVersion(scope, `${envName}-sharp-layer`, {
 		code: Code.fromAsset('sharp-layer.zip'),
-		compatibleRuntimes: [Runtime.NODEJS_20_X],
+		compatibleRuntimes: [Runtime.NODEJS_22_X],
 		description: 'Layer with sharp library',
 		compatibleArchitectures: [Architecture.ARM_64]
 	});
@@ -37,7 +37,7 @@ export function createLambdas(
 		memorySize: 512,
 		timeout: Duration.seconds(10),
 		logRetention: RetentionDays.ONE_MONTH,
-		runtime: Runtime.NODEJS_20_X,
+		runtime: Runtime.NODEJS_22_X,
 		architecture: Architecture.ARM_64,
 		bundling: {
 			minify: true,
@@ -76,7 +76,7 @@ export function createLambdas(
 		memorySize: 512,
 		timeout: Duration.seconds(10),
 		logRetention: RetentionDays.ONE_MONTH,
-		runtime: Runtime.NODEJS_20_X,
+		runtime: Runtime.NODEJS_22_X,
 		architecture: Architecture.ARM_64,
 		bundling: {
 			minify: true,
