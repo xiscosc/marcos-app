@@ -2,7 +2,7 @@ import { PostHog } from 'posthog-node';
 import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
 import { ENV_NAME } from '$env/static/private';
 import type { AppUser } from '@marcsimolduressonsardina/core/type';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 
 export interface IServerEvent {
 	event: string;
@@ -19,7 +19,7 @@ export interface PosthogContext {
 	referrer: string | null;
 }
 
-function buildPostHogServer() {
+export function buildPostHogServer() {
 	return new PostHog(PUBLIC_POSTHOG_KEY, {
 		host: 'https://eu.i.posthog.com',
 		disableGeoip: false
