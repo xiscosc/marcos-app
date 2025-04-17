@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { get, writable } from 'svelte/store';
 
 const profilerConfigKey = 'mmss-profiler-config';
-const expirationTimeInMillis = 1000 * 60 * 60 * 24;
+const expirationTimeInMillis = 1000 * 60 * 60 * 2;
 const globalProfiler = writable<Profiler | undefined>();
 
 type ProfilerLocalStorage = {
@@ -26,8 +26,7 @@ export class ProfilerState {
 
 	constructor() {
 		this.config = ProfilerState.getProfilerConfig();
-		this.profiler = this.initProfiler();
-		this.updateConfig(this.config);
+		this.profiler = this.initProfiler(this.config);
 	}
 
 	public getProfiler(): Profiler {
@@ -38,7 +37,7 @@ export class ProfilerState {
 		return this.config;
 	}
 
-	public updateConfig(newConfig: ProfilerConfig): void {
+	public updateDebugConfig(newConfig: ProfilerConfig): void {
 		if (browser) {
 			const localStorageConfig: ProfilerLocalStorage = {
 				expiration: DateTime.now().plus({ milliseconds: expirationTimeInMillis }).toMillis(),
@@ -51,6 +50,14 @@ export class ProfilerState {
 		this.config = newConfig;
 	}
 
+	public clearDebugConfig(): void {
+		if (browser) {
+			localStorage.removeItem(profilerConfigKey);
+			this.config = ProfilerState.getProfilerConfig();
+			this.profiler.updateConfig(this.config);
+		}
+	}
+
 	public static encodeConfig(config: ProfilerConfig): string {
 		try {
 			return btoa(JSON.stringify(config));
@@ -60,15 +67,30 @@ export class ProfilerState {
 		}
 	}
 
-	private initProfiler(): Profiler {
+	public static isDebugEnabled(): boolean {
+		const profilerStoredConfig = localStorage.getItem(profilerConfigKey);
+		if (profilerStoredConfig) {
+			const storedData: ProfilerLocalStorage = JSON.parse(profilerStoredConfig);
+			const isExpired = DateTime.now().toMillis() > storedData.expiration;
+			if (!isExpired) {
+				return true;
+			} else {
+				localStorage.removeItem(profilerConfigKey);
+			}
+		}
+		return false;
+	}
+
+	private initProfiler(config: ProfilerConfig): Profiler {
 		const profiler = get(globalProfiler);
 		if (profiler == null) {
-			const newProfiler = new Profiler(ProfilerState.defaultConfig);
+			const newProfiler = new Profiler(config);
 			globalProfiler.set(newProfiler);
 			return newProfiler;
+		} else {
+			profiler.updateConfig(config);
+			return profiler;
 		}
-
-		return profiler;
 	}
 
 	private static getProfilerConfig(): ProfilerConfig {
@@ -79,6 +101,8 @@ export class ProfilerState {
 				const isExpired = DateTime.now().toMillis() > storedData.expiration;
 				if (!isExpired) {
 					return this.parseConfig(storedData.config);
+				} else {
+					localStorage.removeItem(profilerConfigKey);
 				}
 			}
 		}
