@@ -18,16 +18,10 @@
 	let profilerReferencePoint = $state(DateTime.now().toISODate());
 	let profilerResponseFactor = $state(0);
 	let profilerScopeLimit = $state(0);
-	const profilerState = new ProfilerState();
+	let isDebugEnabled = $state(false);
 
-	if (browser) {
-		const currentProfilerConfig = profilerState.getConfig();
-		profilerEnabled = currentProfilerConfig.enabled;
-		profilerLoging = currentProfilerConfig.loging;
-		profilerReferencePoint = currentProfilerConfig.referencePoint;
-		profilerResponseFactor = currentProfilerConfig.responseFactor;
-		profilerScopeLimit = currentProfilerConfig.scopeLimit;
-	}
+	const profilerState = new ProfilerState();
+	updateConfigState();
 
 	let debugConfig: ProfilerConfig = $derived(
 		profilerEnabled
@@ -42,6 +36,18 @@
 	);
 
 	let encodedConfig = $derived(ProfilerState.encodeConfig(debugConfig));
+
+	function updateConfigState() {
+		if (browser) {
+			const currentProfilerConfig = profilerState.getConfig();
+			profilerEnabled = currentProfilerConfig.enabled;
+			profilerLoging = currentProfilerConfig.loging;
+			profilerReferencePoint = currentProfilerConfig.referencePoint;
+			profilerResponseFactor = currentProfilerConfig.responseFactor;
+			profilerScopeLimit = currentProfilerConfig.scopeLimit;
+			isDebugEnabled = ProfilerState.isDebugEnabled();
+		}
+	}
 </script>
 
 <Toaster richColors />
@@ -49,7 +55,7 @@
 <div class="flex flex-col gap-4">
 	<SimpleHeading icon={IconType.SETTINGS}>Debug Settings</SimpleHeading>
 
-	<Box title="Profiler">
+	<Box title="Profiler" icon={isDebugEnabled ? IconType.DONE : IconType.CLOSE}>
 		<div class="flex flex-col gap-2">
 			<div
 				class="shadow-xs flex h-10 flex-1 flex-row items-center justify-between gap-2 rounded-md border p-2"
@@ -102,13 +108,29 @@
 
 			<div class="flex">
 				<Button
-					text="Update"
-					icon={IconType.DASHBOARD}
+					text="Update debug config"
+					icon={IconType.ORDER_PENDING}
 					style={ButtonStyle.FORM}
 					onClick={() => {
 						if (browser) {
-							profilerState.updateConfig(debugConfig);
-							toast.success('Profiler updated');
+							profilerState.updateDebugConfig(debugConfig);
+							toast.success('Profiler updated for 2h');
+							isDebugEnabled = ProfilerState.isDebugEnabled();
+						}
+					}}
+				></Button>
+			</div>
+
+			<div class="flex">
+				<Button
+					text="Delete debug config"
+					icon={IconType.TRASH}
+					style={ButtonStyle.DELETE}
+					onClick={() => {
+						if (browser) {
+							profilerState.clearDebugConfig();
+							updateConfigState();
+							toast.success('Restored config to default');
 						}
 					}}
 				></Button>
