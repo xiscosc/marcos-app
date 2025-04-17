@@ -1,4 +1,4 @@
-import { App } from 'aws-cdk-lib';
+import { App, Tags } from 'aws-cdk-lib';
 import { MmSsStack } from './mmss.stack.js';
 
 export class MmSsApp extends App {
@@ -11,7 +11,8 @@ export class MmSsApp extends App {
 			mainStoreId: MmSsApp.getFromEnv('MAIN_STORE_ID')
 		};
 
-		new MmSsStack(this, `${props.envName}-mmss-stack`, props);
+		const stack = new MmSsStack(this, `${props.envName}-mmss-stack`, props);
+		Tags.of(stack).add('project', `${props.envName}-mmss`);
 	}
 
 	private static getFromEnv(key: string): string {
