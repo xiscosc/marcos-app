@@ -6,11 +6,13 @@ import {
 	PutObjectCommand,
 	type S3Client,
 	HeadObjectCommand,
-	PutObjectTaggingCommand
+	PutObjectTaggingCommand,
+	Tag
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { Readable } from 'stream';
-import { pino } from 'pino';
+import { getLogger } from '../logger/logger';
+import { Logger } from 'pino';
 
 export class S3Util {
 	public static async getPresignedUploadUrl(
@@ -144,27 +146,49 @@ export class S3Util {
 		});
 	}
 
-	public static async tagFilesForExpiry(client: S3Client, bucket: string, keys: string[]) {
-		const logger = pino();
-		for (const key of keys) {
-			try {
-				const command = new PutObjectTaggingCommand({
-					Bucket: bucket,
-					Key: key,
-					Tagging: {
-						TagSet: [
-							{
-								Key: 'expiry',
-								Value: 'true'
-							}
-						]
-					}
-				});
-
-				await client.send(command);
-			} catch (error) {
-				logger.error(`Failed to tag file ${key} for expiry: ${error}`);
+	public static async tagFilesForExpiry(
+		client: S3Client,
+		bucket: string,
+		keys: string[],
+		pinoLogger?: Logger
+	) {
+		const logger = pinoLogger ?? getLogger();
+		const tags: Tag[] = [
+			{
+				Key: 'expiry',
+				Value: 'true'
 			}
+		];
+
+		const tagPromises = keys.map((key) => S3Util.tagFile(logger, client, bucket, key, tags));
+		const results = await Promise.allSettled(tagPromises);
+
+		results.forEach((result, index) => {
+			if (result.status === 'rejected') {
+				logger.error(`Failed to tag file ${keys[index]}: ${result.reason}`);
+			}
+		});
+	}
+
+	private static async tagFile(
+		logger: Logger,
+		client: S3Client,
+		bucket: string,
+		key: string,
+		tags: Tag[]
+	): Promise<void> {
+		const command = new PutObjectTaggingCommand({
+			Bucket: bucket,
+			Key: key,
+			Tagging: {
+				TagSet: tags
+			}
+		});
+
+		try {
+			await client.send(command);
+		} catch (error) {
+			logger.error(`Failed to tag file ${key} with tags ${JSON.stringify(tags)}: ${error}`);
 		}
 	}
 }

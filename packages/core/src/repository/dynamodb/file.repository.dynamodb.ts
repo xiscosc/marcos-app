@@ -31,6 +31,31 @@ export class FileRepositoryDynamoDb extends DynamoRepository<FileDto> {
 		await this.batchDelete([{ partitionKey: orderUuid, sortKey: fileUuid }]);
 	}
 
+	public async getOptimizedPhotoFileOriginalKeys(): Promise<Partial<FileDto>[]> {
+		const filterExpression = '#n0 = :v0 AND attribute_exists(#n1) AND attribute_exists(#n2)';
+		const projectionExpression = '#n3';
+
+		const attributeNames = {
+			'#n0': 'type',
+			'#n1': 'optimizedKey',
+			'#n2': 'thumbnailKey',
+			'#n3': 'key'
+		};
+
+		const attributeValues = {
+			':v0': 'photo'
+		};
+
+		const dtos = await this.scan(
+			filterExpression,
+			attributeNames,
+			attributeValues,
+			projectionExpression
+		);
+
+		return dtos;
+	}
+
 	public async deleteFiles(files: FileDto[]) {
 		const deleteInfo = files.map((f) => ({
 			partitionKey: f.orderUuid,
