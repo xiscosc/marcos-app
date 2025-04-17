@@ -1,10 +1,10 @@
 import { S3CreateEvent } from 'aws-lambda';
-import { pino } from 'pino';
 import 'dotenv/config';
 import { lambdaOptimizeImages } from '@marcsimolduressonsardina/lambda/images';
+import { getLogger } from '@marcsimolduressonsardina/core/logger';
 
 export async function handler(event: S3CreateEvent): Promise<void> {
-	const logger = pino();
+	const logger = getLogger();
 	try {
 		await lambdaOptimizeImages(
 			event.Records,

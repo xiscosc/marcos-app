@@ -1,9 +1,9 @@
 import { type AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { Logger, pino } from 'pino';
 import {
 	DynamoDBDocument,
 	type DynamoDBDocumentClient,
 	QueryCommand,
+	ScanCommand,
 	PutCommand,
 	BatchWriteCommand,
 	type UpdateCommandInput,
@@ -11,7 +11,8 @@ import {
 	type QueryCommandInput,
 	TransactWriteCommand,
 	type TransactWriteCommandInput,
-	type NativeAttributeValue
+	type NativeAttributeValue,
+	ScanCommandInput
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
 import type { ItemDto } from '../dto/item.dto';
@@ -26,6 +27,8 @@ import {
 	IPrimaryDynamoDbIndex,
 	ISecondaryDynamoDbIndex
 } from './index.dynamodb';
+import { Logger } from 'pino';
+import { getLogger } from '../../logger/logger';
 
 export abstract class DynamoRepository<T> {
 	protected readonly defaultLimit: number = 25;
@@ -37,7 +40,7 @@ export abstract class DynamoRepository<T> {
 		private readonly table: string,
 		protected readonly primaryIndex: IPrimaryDynamoDbIndex
 	) {
-		this.logger = pino();
+		this.logger = getLogger();
 		if (!table) {
 			throw new Error(`Invalid table or partition key name ${table}`);
 		}
@@ -283,6 +286,60 @@ export abstract class DynamoRepository<T> {
 			await this.client.send(new PutCommand(input));
 		} catch (error: unknown) {
 			this.logError('put', error);
+			throw error;
+		}
+	}
+
+	protected async scan(
+		filterExpression?: string,
+		attributeNames?: Record<string, string>,
+		attributeValues?: object,
+		projectionExpression?: string
+	): Promise<Partial<T>[]> {
+		const results: Partial<T>[] = [];
+		let lastEvaluatedKey: Record<string, NativeAttributeValue> | undefined;
+		const params: ScanCommandInput = {
+			TableName: this.table
+		};
+
+		if (filterExpression != null && filterExpression.length > 0) {
+			params.FilterExpression = filterExpression;
+		}
+
+		if (projectionExpression != null && projectionExpression.length > 0) {
+			params.ProjectionExpression = projectionExpression;
+		}
+
+		if (
+			(projectionExpression != null && projectionExpression.length > 0) ||
+			(filterExpression != null && filterExpression.length > 0)
+		) {
+			if (attributeNames == null || attributeValues == null) {
+				throw Error('Attribute names and values are required');
+			}
+
+			params.ExpressionAttributeNames = attributeNames;
+			params.ExpressionAttributeValues = attributeValues;
+		}
+
+		try {
+			do {
+				if (lastEvaluatedKey) {
+					params.ExclusiveStartKey = lastEvaluatedKey;
+				}
+
+				const command = new ScanCommand(params);
+				const response = await this.client.send(command);
+
+				if (response.Items) {
+					results.push(...(response.Items as Partial<T>[]));
+				}
+
+				lastEvaluatedKey = response.LastEvaluatedKey;
+			} while (lastEvaluatedKey);
+			return results;
+		} catch (error: unknown) {
+			this.logError('scan', error);
 			throw error;
 		}
 	}

@@ -3,7 +3,8 @@
 	"version": "1.0.0",
 	"exports": {
 		"./reports": "./src/reports.ts",
-		"./images": "./src/images.ts"
+		"./images": "./src/images.ts",
+		"./optimize-storage": "./src/optimize-storage.ts"
 	},
 	"scripts": {
 		"lint": "eslint .",

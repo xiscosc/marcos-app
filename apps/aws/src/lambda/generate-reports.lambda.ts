@@ -1,10 +1,10 @@
-import { pino } from 'pino';
 import 'dotenv/config';
 
 import { lambdaGenerateReports } from '@marcsimolduressonsardina/lambda/reports';
+import { getLogger } from '@marcsimolduressonsardina/core/logger';
 
 export async function handler(event: unknown): Promise<void> {
-	const logger = pino();
+	const logger = getLogger();
 	logger.info(event);
 	try {
 		await lambdaGenerateReports(

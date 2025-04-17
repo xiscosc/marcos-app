@@ -9,7 +9,8 @@
 		"./db": "./src/repository/dynamodb/index.dynamodb.ts",
 		"./error": "./src/error/index.ts",
 		"./config": "./src/configuration/core-configuration.interface.ts",
-		"./data": "./src/data/mold-price.loader.ts"
+		"./data": "./src/data/mold-price.loader.ts",
+		"./logger": "./src/logger/logger.ts"
 	},
 	"scripts": {
 		"lint": "eslint .",
@@ -39,6 +40,7 @@
 		"nanoid": "5.1.0",
 		"mime-types": "2.1.35",
 		"pino": "9.6.0",
+		"pino-pretty": "13.0.0",
 		"uuid": "11.1.0",
 		"xlsx": "0.18.5"
 	}

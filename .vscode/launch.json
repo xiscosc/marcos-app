@@ -25,6 +25,28 @@
 			"skipFiles": [
 				"<node_internals>/**" // Skip stepping into Node.js internal code
 			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug Optimize storage",
+			// Remove runtimeArgs
+			// "runtimeArgs": [
+			//  "-r",
+			//  "tsx"
+			// ],
+			"runtimeExecutable": "npx", // Use npx to run tsx
+			"args": [
+				"tsx", // Command to run
+				"${workspaceFolder}/apps/aws/test/test-optimize-storage.ts" // Script to execute with tsx
+			],
+			"cwd": "${workspaceFolder}/apps/aws", // Set working directory to load .env correctly
+			"envFile": "${workspaceFolder}/apps/aws/.env", // Load environment variables
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+			"skipFiles": [
+				"<node_internals>/**" // Skip stepping into Node.js internal code
+			]
 		}
 	]
 }

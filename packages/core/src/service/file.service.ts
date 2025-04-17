@@ -13,6 +13,7 @@ import {
 import { getClientConfiguration } from '../configuration/configuration.util';
 import { FileType, File } from '../types/file.type';
 import { S3EventRecord } from 'aws-lambda';
+import { getLogger } from '../logger/logger';
 
 interface IFileMetadata extends Record<string, string> {
 	store_id: string;
@@ -143,6 +144,27 @@ export class FileService {
 		const fileDto = await this.repository.getFile(orderId, id);
 		if (fileDto == null) return undefined;
 		return this.processFileToDownload(fileDto);
+	}
+
+	public async optimizePhotoStorage(): Promise<void> {
+		const logger = getLogger();
+		logger.info('Optimizing photo storage');
+		const fileDtos = await this.repository.getOptimizedPhotoFileOriginalKeys();
+		const originalKeys = fileDtos.map((dto) => dto.key!);
+		logger.info(`Found ${originalKeys.length} files to optimize`);
+
+		const batches = [];
+		for (let i = 0; i < originalKeys.length; i += 50) {
+			batches.push(originalKeys.slice(i, i + 50));
+		}
+
+		logger.info(`Processing ${batches.length} batches`);
+		for (let i = 0; i < batches.length; i++) {
+			const batch = batches[i];
+			logger.info(`Processing batch ${i + 1} of ${batches.length}`);
+			await S3Util.tagFilesForExpiry(this.s3Client, this.config.filesBucket!, batch, logger);
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+		}
 	}
 
 	public async getPhotoFromS3EventRecord(
