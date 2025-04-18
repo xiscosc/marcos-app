@@ -131,8 +131,7 @@ export class FileService {
 				this.config.filesBucket!,
 				fileDto.thumbnailKey,
 				thumbnailImage,
-				optimizationAndThumbnailTypeInfo?.thumbnailContentType ?? originalFile.contentType,
-				true
+				optimizationAndThumbnailTypeInfo?.thumbnailContentType ?? originalFile.contentType
 			);
 		}
 
