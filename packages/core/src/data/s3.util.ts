@@ -191,7 +191,10 @@ export class S3Util {
 		});
 
 		try {
-			await client.send(command);
+			const response = await client.send(command);
+			logger.info(
+				`Tagged file ${key} with tags ${JSON.stringify(tags)}, response: ${response.$metadata.httpStatusCode}`
+			);
 		} catch (error) {
 			logger.error(`Failed to tag file ${key} with tags ${JSON.stringify(tags)}: ${error}`);
 		}
