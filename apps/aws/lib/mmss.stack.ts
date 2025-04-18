@@ -65,7 +65,7 @@ export class MmSsStack extends Stack {
 				managedPolicyName: `${this.props.envName}-main-store-write-policy`,
 				statements: [
 					new PolicyStatement({
-						actions: ['s3:PutObject', 's3:DeleteObject'],
+						actions: ['s3:PutObject', 's3:DeleteObject', 's3:PutObjectTagging'],
 						resources: bucketArns
 					}),
 					new PolicyStatement({
