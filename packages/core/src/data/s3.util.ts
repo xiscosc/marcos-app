@@ -7,7 +7,8 @@ import {
 	type S3Client,
 	HeadObjectCommand,
 	PutObjectTaggingCommand,
-	Tag
+	Tag,
+	StorageClass
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { Readable } from 'stream';
@@ -21,13 +22,15 @@ export class S3Util {
 		key: string,
 		mimeType: string,
 		expire: number = 60,
-		metadata?: Record<string, string>
+		metadata?: Record<string, string>,
+		intelligentTiering: boolean = false
 	): Promise<string> {
 		const params: PutObjectCommandInput = {
 			Bucket: bucket,
 			Key: key,
 			ContentType: mimeType,
-			Metadata: metadata
+			Metadata: metadata,
+			StorageClass: intelligentTiering ? StorageClass.INTELLIGENT_TIERING : undefined
 		};
 
 		return await getSignedUrl(client, new PutObjectCommand(params), {
@@ -121,13 +124,15 @@ export class S3Util {
 		bucket: string,
 		key: string,
 		body: Buffer,
-		contentType?: string
+		contentType?: string,
+		intelligentTiering: boolean = false
 	) {
 		const command = new PutObjectCommand({
 			Bucket: bucket,
 			Key: key,
 			Body: body,
-			ContentType: contentType
+			ContentType: contentType,
+			StorageClass: intelligentTiering ? StorageClass.INTELLIGENT_TIERING : undefined
 		});
 
 		try {

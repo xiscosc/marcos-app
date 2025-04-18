@@ -72,7 +72,8 @@ export class FileService {
 			storageKey,
 			mimeType,
 			300,
-			metadata
+			metadata,
+			file.type !== FileType.PHOTO
 		);
 		file.uploadUrl = uploadUrl;
 		await Promise.all([
@@ -118,7 +119,8 @@ export class FileService {
 				this.config.filesBucket!,
 				fileDto.optimizedKey,
 				optimizedImage,
-				optimizationAndThumbnailTypeInfo?.optimizedContentType ?? originalFile.contentType
+				optimizationAndThumbnailTypeInfo?.optimizedContentType ?? originalFile.contentType,
+				true
 			);
 		}
 
