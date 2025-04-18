@@ -5,8 +5,7 @@ import {
 	type BucketProps,
 	type CorsRule,
 	HttpMethods,
-	LifecycleRule,
-	StorageClass
+	LifecycleRule
 } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import type { BucketSet } from '../types.js';
@@ -38,17 +37,10 @@ export function createBuckets(
 		}
 	};
 
-	const intelligentTieringLifecycleRule: LifecycleRule = {
-		id: `${envName}-intelligent-tiering-lifecycle-rule`,
-		transitions: [
-			{ storageClass: StorageClass.INTELLIGENT_TIERING, transitionAfter: Duration.days(0) }
-		]
-	};
-
 	const filesBucketProps: BucketProps = {
 		bucketName: `mmss-${envName}-files`,
 		cors: [corsRule],
-		lifecycleRules: [expiryLifecycleRule, intelligentTieringLifecycleRule],
+		lifecycleRules: [expiryLifecycleRule],
 		blockPublicAccess: BlockPublicAccess.BLOCK_ALL
 	};
 
