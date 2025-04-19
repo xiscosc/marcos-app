@@ -18,16 +18,17 @@ export function initPosthog(envName: string, appUser?: AppUser) {
 		});
 
 		if (appUser) {
-			identifyUser(appUser);
+			identifyUser(appUser, envName);
 		}
 	}
 }
 
-export function identifyUser(appUser: AppUser) {
+export function identifyUser(appUser: AppUser, envName: string) {
 	if (browser) {
 		posthog.identify(appUser.id, {
 			email: appUser.id,
-			name: appUser.name
+			name: appUser.name,
+			env: envName
 		});
 	}
 }
