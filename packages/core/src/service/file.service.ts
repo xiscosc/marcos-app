@@ -83,6 +83,25 @@ export class FileService {
 		return file;
 	}
 
+	public async createNoArtFile(orderId: string): Promise<File> {
+		const id = uuidv4();
+		const file: File = {
+			orderId,
+			id,
+			type: FileType.NO_ART,
+			originalFilename: 'Sin Obra'
+		};
+		const fileDto = FileService.toDto(file, 'no_key');
+		await Promise.all([
+			this.repository.createFile(fileDto),
+			this.orderAuditTrailServiceOrder.logOrderFileCreated(
+				orderId,
+				`${file.originalFilename} || ${id}`
+			)
+		]);
+		return file;
+	}
+
 	public async storeOptimizations(
 		orderId: string,
 		id: string,
@@ -220,18 +239,26 @@ export class FileService {
 	public async deleteFile(orderId: string, id: string) {
 		const dto = await this.repository.getFile(orderId, id);
 		if (dto == null) return;
-		await Promise.all([
+		const promises = [
 			this.repository.deleteFile(orderId, id),
-			S3Util.tagFilesForExpiry(
-				this.s3Client,
-				this.config.filesBucket!,
-				FileService.getAllFileKeys(dto)
-			),
 			this.orderAuditTrailServiceOrder.logOrderFileDeleted(
 				orderId,
 				`${dto.originalFilename} || ${dto.fileUuid}`
 			)
-		]);
+		];
+
+		const file = FileService.fromDto(dto);
+		if (file.type !== FileType.NO_ART) {
+			promises.push(
+				S3Util.tagFilesForExpiry(
+					this.s3Client,
+					this.config.filesBucket!,
+					FileService.getAllFileKeys(dto)
+				)
+			);
+		}
+
+		await Promise.all(promises);
 	}
 
 	private async processFileToDownload(fileDto: FileDto): Promise<File> {

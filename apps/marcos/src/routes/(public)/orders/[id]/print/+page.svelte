@@ -7,7 +7,7 @@
 	}
 
 	let { data }: Props = $props();
-	identifyUser(data.user);
+	identifyUser(data.user, data.envName);
 </script>
 
 <OrderPrint fullOrder={data.fullOrder} print></OrderPrint>

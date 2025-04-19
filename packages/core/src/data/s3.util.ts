@@ -157,6 +157,10 @@ export class S3Util {
 		keys: string[],
 		pinoLogger?: Logger
 	) {
+		if (keys.length === 0) {
+			return;
+		}
+
 		const logger = pinoLogger ?? getLogger();
 		const tags: Tag[] = [
 			{

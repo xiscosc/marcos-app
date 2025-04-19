@@ -7,11 +7,13 @@
 	import { goto } from '$app/navigation';
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import Button from '@/components/generic/button/Button.svelte';
-	import { ButtonType } from '@/components/generic/button/button.enum';
+	import { ButtonAction, ButtonType } from '@/components/generic/button/button.enum';
 	import Box from '@/components/generic/Box.svelte';
 	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 	import { Input } from '@/components/ui/input';
 	import Photos from '@/components/business-related/file/Photos.svelte';
+	import { featureFlags, runWhenFeatureIsEnabled } from '@/shared/feature-flags';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		data: PageData;
@@ -24,9 +26,11 @@
 	let loadingText = $state('');
 	let files = $state(data.files ?? []);
 
+	let noArtEnabled = $state(false);
 	let photos = $derived(files.filter((f) => f.type === FileType.PHOTO));
 	let videos = $derived(files.filter((f) => f.type === FileType.VIDEO));
 	let other = $derived(files.filter((f) => f.type === FileType.OTHER));
+	let noArt = $derived(files.filter((f) => f.type === FileType.NO_ART));
 
 	async function deleteFile(id: string) {
 		loadingText = 'Eliminando archivo';
@@ -46,6 +50,27 @@
 
 		loading = false;
 		files = files.filter((f) => f.id != id);
+	}
+
+	async function createNoArtFile() {
+		loadingText = 'Cargando archivo';
+		loading = true;
+		const response = await fetch(`/api/orders/${data!.order!.id}/files`, {
+			method: 'POST',
+			body: JSON.stringify({ filename: 'Sin obra', fileType: FileType.NO_ART }),
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		if (response.status !== 200) {
+			toast.error('Error al procesar el fichero');
+			return;
+		}
+
+		const file = (await response.json()) as MMSSFile;
+		files = [...files, file];
+		loading = false;
 	}
 
 	async function createFile(filename: string): Promise<MMSSFile | undefined> {
@@ -134,6 +159,12 @@
 	async function goBackToOrder() {
 		await goto(`/orders/${data!.order!.id}`);
 	}
+
+	onMount(() => {
+		runWhenFeatureIsEnabled(featureFlags.noArtUploader, () => {
+			noArtEnabled = true;
+		});
+	});
 </script>
 
 <Toaster richColors />
@@ -157,8 +188,23 @@
 	{:else}
 		<div class="flex flex-col gap-2">
 			<Box title="Carga de archivos">
-				<Input type="file" bind:files={inputFiles} onchange={loadFile} multiple />
+				<div class="flex flex-col gap-2 md:flex-row">
+					<Input type="file" bind:files={inputFiles} onchange={loadFile} multiple />
+				</div>
 			</Box>
+
+			{#if noArtEnabled && files.length === 0}
+				<Box title="Sin Obra">
+					<div class="flex flex-col gap-2 md:flex-row">
+						<Button
+							action={ButtonAction.CLICK}
+							onClick={() => createNoArtFile()}
+							text="Añadir archivo Sin Obra"
+							icon={IconType.ADD}
+						></Button>
+					</div>
+				</Box>
+			{/if}
 
 			{#if photos.length > 0}
 				<Box title="Fotos" collapsible>
@@ -171,7 +217,7 @@
 					<div class="flex flex-col gap-2">
 						{#each videos as file}
 							<UploadedFile
-								isVideo={true}
+								fileType={FileType.VIDEO}
 								fileName={file.originalFilename}
 								downloadUrl={file.downloadUrl}
 								onDelete={deleteFile}
@@ -182,13 +228,22 @@
 				</Box>
 			{/if}
 
-			{#if other.length > 0}
+			{#if other.length > 0 || noArt.length > 0}
 				<Box title="Otros archivos" collapsible>
 					<div class="flex flex-col gap-2">
 						{#each other as file}
 							<UploadedFile
+								fileType={file.type}
 								fileName={file.originalFilename}
 								downloadUrl={file.downloadUrl}
+								onDelete={deleteFile}
+								id={file.id}
+							/>
+						{/each}
+						{#each noArt as file}
+							<UploadedFile
+								fileType={file.type}
+								fileName={file.originalFilename}
 								onDelete={deleteFile}
 								id={file.id}
 							/>

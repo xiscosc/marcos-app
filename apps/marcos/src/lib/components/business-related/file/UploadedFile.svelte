@@ -3,44 +3,62 @@
 	import Button from '@/components/generic/button/Button.svelte';
 	import { ButtonAction } from '@/components/generic/button/button.enum';
 	import { IconType } from '@/components/generic/icon/icon.enum';
+	import { FileType } from '@marcsimolduressonsardina/core/type';
 
 	interface Props {
-		isVideo?: boolean;
 		id?: string;
 		fileName?: string;
 		downloadUrl?: string;
 		onDelete?: any;
+		fileType: FileType;
 	}
 
 	let {
-		isVideo = false,
 		id = '',
 		fileName = '',
-		downloadUrl = '',
+		downloadUrl = undefined,
+		fileType,
 		onDelete = async (id: string) => {}
 	}: Props = $props();
 
 	async function deleteFile() {
 		await onDelete(id);
 	}
+
+	let subtitle = $derived(
+		fileType === FileType.VIDEO
+			? 'Vídeo'
+			: fileType === FileType.NO_ART
+				? 'Archivo por defecto'
+				: 'Archivo'
+	);
+	let downloadIcon = $derived(fileType === FileType.VIDEO ? IconType.EYE : IconType.DOWNLOAD);
+	let icon = $derived(
+		fileType === FileType.VIDEO
+			? IconType.VIDEO
+			: fileType === FileType.NO_ART
+				? IconType.CLOSE
+				: IconType.DOCUMENT
+	);
 </script>
 
-{#snippet viewButton()}
+{#snippet downloadButton()}
 	<Button
 		text=""
-		icon={isVideo ? IconType.EYE : IconType.DOWNLOAD}
+		icon={downloadIcon}
 		action={ButtonAction.LINK}
 		link={downloadUrl}
 		newWindow={true}
+		disabled={downloadUrl == null}
 	/>
 {/snippet}
 
 <Step
-	subtitle={isVideo ? 'Vídeo' : 'Archivo'}
-	icon={isVideo ? IconType.VIDEO : IconType.DOCUMENT}
+	{subtitle}
+	{icon}
 	title={fileName}
 	showDelete={true}
 	deleteFunction={deleteFile}
-	otherAction={viewButton}
+	otherAction={downloadButton}
 	deleteConfirmation={true}
 ></Step>
