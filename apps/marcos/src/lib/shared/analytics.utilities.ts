@@ -28,7 +28,7 @@ export function identifyUser(appUser: AppUser, envName: string) {
 		posthog.identify(appUser.id, {
 			email: appUser.id,
 			name: appUser.name,
-			env: envName
+			userEnv: envName
 		});
 	}
 }
