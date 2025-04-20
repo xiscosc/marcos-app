@@ -93,7 +93,10 @@ async function processImage(
 			env
 		};
 
-		logger.error(errorProps, error instanceof Error ? error.message : String(error));
+		logger.error(
+			{ ...errorProps, error: error instanceof Error ? error.message : String(error) },
+			'Error processing image'
+		);
 
 		if (posthogClient) {
 			posthogClient.captureException(error, undefined, errorProps);
