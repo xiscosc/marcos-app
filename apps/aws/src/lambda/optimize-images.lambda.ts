@@ -1,10 +1,10 @@
 import { S3CreateEvent } from 'aws-lambda';
 import 'dotenv/config';
 import { lambdaOptimizeImages } from '@marcsimolduressonsardina/lambda/images';
-import { getLogger } from '@marcsimolduressonsardina/core/logger';
+import { getLoggerForLambda } from '@marcsimolduressonsardina/core/logger';
 
 export async function handler(event: S3CreateEvent): Promise<void> {
-	const logger = getLogger();
+	const logger = getLoggerForLambda();
 	const input = {
 		s3Records: event.Records,
 		envName: process.env.ENV_NAME ?? 'env-not-set',

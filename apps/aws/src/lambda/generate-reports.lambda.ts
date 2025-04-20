@@ -1,10 +1,10 @@
 import 'dotenv/config';
 
 import { lambdaGenerateReports } from '@marcsimolduressonsardina/lambda/reports';
-import { getLogger } from '@marcsimolduressonsardina/core/logger';
+import { getLoggerForLambda } from '@marcsimolduressonsardina/core/logger';
 
 export async function handler(event: unknown): Promise<void> {
-	const logger = getLogger();
+	const logger = getLoggerForLambda();
 	logger.info(event);
 	try {
 		await lambdaGenerateReports(

@@ -1,5 +1,5 @@
 import { ICoreConfigurationForAWSLambda } from '@marcsimolduressonsardina/core/config';
-import { getLogger } from '@marcsimolduressonsardina/core/logger';
+import { getLoggerForLambda } from '@marcsimolduressonsardina/core/logger';
 import {
 	FileService,
 	OptmizationAndThumbnailTypeInfo
@@ -43,7 +43,7 @@ export async function lambdaOptimizeImages({
 		user
 	};
 
-	const logger = getLogger();
+	const logger = getLoggerForLambda();
 	const postHogClient = postHogKey ? createPostHogClient(postHogKey) : undefined;
 	const fileService = new FileService(configuration);
 	const promises = s3Records.map((record) =>
@@ -92,7 +92,8 @@ async function processImage(
 			orderId: orderIdFromFile,
 			env
 		};
-		logger.error(error, 'Error processing image', [errorProps]);
+
+		logger.error(errorProps, error instanceof Error ? error.message : String(error));
 
 		if (posthogClient) {
 			posthogClient.captureException(error, undefined, errorProps);
