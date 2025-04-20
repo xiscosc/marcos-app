@@ -50,6 +50,10 @@ export async function lambdaOptimizeImages({
 		processImage(record, fileService, envName, logger, postHogClient)
 	);
 	await Promise.all(promises);
+
+	if (postHogClient) {
+		await postHogClient.shutdown();
+	}
 }
 
 async function processImage(
