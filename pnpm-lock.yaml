@@ -323,6 +323,9 @@ importers:
       luxon:
         specifier: 3.6.1
         version: 3.6.1
+      posthog-node:
+        specifier: 4.12.0
+        version: 4.12.0
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -339,6 +342,9 @@ importers:
       aws-lambda:
         specifier: 1.0.7
         version: 1.0.7
+      pino:
+        specifier: 9.6.0
+        version: 9.6.0
       sharp:
         specifier: 0.34.1
         version: 0.34.1
@@ -3173,6 +3179,10 @@ packages:
 
   posthog-node@4.11.3:
     resolution: {integrity: sha512-Ye7d9ZJX1reWP9084Gm9+O7NnvlW7LnbU09GzlsSdD0HzGTfxeKTQZsl9h1+CDHhfvpdWJRm8uc91/aDmXzaCA==}
+    engines: {node: '>=15.0.0'}
+
+  posthog-node@4.12.0:
+    resolution: {integrity: sha512-YWib8aiPXcICAZa29ZuLyjFaJE8dbxbd+v2apoIEPbyMqOra9bKPYVI8XK15Q44vflaaCOOAtTV8A9DefZSbVQ==}
     engines: {node: '>=15.0.0'}
 
   preact-render-to-string@6.5.11:
@@ -6955,6 +6965,12 @@ snapshots:
       web-vitals: 4.2.4
 
   posthog-node@4.11.3:
+    dependencies:
+      axios: 1.8.4
+    transitivePeerDependencies:
+      - debug
+
+  posthog-node@4.12.0:
     dependencies:
       axios: 1.8.4
     transitivePeerDependencies:

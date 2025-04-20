@@ -40,6 +40,7 @@ jobs:
           CDK_ENV_NAME: prod
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
           MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
 
       - name: Diff stack
         run: pnpm cdk diff
@@ -47,6 +48,7 @@ jobs:
           CDK_ENV_NAME: prod
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
           MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
 
       - name: Deploy stack
         run: pnpm cdk deploy --all --require-approval never
@@ -54,3 +56,4 @@ jobs:
           CDK_ENV_NAME: prod
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
           MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}

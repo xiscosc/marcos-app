@@ -14,6 +14,7 @@ export function createLambdas(
 	scope: Construct,
 	envName: string,
 	mainStoreId: string,
+	postHogKey: string,
 	tables: DynamoTableSet,
 	buckets: BucketSet
 ) {
@@ -85,7 +86,9 @@ export function createLambdas(
 		environment: {
 			STORE_ID: mainStoreId,
 			FILE_TABLE: tables.storeTables.fileTable.tableName,
-			FILES_BUCKET: buckets.filesBucket.bucketName
+			FILES_BUCKET: buckets.filesBucket.bucketName,
+			POSTHOG_KEY: postHogKey,
+			ENV_NAME: envName
 		},
 		layers: [sharpLayer]
 	});

@@ -20,10 +20,12 @@
 		"@types/luxon": "3.6.2",
 		"typescript": "5.8.3",
 		"sharp": "0.34.1",
-		"aws-lambda": "1.0.7"
+		"aws-lambda": "1.0.7",
+		"pino": "9.6.0"
 	},
 	"dependencies": {
 		"@marcsimolduressonsardina/core": "workspace:*",
-		"luxon": "3.6.1"
+		"luxon": "3.6.1",
+		"posthog-node": "4.12.0"
 	}
 }

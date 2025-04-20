@@ -14,6 +14,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { Readable } from 'stream';
 import { getLogger } from '../logger/logger';
 import { Logger } from 'pino';
+import { S3EventRecord } from 'aws-lambda';
 
 export class S3Util {
 	public static async getPresignedUploadUrl(
@@ -36,6 +37,15 @@ export class S3Util {
 		return await getSignedUrl(client, new PutObjectCommand(params), {
 			expiresIn: expire
 		});
+	}
+
+	public static getInfoFromS3EventRecord(record: S3EventRecord): {
+		bucketName: string;
+		key: string;
+	} {
+		const bucketName = record.s3.bucket.name;
+		const key = record.s3.object.key;
+		return { bucketName, key };
 	}
 
 	public static async getObjectMetadata(

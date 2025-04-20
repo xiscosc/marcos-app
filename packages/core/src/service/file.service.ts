@@ -188,17 +188,21 @@ export class FileService {
 		}
 	}
 
-	public async getPhotoFromS3EventRecord(
-		record: S3EventRecord
-	): Promise<{ content: Buffer; orderId: string; fileId: string } | undefined> {
-		if (record.s3.bucket.name !== this.config.filesBucket) {
+	public async getPhotoAndMetadataFromStorage({
+		bucketName,
+		key
+	}: {
+		bucketName: string;
+		key: string;
+	}): Promise<{ content: Buffer; orderId: string; fileId: string } | undefined> {
+		if (bucketName !== this.config.filesBucket) {
 			throw Error('Incorrect bucket');
 		}
 
 		const metadata = (await S3Util.getObjectMetadata(
 			this.s3Client,
 			this.config.filesBucket,
-			record.s3.object.key
+			key
 		)) as IFileMetadata | undefined;
 
 		if (
@@ -209,11 +213,7 @@ export class FileService {
 			return undefined;
 		}
 
-		const result = await S3Util.getFileFromS3(
-			this.s3Client,
-			this.config.filesBucket!,
-			record.s3.object.key
-		);
+		const result = await S3Util.getFileFromS3(this.s3Client, this.config.filesBucket!, key);
 		return result
 			? {
 					content: result.file,
@@ -259,6 +259,10 @@ export class FileService {
 		}
 
 		await Promise.all(promises);
+	}
+
+	public static getInfoFromS3EventRecord(recrod: S3EventRecord) {
+		return S3Util.getInfoFromS3EventRecord(recrod);
 	}
 
 	private async processFileToDownload(fileDto: FileDto): Promise<File> {
