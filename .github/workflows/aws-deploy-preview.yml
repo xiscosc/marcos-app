@@ -7,7 +7,7 @@ on:
       - preview
 
 env:
-  AWS_REGION: "eu-central-1"
+  AWS_REGION: 'eu-central-1'
 
 jobs:
   deploy-dev:
@@ -35,7 +35,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: "eu-central-1"
+          aws-region: 'eu-central-1'
 
       - name: Bootstrap
         run: pnpm cdk bootstrap
@@ -43,6 +43,7 @@ jobs:
           CDK_ENV_NAME: dev
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
           MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
 
       - name: Diff stack
         run: pnpm cdk diff
@@ -50,6 +51,7 @@ jobs:
           CDK_ENV_NAME: dev
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
           MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
 
       - name: Deploy stack
         run: pnpm cdk deploy --all --require-approval never
@@ -57,3 +59,4 @@ jobs:
           CDK_ENV_NAME: dev
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
           MAIN_STORE_ID: ${{ vars.MAIN_STORE_ID }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}

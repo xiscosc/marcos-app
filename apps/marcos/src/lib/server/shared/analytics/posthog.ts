@@ -2,7 +2,7 @@ import { PostHog } from 'posthog-node';
 import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
 import { ENV_NAME } from '$env/static/private';
 import type { AppUser } from '@marcsimolduressonsardina/core/type';
-import type { Handle, HandleServerError } from '@sveltejs/kit';
+import type { Handle } from '@sveltejs/kit';
 
 export interface IServerEvent {
 	event: string;
@@ -11,7 +11,7 @@ export interface IServerEvent {
 	customerId?: string;
 }
 
-export interface PosthogContext {
+export interface PostHogContext {
 	ip: string;
 	user_agent: string | null;
 	current_url: string;
@@ -26,7 +26,7 @@ export function buildPostHogServer() {
 	});
 }
 
-function getPropertiesFromContext(context: PosthogContext) {
+function getPropertiesFromContext(context: PostHogContext) {
 	return {
 		$ip: context.ip,
 		$user_agent: context.user_agent,
@@ -36,7 +36,7 @@ function getPropertiesFromContext(context: PosthogContext) {
 	};
 }
 
-function createAnonymousDistinctId(context: PosthogContext) {
+function createAnonymousDistinctId(context: PostHogContext) {
 	const distinctId = `${context.ip}-${context.user_agent || 'no-agent'}`;
 	return distinctId;
 }
@@ -44,7 +44,7 @@ function createAnonymousDistinctId(context: PosthogContext) {
 export async function trackServerEvent(
 	user: AppUser,
 	event: IServerEvent,
-	context: PosthogContext
+	context: PostHogContext
 ) {
 	const client = buildPostHogServer();
 
@@ -69,7 +69,7 @@ export async function trackServerEvent(
 	}
 }
 
-export async function trackAnonymousServerEvent(event: IServerEvent, context: PosthogContext) {
+export async function trackAnonymousServerEvent(event: IServerEvent, context: PostHogContext) {
 	if (context.user_agent?.toLowerCase().includes('whatsapp')) {
 		return;
 	}

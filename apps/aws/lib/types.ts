@@ -7,6 +7,7 @@ export interface MssStackProps extends StackProps {
 	envName: string;
 	allowedUploadOrigins: string[];
 	mainStoreId: string;
+	postHogKey: string;
 }
 
 export type StoreTables = {
