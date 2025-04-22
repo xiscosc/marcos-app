@@ -30,6 +30,30 @@ import {
 import { Logger } from 'pino';
 import { getLogger } from '../../logger/logger';
 
+export enum DynamoFilterExpressionWithValue {
+	EQUAL = '=',
+	NOT_EQUAL = '<>'
+}
+
+export enum DynamoFilterExpressionWithoutValue {
+	ATTRIBUTE_EXISTS = 'attribute_exists',
+	ATTRIBUTE_NOT_EXISTS = 'attribute_not_exists'
+}
+
+export const DynamoFilterExpression = {
+	...DynamoFilterExpressionWithValue,
+	...DynamoFilterExpressionWithoutValue
+} as const;
+
+export type DynamoFilterExpression =
+	(typeof DynamoFilterExpression)[keyof typeof DynamoFilterExpression];
+
+export type DynamoFilterElement = {
+	attribute: string;
+	expression: DynamoFilterExpression;
+	value: string | number | boolean;
+};
+
 export abstract class DynamoRepository<T> {
 	protected readonly defaultLimit: number = 25;
 	protected client: DynamoDBDocumentClient;
@@ -290,54 +314,51 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async scan(
-		filterExpression?: string,
-		attributeNames?: Record<string, string>,
-		attributeValues?: object,
-		projectionExpression?: string
-	): Promise<Partial<T>[]> {
-		const results: Partial<T>[] = [];
-		let lastEvaluatedKey: Record<string, NativeAttributeValue> | undefined;
-		const params: ScanCommandInput = {
-			TableName: this.table
-		};
+	protected async scan<PA extends readonly string[] | string[]>(
+		attributes: DynamoFilterElement[],
+		projectionAttributes: PA,
+		limit?: number,
+		index?: ISecondaryDynamoDbIndex,
+		startKey?: Record<string, string | number>
+	): Promise<PA extends [] | [] ? IPaginatedDtoResult<T> : IPaginatedDtoResult<Partial<T>>> {
+		const fullResults: T[] = [];
+		const partialResults: Partial<T>[] = [];
 
-		if (filterExpression != null && filterExpression.length > 0) {
-			params.FilterExpression = filterExpression;
-		}
-
-		if (projectionExpression != null && projectionExpression.length > 0) {
-			params.ProjectionExpression = projectionExpression;
-		}
-
-		if (
-			(projectionExpression != null && projectionExpression.length > 0) ||
-			(filterExpression != null && filterExpression.length > 0)
-		) {
-			if (attributeNames == null || attributeValues == null) {
-				throw Error('Attribute names and values are required');
-			}
-
-			params.ExpressionAttributeNames = attributeNames;
-			params.ExpressionAttributeValues = attributeValues;
-		}
+		const request = this.buildQueryForScan(
+			attributes,
+			projectionAttributes as string[],
+			limit,
+			index
+		);
+		request.ExclusiveStartKey = startKey;
 
 		try {
-			do {
-				if (lastEvaluatedKey) {
-					params.ExclusiveStartKey = lastEvaluatedKey;
+			const command = new ScanCommand(request);
+			const response = await this.client.send(command);
+
+			if (response.Items) {
+				if ((projectionAttributes as string[]).length === 0) {
+					fullResults.push(...(response.Items as T[]));
+				} else {
+					partialResults.push(...(response.Items as Partial<T>[]));
 				}
+			}
 
-				const command = new ScanCommand(params);
-				const response = await this.client.send(command);
-
-				if (response.Items) {
-					results.push(...(response.Items as Partial<T>[]));
-				}
-
-				lastEvaluatedKey = response.LastEvaluatedKey;
-			} while (lastEvaluatedKey);
-			return results;
+			let result: IPaginatedDtoResult<T> | IPaginatedDtoResult<Partial<T>>;
+			if ((projectionAttributes as string[]).length === 0) {
+				result = {
+					elements: fullResults,
+					endKey: response.LastEvaluatedKey
+				};
+			} else {
+				result = {
+					elements: partialResults,
+					endKey: response.LastEvaluatedKey
+				};
+			}
+			return result as PA extends [] | []
+				? IPaginatedDtoResult<T>
+				: IPaginatedDtoResult<Partial<T>>;
 		} catch (error: unknown) {
 			this.logError('scan', error);
 			throw error;
@@ -618,5 +639,98 @@ export abstract class DynamoRepository<T> {
 			},
 			ScanIndexForward: !descendent
 		};
+	}
+
+	private buildQueryForScan(
+		attributes: DynamoFilterElement[],
+		projectionAttributes: string[],
+		limit?: number,
+		secondayIndex?: ISecondaryDynamoDbIndex
+	): ScanCommandInput {
+		const input: ScanCommandInput = {
+			TableName: this.table,
+			Limit: limit,
+			IndexName: secondayIndex?.indexName
+		};
+
+		if (attributes.length === 0 && projectionAttributes.length === 0) {
+			return input;
+		}
+
+		const attributesMap = new Map<string, DynamoFilterElement>(
+			attributes.map((attribute) => [attribute.attribute, attribute])
+		);
+		const attributesNamesMap = new Map<string, string>();
+		const attributesValueNamesMap = new Map<string, string>();
+
+		attributes.forEach((attribute, index) => {
+			attributesNamesMap.set(attribute.attribute, `#attr${index}`);
+			if (DynamoRepository.canAttributeHaveValue(attribute.expression)) {
+				attributesValueNamesMap.set(attribute.attribute, `:attrValue${index}`);
+			}
+		});
+
+		projectionAttributes.forEach((attribute, index) => {
+			attributesNamesMap.set(attribute, `#attrp${index}`);
+		});
+
+		input.ExpressionAttributeNames = Object.fromEntries(
+			[...attributesNamesMap.entries()].map(([key, value]) => [value, key])
+		);
+
+		if (projectionAttributes.length > 0) {
+			input.ProjectionExpression = projectionAttributes
+				.map((attribute) => attributesNamesMap.get(attribute)!)
+				.join(', ');
+		}
+
+		if (attributes.length > 0) {
+			input.FilterExpression = attributes
+				.map((attribute) =>
+					DynamoRepository.generateExpression(
+						attribute.expression,
+						attributesNamesMap.get(attribute.attribute)!,
+						attributesValueNamesMap.get(attribute.attribute)
+					)
+				)
+				.join(' AND ');
+
+			input.ExpressionAttributeValues = Object.fromEntries(
+				[...attributesValueNamesMap.entries()].map(([key, value]) => [
+					value,
+					attributesMap.get(key)!.value
+				])
+			);
+		}
+
+		return input;
+	}
+
+	private static canAttributeHaveValue(expression: DynamoFilterExpression): boolean {
+		const valueExpressions = Object.values(DynamoFilterExpressionWithValue);
+		return valueExpressions.includes(expression as DynamoFilterExpressionWithValue);
+	}
+
+	private static generateExpression(
+		expression: DynamoFilterExpression,
+		variableName: string,
+		valueName?: string
+	): string {
+		if (DynamoRepository.canAttributeHaveValue(expression) && valueName == null) {
+			throw new Error(`Variable value is required for expression: ${expression}`);
+		}
+
+		switch (expression) {
+			case DynamoFilterExpression.ATTRIBUTE_EXISTS:
+				return `attribute_exists(${variableName})`;
+			case DynamoFilterExpression.ATTRIBUTE_NOT_EXISTS:
+				return `attribute_not_exists(${variableName})`;
+			case DynamoFilterExpression.EQUAL:
+				return `${variableName} = ${valueName}`;
+			case DynamoFilterExpression.NOT_EQUAL:
+				return `${variableName} <> ${valueName}`;
+			default:
+				throw new Error(`Unsupported expression: ${expression}`);
+		}
 	}
 }
