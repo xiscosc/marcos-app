@@ -31,8 +31,9 @@ import { Logger } from 'pino';
 import { getLogger } from '../../logger/logger';
 
 export enum DynamoFilterExpressionWithValue {
-	EQUAL = '=',
-	NOT_EQUAL = '<>'
+	EQUAL = 'equal',
+	NOT_EQUAL = 'not_equal',
+	CONTAINS = 'contains'
 }
 
 export enum DynamoFilterExpressionWithoutValue {
@@ -314,59 +315,57 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async scan<PA extends readonly string[] | string[]>(
-		attributes: DynamoFilterElement[],
-		projectionAttributes: PA,
+	// Overload 1: No projection attributes, returns full T
+	protected scan(
+		filterAttributes: DynamoFilterElement[],
 		limit?: number,
 		index?: ISecondaryDynamoDbIndex,
 		startKey?: Record<string, string | number>
-	): Promise<PA extends [] | [] ? IPaginatedDtoResult<T> : IPaginatedDtoResult<Partial<T>>> {
-		const fullResults: T[] = [];
-		const partialResults: Partial<T>[] = [];
+	): Promise<IPaginatedDtoResult<T>>;
+	protected scan(
+		filterAttributes: DynamoFilterElement[],
+		limit?: number,
+		index?: ISecondaryDynamoDbIndex,
+		startKey?: Record<string, string | number>,
+		projectionAttributes?: string[]
+	): Promise<IPaginatedDtoResult<Partial<T>>>;
+	protected async scan(
+		filterAttributes: DynamoFilterElement[],
+		limit?: number,
+		index?: ISecondaryDynamoDbIndex,
+		startKey?: Record<string, string | number>,
+		projectionAttributes?: string[]
+	): Promise<IPaginatedDtoResult<T | Partial<T>>> {
+		const elements: Partial<T>[] = [];
+		const request: ScanCommandInput = {
+			TableName: this.table,
+			Limit: limit,
+			IndexName: index?.indexName,
+			ExclusiveStartKey: startKey
+		};
 
-		const request = this.buildQueryForScan(
-			attributes,
-			projectionAttributes as string[],
-			limit,
-			index
+		const enrichedRequest = this.addFilterAndProjectionExpressions(
+			filterAttributes,
+			projectionAttributes ?? [],
+			request
 		);
-		request.ExclusiveStartKey = startKey;
 
 		try {
-			const command = new ScanCommand(request);
-			const response = await this.client.send(command);
-
+			const response = await this.client.send(new ScanCommand(enrichedRequest));
 			if (response.Items) {
-				if ((projectionAttributes as string[]).length === 0) {
-					fullResults.push(...(response.Items as T[]));
-				} else {
-					partialResults.push(...(response.Items as Partial<T>[]));
-				}
+				elements.push(...(response.Items as Partial<T>[]));
 			}
 
-			let result: IPaginatedDtoResult<T> | IPaginatedDtoResult<Partial<T>>;
-			if ((projectionAttributes as string[]).length === 0) {
-				result = {
-					elements: fullResults,
-					endKey: response.LastEvaluatedKey
-				};
-			} else {
-				result = {
-					elements: partialResults,
-					endKey: response.LastEvaluatedKey
-				};
-			}
-			return result as PA extends [] | []
-				? IPaginatedDtoResult<T>
-				: IPaginatedDtoResult<Partial<T>>;
+			return {
+				elements,
+				endKey: response.LastEvaluatedKey
+			};
 		} catch (error: unknown) {
 			this.logError('scan', error);
 			throw error;
 		}
 	}
 
-	// Will remove the object and crate a new one
-	// to be used when PK or SK are modified
 	protected async updateFullObject(oldDto: T, newDto: T) {
 		const deleteParams = {
 			TableName: this.table,
@@ -641,18 +640,16 @@ export abstract class DynamoRepository<T> {
 		};
 	}
 
-	private buildQueryForScan(
+	private addFilterAndProjectionExpressions(
 		attributes: DynamoFilterElement[],
 		projectionAttributes: string[],
-		limit?: number,
-		secondayIndex?: ISecondaryDynamoDbIndex
-	): ScanCommandInput {
-		const input: ScanCommandInput = {
-			TableName: this.table,
-			Limit: limit,
-			IndexName: secondayIndex?.indexName
-		};
-
+		input: ScanCommandInput
+	): ScanCommandInput;
+	private addFilterAndProjectionExpressions(
+		attributes: DynamoFilterElement[],
+		projectionAttributes: string[],
+		input: QueryCommandInput
+	): QueryCommandInput {
 		if (attributes.length === 0 && projectionAttributes.length === 0) {
 			return input;
 		}
@@ -664,7 +661,15 @@ export abstract class DynamoRepository<T> {
 		const attributesValueNamesMap = new Map<string, string>();
 
 		attributes.forEach((attribute, index) => {
-			attributesNamesMap.set(attribute.attribute, `#attr${index}`);
+			if (!attribute.attribute.includes('.')) {
+				attributesNamesMap.set(attribute.attribute, `#attr${index}`);
+			} else {
+				const attributeParts = attribute.attribute.split('.');
+				attributeParts.forEach((part, partIndex) => {
+					attributesNamesMap.set(part, `#attr${index}${partIndex}`);
+				});
+			}
+
 			if (DynamoRepository.canAttributeHaveValue(attribute.expression)) {
 				attributesValueNamesMap.set(attribute.attribute, `:attrValue${index}`);
 			}
@@ -674,9 +679,10 @@ export abstract class DynamoRepository<T> {
 			attributesNamesMap.set(attribute, `#attrp${index}`);
 		});
 
-		input.ExpressionAttributeNames = Object.fromEntries(
-			[...attributesNamesMap.entries()].map(([key, value]) => [value, key])
-		);
+		input.ExpressionAttributeNames = {
+			...(input.ExpressionAttributeNames ?? {}),
+			...Object.fromEntries([...attributesNamesMap.entries()].map(([key, value]) => [value, key]))
+		};
 
 		if (projectionAttributes.length > 0) {
 			input.ProjectionExpression = projectionAttributes
@@ -695,12 +701,15 @@ export abstract class DynamoRepository<T> {
 				)
 				.join(' AND ');
 
-			input.ExpressionAttributeValues = Object.fromEntries(
-				[...attributesValueNamesMap.entries()].map(([key, value]) => [
-					value,
-					attributesMap.get(key)!.value
-				])
-			);
+			input.ExpressionAttributeValues = {
+				...(input.ExpressionAttributeValues ?? {}),
+				...Object.fromEntries(
+					[...attributesValueNamesMap.entries()].map(([key, value]) => [
+						value,
+						attributesMap.get(key)!.value
+					])
+				)
+			};
 		}
 
 		return input;
@@ -725,6 +734,8 @@ export abstract class DynamoRepository<T> {
 				return `attribute_exists(${variableName})`;
 			case DynamoFilterExpression.ATTRIBUTE_NOT_EXISTS:
 				return `attribute_not_exists(${variableName})`;
+			case DynamoFilterExpression.CONTAINS:
+				return `contains(${variableName}, ${valueName})`;
 			case DynamoFilterExpression.EQUAL:
 				return `${variableName} = ${valueName}`;
 			case DynamoFilterExpression.NOT_EQUAL:

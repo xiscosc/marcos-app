@@ -3,7 +3,7 @@ import {
 	ICoreConfigurationForAWSLambda
 } from '../../configuration/core-configuration.interface';
 import type { FileDto } from '../dto/file.dto';
-import { DynamoRepository } from './dynamo.repository';
+import { DynamoFilterElement, DynamoFilterExpression, DynamoRepository } from './dynamo.repository';
 import { FileDynamoDbIndex } from './index.dynamodb';
 
 export class FileRepositoryDynamoDb extends DynamoRepository<FileDto> {
@@ -32,28 +32,27 @@ export class FileRepositoryDynamoDb extends DynamoRepository<FileDto> {
 	}
 
 	public async getOptimizedPhotoFileOriginalKeys(): Promise<Partial<FileDto>[]> {
-		const filterExpression = '#n0 = :v0 AND attribute_exists(#n1) AND attribute_exists(#n2)';
-		const projectionExpression = '#n3';
+		const filters: DynamoFilterElement[] = [
+			{
+				attribute: 'type',
+				expression: DynamoFilterExpression.EQUAL,
+				value: 'photo'
+			},
+			{
+				attribute: 'optimizedKey',
+				expression: DynamoFilterExpression.ATTRIBUTE_EXISTS,
+				value: true
+			},
+			{
+				attribute: 'thumbnailKey',
+				expression: DynamoFilterExpression.ATTRIBUTE_EXISTS,
+				value: true
+			}
+		];
 
-		const attributeNames = {
-			'#n0': 'type',
-			'#n1': 'optimizedKey',
-			'#n2': 'thumbnailKey',
-			'#n3': 'key'
-		};
-
-		const attributeValues = {
-			':v0': 'photo'
-		};
-
-		const dtos = await this.scan(
-			filterExpression,
-			attributeNames,
-			attributeValues,
-			projectionExpression
-		);
-
-		return dtos;
+		const projections = ['key'];
+		const dtos = await this.scan(filters, undefined, undefined, undefined, projections);
+		return dtos.elements;
 	}
 
 	public async deleteFiles(files: FileDto[]) {
