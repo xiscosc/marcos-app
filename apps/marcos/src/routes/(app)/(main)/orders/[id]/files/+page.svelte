@@ -33,7 +33,7 @@
 	let noArt = $derived(files.filter((f) => f.type === FileType.NO_ART));
 
 	async function deleteFile(id: string) {
-		loadingText = 'Eliminando archivo';
+		loadingText = 'Eliminando archivo, por favor no cierre la ventana';
 		loading = true;
 		const response = await fetch(`/api/orders/${data!.order!.id}/files/${id}`, {
 			method: 'DELETE',
@@ -53,7 +53,7 @@
 	}
 
 	async function createNoArtFile() {
-		loadingText = 'Cargando archivo';
+		loadingText = 'Cargando archivo, por favor no cierre la ventana';
 		loading = true;
 		const response = await fetch(`/api/orders/${data!.order!.id}/files`, {
 			method: 'POST',
@@ -115,7 +115,7 @@
 			return;
 		}
 
-		loadingText = 'Cargando archivo';
+		loadingText = 'Cargando archivo, por favor no cierre la ventana';
 		loading = true;
 		const filesToUpload = [...inputFiles];
 		const uploads = filesToUpload.map((f) => uploadIndividualFile(f));
@@ -156,10 +156,6 @@
 		}
 	}
 
-	async function goBackToOrder() {
-		await goto(`/orders/${data!.order!.id}`);
-	}
-
 	onMount(() => {
 		runWhenFeatureIsEnabled(featureFlags.noArtUploader, () => {
 			noArtEnabled = true;
@@ -173,12 +169,14 @@
 	<div class="flex w-full flex-row items-end justify-between">
 		<SimpleHeading icon={IconType.CAMERA}>Archivos y fotos</SimpleHeading>
 
-		<Button
-			text="Volver al pedido"
-			icon={IconType.ORDER_PICKED_UP}
-			onClick={goBackToOrder}
-			buttonType={ButtonType.SMALL}
-		></Button>
+		{#if !loading}
+			<Button
+				text="Volver al pedido"
+				icon={IconType.ORDER_PICKED_UP}
+				onClick={() => goto(`/orders/${data!.order!.id}`)}
+				buttonType={ButtonType.SMALL}
+			></Button>
+		{/if}
 	</div>
 
 	{#if loading}
