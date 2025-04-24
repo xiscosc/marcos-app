@@ -3,6 +3,7 @@ import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
 import { ENV_NAME } from '$env/static/private';
 import type { AppUser } from '@marcsimolduressonsardina/core/type';
 import type { Handle } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 
 export interface IServerEvent {
 	event: string;
@@ -46,6 +47,10 @@ export async function trackServerEvent(
 	event: IServerEvent,
 	context: PostHogContext
 ) {
+	if (dev) {
+		return;
+	}
+
 	const client = buildPostHogServer();
 
 	client.capture({
