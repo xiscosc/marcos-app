@@ -4,6 +4,7 @@ export * from './config.service';
 export * from './customer.service';
 export * from './file.service';
 export * from './order.service';
+export * from './public-receipt.service';
 export * from './pricing.service';
 export * from './order-audit-trail.service';
 export * from './report.service';

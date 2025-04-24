@@ -49,6 +49,23 @@ export class AuthService {
 		};
 	}
 
+	public static generatePublicConfiguration(user: AppUser): ICorePublicConfiguration {
+		return {
+			runInAWSLambda: false,
+			user,
+			region: AWS_REGION,
+			calculatedItemTable: CALCULATED_ITEM_ORDER_TABLE,
+			customerTable: CUSTOMER_TABLE,
+			storeId: PUBLIC_REPOSITORY,
+			listPricingTable: PUBLIC_REPOSITORY,
+			orderTable: ORDER_TABLE,
+			credentials: {
+				accessKeyId: AWS_ACCESS_KEY_ID,
+				secretAccessKey: AWS_SECRET_ACCESS_KEY
+			}
+		};
+	}
+
 	public static generatePublicConfig(): ICorePublicConfiguration {
 		const user = {
 			id: 'public',
@@ -57,7 +74,7 @@ export class AuthService {
 			priceManager: false
 		};
 
-		return AuthService.generateConfiguration(user) as ICorePublicConfiguration;
+		return AuthService.generatePublicConfiguration(user);
 	}
 
 	public static generateUserFromAuth(session?: CustomSession): AppUser | undefined {

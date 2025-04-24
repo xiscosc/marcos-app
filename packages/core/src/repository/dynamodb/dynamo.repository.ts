@@ -15,7 +15,6 @@ import {
 	ScanCommandInput
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
-import type { ItemDto } from '../dto/item.dto';
 import type { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
 import {
 	ICoreConfiguration,
@@ -63,7 +62,8 @@ export abstract class DynamoRepository<T> {
 	protected constructor(
 		config: ICoreConfiguration | ICoreConfigurationForAWSLambda,
 		private readonly table: string,
-		protected readonly primaryIndex: IPrimaryDynamoDbIndex
+		protected readonly primaryIndex: IPrimaryDynamoDbIndex,
+		private defaultFilters: DynamoFilterElement[] = []
 	) {
 		this.logger = getLogger();
 		if (!table) {
@@ -85,7 +85,8 @@ export abstract class DynamoRepository<T> {
 		partitionKeyValue: string | number,
 		includeSortKey: boolean = false,
 		sortKeyValue?: string | number,
-		descendent: boolean = true
+		descendent: boolean = true,
+		filters: DynamoFilterElement[] = []
 	): Promise<T[]> {
 		const queryParams = this.buildQueryForIndex(
 			index,
@@ -95,8 +96,14 @@ export abstract class DynamoRepository<T> {
 			descendent
 		);
 
+		const enrichedQueryParams = this.addFilterAndProjectionExpressions(
+			this.combineAndCleanWithDefultFilterElements(filters, index),
+			[],
+			queryParams
+		);
+
 		try {
-			return this.executeQueryCommandWithoutPagination(queryParams);
+			return this.executeQueryCommandWithoutPagination(enrichedQueryParams);
 		} catch (error: unknown) {
 			this.logError('get', error);
 			throw error;
@@ -107,7 +114,8 @@ export abstract class DynamoRepository<T> {
 		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
 		partitionKeyValue: string | number,
 		startKey?: Record<string, string | number>,
-		descendent: boolean = true
+		descendent: boolean = true,
+		filters: DynamoFilterElement[] = []
 	): Promise<IPaginatedDtoResult<T>> {
 		const queryParams = this.buildQueryForIndex(
 			index,
@@ -117,8 +125,14 @@ export abstract class DynamoRepository<T> {
 			descendent
 		);
 
+		const enrichedQueryParams = this.addFilterAndProjectionExpressions(
+			this.combineAndCleanWithDefultFilterElements(filters, index),
+			[],
+			queryParams
+		);
+
 		try {
-			return this.executeQueryCommandWithPagination(queryParams, startKey);
+			return this.executeQueryCommandWithPagination(enrichedQueryParams, startKey);
 		} catch (error: unknown) {
 			this.logError('get paginated', error);
 			throw error;
@@ -130,7 +144,8 @@ export abstract class DynamoRepository<T> {
 		partitionKeyValue: string,
 		sortKeyStartValue: string | number,
 		sortKeyEndValue: string | number,
-		descendent: boolean = true
+		descendent: boolean = true,
+		filters: DynamoFilterElement[] = []
 	): Promise<T[]> {
 		if (index.sortKeyName == null) {
 			return [];
@@ -143,63 +158,73 @@ export abstract class DynamoRepository<T> {
 			sortKeyEndValue,
 			descendent
 		);
+
+		const enrichedQueryParams = this.addFilterAndProjectionExpressions(
+			this.combineAndCleanWithDefultFilterElements(filters, index),
+			[],
+			params
+		);
 		try {
-			return this.executeQueryCommandWithoutPagination(params);
+			return this.executeQueryCommandWithoutPagination(enrichedQueryParams);
 		} catch (error: unknown) {
 			this.logError('getBySortingKeyBetween', error);
 			throw error;
 		}
 	}
 
-	protected async searchInNestedFields(
-		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
-		partitionKeyValue: string,
-		query: string | number,
-		queryFieldMap: Map<string, string>,
-		descendent: boolean = true
-	): Promise<T[]> {
-		const params = this.buildQueryForSearch(
-			index,
-			partitionKeyValue,
-			queryFieldMap,
-			query,
-			descendent
+	protected scan(
+		filterAttributes: DynamoFilterElement[],
+		limit?: number,
+		index?: ISecondaryDynamoDbIndex,
+		startKey?: Record<string, string | number>
+	): Promise<IPaginatedDtoResult<T>>;
+	protected scan(
+		filterAttributes: DynamoFilterElement[],
+		limit?: number,
+		index?: ISecondaryDynamoDbIndex,
+		startKey?: Record<string, string | number>,
+		projectionAttributes?: string[]
+	): Promise<IPaginatedDtoResult<Partial<T>>>;
+	protected async scan(
+		filterAttributes: DynamoFilterElement[],
+		limit?: number,
+		index?: ISecondaryDynamoDbIndex,
+		startKey?: Record<string, string | number>,
+		projectionAttributes?: string[]
+	): Promise<IPaginatedDtoResult<T | Partial<T>>> {
+		const elements: Partial<T>[] = [];
+		const request: ScanCommandInput = {
+			TableName: this.table,
+			Limit: limit,
+			IndexName: index?.indexName,
+			ExclusiveStartKey: startKey
+		};
+
+		const enrichedRequest = this.addFilterAndProjectionExpressions(
+			this.combineAndCleanWithDefultFilterElements(filterAttributes, index),
+			projectionAttributes ?? [],
+			request
 		);
 
 		try {
-			return this.executeQueryCommandWithoutPagination(params);
-		} catch (error: unknown) {
-			this.logError('nested search', error);
-			throw error;
-		}
-	}
+			const response = await this.client.send(new ScanCommand(enrichedRequest));
+			if (response.Items) {
+				elements.push(...(response.Items as Partial<T>[]));
+			}
 
-	protected async search(
-		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
-		partitionKeyValue: string,
-		query: string | number,
-		queryField: string,
-		descendent: boolean = true
-	): Promise<T[]> {
-		const queryFieldMap = new Map([['#searchField', queryField]]);
-		const params = this.buildQueryForSearch(
-			index,
-			partitionKeyValue,
-			queryFieldMap,
-			query,
-			descendent
-		);
-		try {
-			return this.executeQueryCommandWithoutPagination(params);
+			return {
+				elements,
+				endKey: response.LastEvaluatedKey
+			};
 		} catch (error: unknown) {
-			this.logError('search', error);
+			this.logError('scan', error);
 			throw error;
 		}
 	}
 
 	protected async updateFields(
 		partitionKeyValue: string,
-		fieldMap: Map<string, string | number | ItemDto | boolean | undefined>,
+		fieldMap: Map<string, string | number | boolean | undefined>,
 		sortKeyValue?: string | number
 	) {
 		const key: { [x: string]: string | number } = {
@@ -226,10 +251,10 @@ export abstract class DynamoRepository<T> {
 		const updateExpressionParts: string[] = [];
 		const expressionAttributeNames: { [key: string]: string } = {};
 		const expressionAttributeValues: {
-			[key: string]: string | number | boolean | ItemDto | undefined;
+			[key: string]: string | number | boolean | undefined;
 		} = {};
 
-		let index = 1; // To ensure unique placeholders
+		let index = 1;
 
 		for (const [key, value] of fieldMap) {
 			const fieldPlaceholder = `#field${index}`;
@@ -263,44 +288,6 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async updateNestedField(
-		partitionKeyValue: string,
-		nestedAttributesMap: Map<string, string>,
-		value: string | number | ItemDto | boolean | undefined,
-		sortKeyValue?: string | number
-	) {
-		const key: { [x: string]: string | number } = {
-			[this.primaryIndex.partitionKeyName]: partitionKeyValue
-		};
-
-		if (this.primaryIndex.sortKeyName && !sortKeyValue) {
-			throw Error("Sort key value can't be null");
-		}
-
-		if (this.primaryIndex.sortKeyName && sortKeyValue) {
-			key[this.primaryIndex.sortKeyName] = sortKeyValue;
-		}
-
-		const updateExpresion = `set ${[...nestedAttributesMap.keys()].join('.')} = :value)`;
-
-		const params: UpdateCommandInput = {
-			TableName: this.table,
-			Key: key,
-			UpdateExpression: updateExpresion,
-			ExpressionAttributeNames: Object.fromEntries(nestedAttributesMap),
-			ExpressionAttributeValues: {
-				':value': value
-			}
-		};
-
-		try {
-			await this.client.send(new UpdateCommand(params));
-		} catch (error: unknown) {
-			this.logError('updateField', error);
-			throw error;
-		}
-	}
-
 	protected async put(dto: T) {
 		const input = {
 			TableName: this.table,
@@ -311,57 +298,6 @@ export abstract class DynamoRepository<T> {
 			await this.client.send(new PutCommand(input));
 		} catch (error: unknown) {
 			this.logError('put', error);
-			throw error;
-		}
-	}
-
-	// Overload 1: No projection attributes, returns full T
-	protected scan(
-		filterAttributes: DynamoFilterElement[],
-		limit?: number,
-		index?: ISecondaryDynamoDbIndex,
-		startKey?: Record<string, string | number>
-	): Promise<IPaginatedDtoResult<T>>;
-	protected scan(
-		filterAttributes: DynamoFilterElement[],
-		limit?: number,
-		index?: ISecondaryDynamoDbIndex,
-		startKey?: Record<string, string | number>,
-		projectionAttributes?: string[]
-	): Promise<IPaginatedDtoResult<Partial<T>>>;
-	protected async scan(
-		filterAttributes: DynamoFilterElement[],
-		limit?: number,
-		index?: ISecondaryDynamoDbIndex,
-		startKey?: Record<string, string | number>,
-		projectionAttributes?: string[]
-	): Promise<IPaginatedDtoResult<T | Partial<T>>> {
-		const elements: Partial<T>[] = [];
-		const request: ScanCommandInput = {
-			TableName: this.table,
-			Limit: limit,
-			IndexName: index?.indexName,
-			ExclusiveStartKey: startKey
-		};
-
-		const enrichedRequest = this.addFilterAndProjectionExpressions(
-			filterAttributes,
-			projectionAttributes ?? [],
-			request
-		);
-
-		try {
-			const response = await this.client.send(new ScanCommand(enrichedRequest));
-			if (response.Items) {
-				elements.push(...(response.Items as Partial<T>[]));
-			}
-
-			return {
-				elements,
-				endKey: response.LastEvaluatedKey
-			};
-		} catch (error: unknown) {
-			this.logError('scan', error);
 			throw error;
 		}
 	}
@@ -616,28 +552,22 @@ export abstract class DynamoRepository<T> {
 		};
 	}
 
-	private buildQueryForSearch(
-		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
-		partitionKeyValue: string | number,
-		searchFieldMap: Map<string, string>,
-		searchValue: string | number,
-		descendent: boolean = true
-	): QueryCommandInput {
-		return {
-			IndexName: index.type === DynamoDbIndexType.secondary ? index.indexName : undefined,
-			TableName: this.table,
-			KeyConditionExpression: '#pk = :pkv',
-			FilterExpression: `contains(${[...searchFieldMap.keys()].join('.')}, :query)`,
-			ExpressionAttributeNames: {
-				'#pk': index.partitionKeyName,
-				...Object.fromEntries(searchFieldMap)
-			},
-			ExpressionAttributeValues: {
-				':pkv': partitionKeyValue,
-				':query': searchValue
-			},
-			ScanIndexForward: !descendent
-		};
+	private combineAndCleanWithDefultFilterElements(
+		filterElements: DynamoFilterElement[],
+		usedIndex?: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex
+	): DynamoFilterElement[] {
+		const uniqueElements = new Map<string, DynamoFilterElement>();
+
+		for (const element of [...this.defaultFilters, ...filterElements]) {
+			const key = `${element.attribute}-${element.expression}-${element.value}`;
+			uniqueElements.set(key, element);
+		}
+
+		const combinedFilters = Array.from(uniqueElements.values());
+
+		return usedIndex
+			? combinedFilters.filter((filter) => filter.attribute !== usedIndex.partitionKeyName)
+			: combinedFilters;
 	}
 
 	private addFilterAndProjectionExpressions(
@@ -661,14 +591,10 @@ export abstract class DynamoRepository<T> {
 		const attributesValueNamesMap = new Map<string, string>();
 
 		attributes.forEach((attribute, index) => {
-			if (!attribute.attribute.includes('.')) {
-				attributesNamesMap.set(attribute.attribute, `#attr${index}`);
-			} else {
-				const attributeParts = attribute.attribute.split('.');
-				attributeParts.forEach((part, partIndex) => {
-					attributesNamesMap.set(part, `#attr${index}${partIndex}`);
-				});
-			}
+			attributesNamesMap.set(
+				attribute.attribute,
+				DynamoRepository.generateAttributeName(attribute.attribute, index)
+			);
 
 			if (DynamoRepository.canAttributeHaveValue(attribute.expression)) {
 				attributesValueNamesMap.set(attribute.attribute, `:attrValue${index}`);
@@ -681,7 +607,7 @@ export abstract class DynamoRepository<T> {
 
 		input.ExpressionAttributeNames = {
 			...(input.ExpressionAttributeNames ?? {}),
-			...Object.fromEntries([...attributesNamesMap.entries()].map(([key, value]) => [value, key]))
+			...DynamoRepository.genetrateAttributeNamesRecord(attributesNamesMap)
 		};
 
 		if (projectionAttributes.length > 0) {
@@ -718,6 +644,33 @@ export abstract class DynamoRepository<T> {
 	private static canAttributeHaveValue(expression: DynamoFilterExpression): boolean {
 		const valueExpressions = Object.values(DynamoFilterExpressionWithValue);
 		return valueExpressions.includes(expression as DynamoFilterExpressionWithValue);
+	}
+
+	private static generateAttributeName(attribute: string, index: number): string {
+		if (attribute.includes('.')) {
+			const parts = attribute.split('.');
+			return parts.map((_, i) => `#attr${index}_${i}`).join('.');
+		} else {
+			return `#attr${index}`;
+		}
+	}
+
+	private static genetrateAttributeNamesRecord(
+		attributesMap: Map<string, string>
+	): Record<string, string> {
+		const result: { [key: string]: string } = {};
+		attributesMap.forEach((value, key) => {
+			if (value.includes('.')) {
+				const valueParts = value.split('.');
+				const keyParts = key.split('.');
+				valueParts.forEach((valuePart, i) => {
+					result[valuePart] = keyParts[i];
+				});
+			} else {
+				result[value] = key;
+			}
+		});
+		return result;
 	}
 
 	private static generateExpression(

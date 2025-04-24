@@ -1,14 +1,11 @@
 import {
 	ICoreConfiguration,
-	ICoreConfigurationForAWSLambda,
-	ICorePublicConfiguration,
-	ICorePublicConfigurationForAWSLambda,
-	PUBLIC_REPOSITORY
+	ICoreConfigurationForAWSLambda
 } from '../../configuration/core-configuration.interface';
 
 import type { OrderDto } from '../dto/order.dto';
 import { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
-import { DynamoRepository } from './dynamo.repository';
+import { DynamoFilterElement, DynamoFilterExpression, DynamoRepository } from './dynamo.repository';
 import { OrderDynamoDbIndex } from './index.dynamodb';
 
 export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
@@ -16,36 +13,44 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 		if (config.orderTable == null) {
 			throw Error('Table name orderTable can not be empty');
 		}
-		super(config, config.orderTable, OrderDynamoDbIndex.primaryIndex);
+		const defaultFilters: DynamoFilterElement[] = [
+			{
+				attribute: 'storeId',
+				expression: DynamoFilterExpression.EQUAL,
+				value: config.storeId
+			},
+			{
+				attribute: 'status',
+				expression: DynamoFilterExpression.NOT_EQUAL,
+				value: 'deleted'
+			}
+		];
+		super(config, config.orderTable, OrderDynamoDbIndex.primaryIndex, defaultFilters);
 	}
 
 	public async getOrderById(orderId: string): Promise<OrderDto | null> {
 		const dto = await this.getByIndex(this.primaryIndex, orderId);
-		return this.filterByStoreIdAndDeleted(dto[0]) as OrderDto | null;
+		return dto[0];
 	}
 
 	public async getOrderByShortId(shortId: string): Promise<OrderDto | null> {
 		const dtos = await this.getByIndex(OrderDynamoDbIndex.shortIdIndex, shortId);
-		const dto = dtos[0] ?? null;
-		return this.config.storeId === PUBLIC_REPOSITORY
-			? dto
-			: (this.filterByStoreIdAndDeleted(dto) as OrderDto | null);
+		return dtos[0] ?? null;
 	}
 
 	public async getOrderByPublicId(publicId: string): Promise<OrderDto | null> {
 		const dtos = await this.getByIndex(OrderDynamoDbIndex.publicIdIndex, publicId);
-		const dto = dtos[0] ?? null;
-		return this.filterByStoreIdAndDeleted(dto) as OrderDto | null;
+		return dtos[0] ?? null;
 	}
 
 	public async getOrdersByCustomerId(customerUuid: string): Promise<OrderDto[]> {
 		const dtos = await this.getByIndex(OrderDynamoDbIndex.customerIndex, customerUuid);
-		return this.filterByStoreIdAndDeleted(dtos) as OrderDto[];
+		return dtos;
 	}
 
 	public async getOrdersByStatus(status: string): Promise<OrderDto[]> {
 		const dtos = await this.getByIndex(OrderDynamoDbIndex.statusIndex, status);
-		return this.filterByStoreIdAndDeleted(dtos) as OrderDto[];
+		return dtos;
 	}
 
 	public async getOrdersByStatusPaginated(
@@ -57,23 +62,28 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 			status,
 			lastOrderPaginationKey
 		);
-		const filteredDtos = this.filterByStoreIdAndDeleted(paginationResult.elements) as OrderDto[];
-		return { ...paginationResult, elements: filteredDtos };
+		return paginationResult;
 	}
 
 	public async findOrdersByStatus(status: string, query: string): Promise<OrderDto[]> {
-		const nestedAttributesMap = new Map([
-			['#item', 'item'],
-			['#description', 'normalizedDescription']
-		]);
+		const filterAttributes: DynamoFilterElement[] = [
+			{
+				attribute: 'item.normalizedDescription',
+				expression: DynamoFilterExpression.CONTAINS,
+				value: query
+			}
+		];
 
-		const dtos = await this.searchInNestedFields(
+		const dtos = await this.getByIndex(
 			OrderDynamoDbIndex.statusIndex,
 			status,
-			query,
-			nestedAttributesMap
+			false,
+			undefined,
+			undefined,
+			filterAttributes
 		);
-		return this.filterByStoreIdAndDeleted(dtos) as OrderDto[];
+
+		return dtos;
 	}
 
 	public async getOrdersBetweenTs(
@@ -87,7 +97,7 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 			startTs,
 			endTs
 		);
-		return this.filterByStoreIdAndDeleted(dtos) as OrderDto[];
+		return dtos;
 	}
 
 	public async createOrder(order: OrderDto) {
@@ -131,26 +141,6 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 	public async storeOrders(orders: OrderDto[]) {
 		this.checkOrderStore(orders);
 		await this.batchPut(orders);
-	}
-
-	public static createPublicRepository(
-		publicConfig: ICorePublicConfiguration | ICorePublicConfigurationForAWSLambda
-	): OrderRepositoryDynamoDb {
-		return new OrderRepositoryDynamoDb(publicConfig);
-	}
-
-	private filterByStoreIdAndDeleted(
-		dto: OrderDto | OrderDto[] | undefined | null
-	): null | OrderDto | OrderDto[] {
-		if (dto == null) {
-			return null;
-		}
-
-		if (Array.isArray(dto)) {
-			return dto.filter((d) => d.storeId === this.config.storeId && d.status !== 'deleted');
-		}
-
-		return dto.storeId === this.config.storeId && dto.status !== 'deleted' ? dto : null;
 	}
 
 	private checkOrderStore(dto: OrderDto | OrderDto[]) {

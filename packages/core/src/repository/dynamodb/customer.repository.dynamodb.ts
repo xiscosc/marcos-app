@@ -8,7 +8,7 @@ import {
 import { InvalidKeyError } from '../../error/invalid-key.error';
 import type { CustomerDto } from '../dto/customer.dto';
 import type { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
-import { DynamoRepository } from './dynamo.repository';
+import { DynamoFilterElement, DynamoFilterExpression, DynamoRepository } from './dynamo.repository';
 import { CustomerDynamoDbIndex } from './index.dynamodb';
 
 export class CustomerRepositoryDynamoDb extends DynamoRepository<CustomerDto> {
@@ -79,18 +79,22 @@ export class CustomerRepositoryDynamoDb extends DynamoRepository<CustomerDto> {
 	}
 
 	public async searchCustomer(normalizedQuery: string): Promise<CustomerDto[]> {
-		return this.search(
+		const filterAttributes: DynamoFilterElement[] = [
+			{
+				attribute: 'normalizedName',
+				expression: DynamoFilterExpression.CONTAINS,
+				value: normalizedQuery
+			}
+		];
+
+		return this.getByIndex(
 			CustomerDynamoDbIndex.storeIndex,
 			this.config.storeId,
-			normalizedQuery,
-			'normalizedName'
+			false,
+			undefined,
+			undefined,
+			filterAttributes
 		);
-	}
-
-	public static createPublicRepository(
-		publicConfig: ICorePublicConfiguration | ICorePublicConfigurationForAWSLambda
-	): CustomerRepositoryDynamoDb {
-		return new CustomerRepositoryDynamoDb(publicConfig);
 	}
 
 	private filterByStoreId(
