@@ -14,6 +14,7 @@
 	import Photos from '@/components/business-related/file/Photos.svelte';
 	import { featureFlags, runWhenFeatureIsEnabled } from '@/shared/feature-flags';
 	import { onMount } from 'svelte';
+	import { trackEvent } from '@/shared/analytics.utilities';
 
 	interface Props {
 		data: PageData;
@@ -199,6 +200,7 @@
 							onClick={() => createNoArtFile()}
 							text="Añadir archivo Sin Obra"
 							icon={IconType.ADD}
+							trackFunction={() => trackEvent('No art file created', { orderId: data.order?.id })}
 						></Button>
 					</div>
 				</Box>

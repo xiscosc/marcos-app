@@ -43,7 +43,7 @@ export function identifyUser(appUser: AppUser, envName: string) {
 
 export function trackEvent(
 	eventName: string,
-	properties: Record<string, string | number | boolean> = {}
+	properties: Record<string, string | number | boolean | undefined> = {}
 ) {
 	if (dev) {
 		return;
