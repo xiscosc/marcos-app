@@ -40,3 +40,16 @@ export function identifyUser(appUser: AppUser, envName: string) {
 		});
 	}
 }
+
+export function trackEvent(
+	eventName: string,
+	properties: Record<string, string | number | boolean> = {}
+) {
+	if (dev) {
+		return;
+	}
+
+	if (browser) {
+		posthog.capture(eventName, properties);
+	}
+}
