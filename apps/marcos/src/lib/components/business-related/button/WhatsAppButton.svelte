@@ -4,6 +4,7 @@
 	import Button from '@/components/generic/button/Button.svelte';
 	import { ButtonAction, ButtonStyle } from '@/components/generic/button/button.enum';
 	import { IconType } from '@/components/generic/icon/icon.enum';
+	import { trackEvent } from '@/shared/analytics.utilities';
 
 	interface Props {
 		label: string;
@@ -55,6 +56,10 @@
 			}
 		});
 	}
+
+	function trackWhatsAppClicked() {
+		trackEvent('WhatsApp clicked', { action: label, customerId: customer.id });
+	}
 </script>
 
 {#if notifyOrder && !disabled}
@@ -64,6 +69,7 @@
 	<Button
 		icon={IconType.WHATSAPP}
 		action={ButtonAction.LINK}
+		trackFunction={trackWhatsAppClicked}
 		newWindow={true}
 		text={label}
 		style={ButtonStyle.WHATSAPP}

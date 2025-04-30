@@ -13,6 +13,7 @@
 	import { enhance } from '$app/forms';
 	import BottomSheet from '@/components/generic/BottomSheet.svelte';
 	import BottomSheetLoading from '@/components/generic/BottomSheetLoading.svelte';
+	import { trackEvent } from '@/shared/analytics.utilities';
 
 	interface Props {
 		customer: Customer;
@@ -92,6 +93,9 @@
 				link={`tel:${customer.phone}`}
 				text="Llamar"
 				action={ButtonAction.LINK}
+				trackFunction={() => {
+					trackEvent('Customer called', { customerId: customer.id });
+				}}
 			></Button>
 		</div>
 
