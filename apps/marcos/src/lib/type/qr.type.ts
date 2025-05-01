@@ -1,7 +1,7 @@
 export enum QrOrigin {
 	LEGACY = 'legacy',
-	INTERNAL = 'INTERNAL',
-	CUSTOMER = 'CUSTOMER'
+	INTERNAL = 'internal',
+	CUSTOMER = 'customer'
 }
 
 export type QrInfo = {
