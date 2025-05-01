@@ -20,4 +20,4 @@
 	<meta property="og:type" content="website" />
 </svelte:head>
 
-<OrderPrint fullOrder={data.fullOrder} print={false}></OrderPrint>
+<OrderPrint fullOrder={data.fullOrder} print={false} internal={false}></OrderPrint>

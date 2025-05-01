@@ -11,8 +11,14 @@
 	} from '@marcsimolduressonsardina/core/type';
 	import Qr from '@/components/generic/Qr.svelte';
 	import { weekDayMap } from '@/shared/mappings/order.mapping';
+	import { generateQrString } from '@/shared/qr.utilities';
+	import { QrOrigin } from '@/type/qr.type';
 
-	let { fullOrder, print = false }: { fullOrder: FullOrder; print?: boolean } = $props();
+	let {
+		fullOrder,
+		print = false,
+		internal = true
+	}: { fullOrder: FullOrder; print?: boolean; internal?: boolean } = $props();
 
 	const order = fullOrder.order;
 	const calculatedItem = fullOrder.calculatedItem;
@@ -69,7 +75,13 @@
 						<tbody>
 							<tr>
 								<td>
-									<Qr size={85} qrData={order.id}></Qr>
+									<Qr
+										size={85}
+										qrData={generateQrString({
+											orderId: order.id,
+											origin: internal ? QrOrigin.INTERNAL : QrOrigin.CUSTOMER
+										})}
+									></Qr>
 									<div class="customer-text">
 										<p class="customer-bottom">{order.publicId}</p>
 									</div>
