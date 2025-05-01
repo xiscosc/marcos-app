@@ -75,7 +75,7 @@ export async function trackServerEvent(
 }
 
 export async function trackAnonymousServerEvent(event: IServerEvent, context: PostHogContext) {
-	if (context.user_agent?.toLowerCase().includes('whatsapp')) {
+	if (dev || context.user_agent?.toLowerCase().includes('whatsapp')) {
 		return;
 	}
 
