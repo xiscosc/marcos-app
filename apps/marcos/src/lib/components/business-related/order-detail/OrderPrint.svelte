@@ -12,7 +12,11 @@
 	import Qr from '@/components/generic/Qr.svelte';
 	import { weekDayMap } from '@/shared/mappings/order.mapping';
 
-	let { fullOrder, print = false }: { fullOrder: FullOrder; print?: boolean } = $props();
+	let {
+		fullOrder,
+		print = false,
+		showFooter = false
+	}: { fullOrder: FullOrder; print?: boolean; showFooter?: boolean } = $props();
 
 	const order = fullOrder.order;
 	const calculatedItem = fullOrder.calculatedItem;
@@ -358,6 +362,14 @@
 			</p>
 		{/if}
 	</div>
+
+	{#if showFooter}
+		<div class="footer-fixed">
+			Desarrollado con ❤️ en Mallorca 🏝️⛵ por <a href="https://balerial-apps.com" target="_blank">
+				balerial-apps.com
+			</a>
+		</div>
+	{/if}
 </main>
 
 <style>
@@ -443,5 +455,24 @@
 
 	.status-info {
 		font-weight: bold;
+	}
+
+	.footer-fixed {
+		font-family: Inter, sans-serif;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100vw;
+		background-color: whitesmoke;
+		text-align: center;
+		z-index: 1000;
+		padding: 6px 0;
+		font-size: small;
+		box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.04);
+	}
+
+	.footer-fixed a {
+		color: inherit;
+		text-decoration: underline;
 	}
 </style>

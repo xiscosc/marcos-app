@@ -30,7 +30,8 @@ export const load = (async ({ params, locals }) => {
 		);
 
 		return {
-			fullOrder
+			fullOrder,
+			userLoggedIn: locals.user != null
 		};
 	} catch (error) {
 		redirect(303, 'https://marcsimoldures.com/');
