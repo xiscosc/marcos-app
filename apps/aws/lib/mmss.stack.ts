@@ -24,9 +24,13 @@ export class MmSsStack extends Stack {
 		);
 
 		// Create Main store policies
-		const bucketArns = Object.entries(buckets)
+		const bucketObjectArns = Object.entries(buckets)
 			.map((entry) => entry[1])
 			.map((bucket) => bucket.arnForObjects('*'));
+
+		const bucketListArns = [buckets.filesBucket, buckets.reportsBucket].map(
+			(entry) => entry.bucketArn
+		);
 
 		const storeTableArns = [...Object.entries(tables.storeTables)]
 			.map((entry) => entry[1])
@@ -45,7 +49,11 @@ export class MmSsStack extends Stack {
 				statements: [
 					new PolicyStatement({
 						actions: ['s3:GetObject'],
-						resources: bucketArns
+						resources: bucketObjectArns
+					}),
+					new PolicyStatement({
+						actions: ['s3:ListBucket'],
+						resources: bucketListArns
 					}),
 					new PolicyStatement({
 						actions: [
@@ -73,7 +81,7 @@ export class MmSsStack extends Stack {
 				statements: [
 					new PolicyStatement({
 						actions: ['s3:PutObject', 's3:DeleteObject', 's3:PutObjectTagging'],
-						resources: bucketArns
+						resources: bucketObjectArns
 					}),
 					new PolicyStatement({
 						actions: [

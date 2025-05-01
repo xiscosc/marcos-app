@@ -12,8 +12,6 @@
 	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 	import { Input } from '@/components/ui/input';
 	import Photos from '@/components/business-related/file/Photos.svelte';
-	import { featureFlags, runWhenFeatureIsEnabled } from '@/shared/feature-flags';
-	import { onMount } from 'svelte';
 	import { trackEvent } from '@/shared/analytics.utilities';
 
 	interface Props {
@@ -27,7 +25,6 @@
 	let loadingText = $state('');
 	let files = $state(data.files ?? []);
 
-	let noArtEnabled = $state(false);
 	let photos = $derived(files.filter((f) => f.type === FileType.PHOTO));
 	let videos = $derived(files.filter((f) => f.type === FileType.VIDEO));
 	let other = $derived(files.filter((f) => f.type === FileType.OTHER));
@@ -156,12 +153,6 @@
 			return false;
 		}
 	}
-
-	onMount(() => {
-		runWhenFeatureIsEnabled(featureFlags.noArtUploader, () => {
-			noArtEnabled = true;
-		});
-	});
 </script>
 
 <Toaster richColors />
@@ -192,7 +183,7 @@
 				</div>
 			</Box>
 
-			{#if noArtEnabled && files.length === 0}
+			{#if files.length === 0}
 				<Box title="Sin Obra">
 					<div class="flex flex-col gap-2 md:flex-row">
 						<Button
