@@ -23,6 +23,7 @@ export const load = (async ({ params, locals }) => {
 				orderId: fullOrder.order.id,
 				customerId: fullOrder.order.customer.id,
 				properties: {
+					version: 1,
 					shortId: fullOrder.order.shortId
 				}
 			},
