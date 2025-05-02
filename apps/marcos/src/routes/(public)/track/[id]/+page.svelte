@@ -107,9 +107,9 @@
 		>
 	</div>
 
-	<span class="fixed bottom-2 left-0 z-50 w-full text-center text-sm text-gray-500">
-		Desarrollado con ❤️ en Mallorca 🏝️⛵ por <a href="https://balerial-apps.com" target="_blank">
+	<span class="fixed bottom-2 left-0 z-50 w-full text-center text-[0.625rem] text-gray-500">
+		Desarrollado por <a class="font-semibold" href="https://balerial-apps.com" target="_blank">
 			balerial-apps.com
-		</a>
+		</a>. {DateTime.now().toFormat('yyyy')}.
 	</span>
 </div>
