@@ -2,7 +2,6 @@
 	import type { PageData } from './$types';
 	import { OrderUtilities } from '@/shared/order.utilities';
 	import Qr from '@/components/generic/Qr.svelte';
-	import Icon from '@/components/generic/icon/Icon.svelte';
 	import { IconType } from '@/components/generic/icon/icon.enum';
 	import { DateTime } from 'luxon';
 	import { orderStatusMap } from '@/shared/mappings/order.mapping';
@@ -10,6 +9,8 @@
 	import Button from '@/components/generic/button/Button.svelte';
 	import { ButtonAction } from '@/components/generic/button/button.enum';
 	import OrderInfoStep from '@/components/business-related/order-detail/OrderInfoStep.svelte';
+	import { generateQrString } from '@/shared/qr.utilities';
+	import { QrOrigin } from '@/type/qr.type';
 	interface Props {
 		data: PageData;
 	}
@@ -28,10 +29,12 @@
 	<meta property="og:type" content="website" />
 </svelte:head>
 
-<div class="flex w-full flex-col items-center p-4 font-sans lg:p-0 lg:pt-4">
+<div
+	class="flex w-full flex-col items-center p-4 font-sans md:min-h-screen md:justify-center md:p-0 md:pt-4"
+>
 	<div class="flex w-full flex-col items-center gap-1">
 		<div
-			class="flex w-full flex-col items-center justify-center gap-4 rounded-xl border bg-white pb-4 pt-2 lg:w-1/4"
+			class="flex w-full flex-col items-center justify-center gap-4 rounded-xl border bg-white pb-4 pt-2 md:w-2/3 lg:w-1/3"
 		>
 			<div class="flex w-full flex-col items-center">
 				<img
@@ -39,13 +42,19 @@
 					src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
 					alt="logo"
 				/>
-				<span class="text-[0.625rem]">
+				<span class="px-2 text-center text-[0.625rem]">
 					Horario de lunes a viernes de 09:00 a 18:00, sábados de 09:30 a 13:15
 				</span>
 			</div>
 
 			<div class="flex rounded-xl border p-3">
-				<Qr size={125} qrData={data.fullOrder.order.id}></Qr>
+				<Qr
+					size={125}
+					qrData={generateQrString({
+						orderId: data.fullOrder.order.id,
+						origin: QrOrigin.CUSTOMER_V2
+					})}
+				></Qr>
 			</div>
 			<span class="font-mono text-xs">
 				{data.fullOrder.order.publicId}

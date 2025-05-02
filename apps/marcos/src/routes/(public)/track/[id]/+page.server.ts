@@ -27,10 +27,11 @@ export const load = (async ({ params, locals }) => {
 
 	trackAnonymousServerEvent(
 		{
-			event: 'public_order_track',
+			event: 'public_order_viewed',
 			orderId: fullOrder.order.id,
 			customerId: fullOrder.order.customer.id,
 			properties: {
+				version: 2,
 				shortId: fullOrder.order.shortId
 			}
 		},
