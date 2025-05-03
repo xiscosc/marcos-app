@@ -125,6 +125,10 @@ export class ProfilerState {
 }
 
 export function getGlobalProfiler(): Profiler {
-	const state = new ProfilerState();
-	return state.getProfiler();
+	if (browser) {
+		const state = new ProfilerState();
+		return state.getProfiler();
+	} else {
+		return new Profiler(ProfilerState.defaultConfig);
+	}
 }

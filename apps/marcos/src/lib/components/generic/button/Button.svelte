@@ -24,6 +24,7 @@
 		link?: string;
 		formAction?: string;
 		onClick?: (event: MouseEvent) => void;
+		trackFunction?: () => void;
 	}
 
 	let {
@@ -39,10 +40,19 @@
 		tooltipText = undefined,
 		link = undefined,
 		formAction = undefined,
-		onClick = undefined
+		onClick = undefined,
+		trackFunction = undefined
 	}: Props = $props();
 
+	function track() {
+		if (trackFunction) {
+			trackFunction();
+		}
+	}
+
 	function handleClick(event: MouseEvent) {
+		track();
+
 		if (onClick) {
 			onClick(event);
 		}
@@ -90,6 +100,7 @@
 		class={classes}
 		class:w-full={buttonType !== ButtonType.SMALL}
 		href={link ?? '#'}
+		onclick={() => track()}
 		target={newWindow ? '_blank' : '_self'}
 	>
 		<InnerButton iconType={icon} {iconSize} {text} center={buttonType !== ButtonType.HOME}
@@ -100,6 +111,7 @@
 		class={classes}
 		type="submit"
 		class:w-full={buttonType !== ButtonType.SMALL}
+		onclick={() => track()}
 		formaction={formAction ?? null}
 	>
 		<InnerButton iconType={icon} {iconSize} {text} center={buttonType !== ButtonType.HOME}

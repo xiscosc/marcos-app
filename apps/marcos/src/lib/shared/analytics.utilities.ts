@@ -1,9 +1,13 @@
 import posthog from 'posthog-js';
 import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
-import { browser } from '$app/environment';
+import { browser, dev } from '$app/environment';
 import type { AppUser } from '@marcsimolduressonsardina/core/type';
 
 export function initPosthog(envName: string, appUser?: AppUser) {
+	if (dev) {
+		return;
+	}
+
 	if (browser) {
 		posthog.init(PUBLIC_POSTHOG_KEY, {
 			api_host: 'https://eu.i.posthog.com',
@@ -24,11 +28,28 @@ export function initPosthog(envName: string, appUser?: AppUser) {
 }
 
 export function identifyUser(appUser: AppUser, envName: string) {
+	if (dev) {
+		return;
+	}
+
 	if (browser) {
 		posthog.identify(appUser.id, {
 			email: appUser.id,
 			name: appUser.name,
 			userEnv: envName
 		});
+	}
+}
+
+export function trackEvent(
+	eventName: string,
+	properties: Record<string, string | number | boolean | undefined> = {}
+) {
+	if (dev) {
+		return;
+	}
+
+	if (browser) {
+		posthog.capture(eventName, properties);
 	}
 }

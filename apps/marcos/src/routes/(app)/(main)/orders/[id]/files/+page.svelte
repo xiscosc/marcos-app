@@ -12,8 +12,7 @@
 	import SimpleHeading from '@/components/generic/SimpleHeading.svelte';
 	import { Input } from '@/components/ui/input';
 	import Photos from '@/components/business-related/file/Photos.svelte';
-	import { featureFlags, runWhenFeatureIsEnabled } from '@/shared/feature-flags';
-	import { onMount } from 'svelte';
+	import { trackEvent } from '@/shared/analytics.utilities';
 
 	interface Props {
 		data: PageData;
@@ -26,14 +25,13 @@
 	let loadingText = $state('');
 	let files = $state(data.files ?? []);
 
-	let noArtEnabled = $state(false);
 	let photos = $derived(files.filter((f) => f.type === FileType.PHOTO));
 	let videos = $derived(files.filter((f) => f.type === FileType.VIDEO));
 	let other = $derived(files.filter((f) => f.type === FileType.OTHER));
 	let noArt = $derived(files.filter((f) => f.type === FileType.NO_ART));
 
 	async function deleteFile(id: string) {
-		loadingText = 'Eliminando archivo';
+		loadingText = 'Eliminando archivo, por favor no cierre la ventana';
 		loading = true;
 		const response = await fetch(`/api/orders/${data!.order!.id}/files/${id}`, {
 			method: 'DELETE',
@@ -53,7 +51,7 @@
 	}
 
 	async function createNoArtFile() {
-		loadingText = 'Cargando archivo';
+		loadingText = 'Cargando archivo, por favor no cierre la ventana';
 		loading = true;
 		const response = await fetch(`/api/orders/${data!.order!.id}/files`, {
 			method: 'POST',
@@ -115,7 +113,7 @@
 			return;
 		}
 
-		loadingText = 'Cargando archivo';
+		loadingText = 'Cargando archivo, por favor no cierre la ventana';
 		loading = true;
 		const filesToUpload = [...inputFiles];
 		const uploads = filesToUpload.map((f) => uploadIndividualFile(f));
@@ -155,16 +153,6 @@
 			return false;
 		}
 	}
-
-	async function goBackToOrder() {
-		await goto(`/orders/${data!.order!.id}`);
-	}
-
-	onMount(() => {
-		runWhenFeatureIsEnabled(featureFlags.noArtUploader, () => {
-			noArtEnabled = true;
-		});
-	});
 </script>
 
 <Toaster richColors />
@@ -173,12 +161,14 @@
 	<div class="flex w-full flex-row items-end justify-between">
 		<SimpleHeading icon={IconType.CAMERA}>Archivos y fotos</SimpleHeading>
 
-		<Button
-			text="Volver al pedido"
-			icon={IconType.ORDER_PICKED_UP}
-			onClick={goBackToOrder}
-			buttonType={ButtonType.SMALL}
-		></Button>
+		{#if !loading}
+			<Button
+				text="Volver al pedido"
+				icon={IconType.ORDER_PICKED_UP}
+				onClick={() => goto(`/orders/${data!.order!.id}`)}
+				buttonType={ButtonType.SMALL}
+			></Button>
+		{/if}
 	</div>
 
 	{#if loading}
@@ -193,7 +183,7 @@
 				</div>
 			</Box>
 
-			{#if noArtEnabled && files.length === 0}
+			{#if files.length === 0}
 				<Box title="Sin Obra">
 					<div class="flex flex-col gap-2 md:flex-row">
 						<Button
@@ -201,6 +191,7 @@
 							onClick={() => createNoArtFile()}
 							text="Añadir archivo Sin Obra"
 							icon={IconType.ADD}
+							trackFunction={() => trackEvent('No art file created', { orderId: data.order?.id })}
 						></Button>
 					</div>
 				</Box>

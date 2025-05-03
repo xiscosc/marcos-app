@@ -1,9 +1,7 @@
 import { browser } from '$app/environment';
 import posthog from 'posthog-js';
 
-export const featureFlags = {
-	noArtUploader: 'no_art_uploader'
-};
+export const featureFlags = {};
 
 export function runWhenFeatureIsEnabled(feature: string, callback: () => void) {
 	if (browser) {

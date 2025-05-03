@@ -33,7 +33,8 @@ export async function POST({ request, locals, params }) {
 			orderId: id,
 			properties: {
 				fileId: file.id,
-				noArt: fileType === FileType.NO_ART
+				noArt: fileType === FileType.NO_ART,
+				fileType: file.type
 			}
 		},
 		locals.posthog
