@@ -102,12 +102,12 @@
 				</span>
 			</div>
 		</div>
-		<a href={`/s/${data.fullOrder.order.shortId}`} target="_blank" class="text-xs"
-			>Versión para imprimir</a
-		>
+		<a href={`/s/${data.fullOrder.order.shortId}`} target="_blank" class="text-xs">
+			Versión para imprimir
+		</a>
 	</div>
 
-	<span class="fixed bottom-2 left-0 z-50 w-full text-center text-[0.625rem] text-gray-500">
+	<span class="mt-4 text-center text-[0.625rem] text-gray-500">
 		Desarrollado por <a class="font-semibold" href="https://balerial-apps.com" target="_blank">
 			balerial-apps.com
 		</a>. {DateTime.now().toFormat('yyyy')}.
