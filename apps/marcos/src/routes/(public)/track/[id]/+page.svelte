@@ -11,6 +11,8 @@
 	import OrderInfoStep from '@/components/business-related/order-detail/OrderInfoStep.svelte';
 	import { generateQrString } from '@/shared/qr.utilities';
 	import { QrOrigin } from '@/type/qr.type';
+	import Icon from '@/components/generic/icon/Icon.svelte';
+
 	interface Props {
 		data: PageData;
 	}
@@ -30,9 +32,9 @@
 </svelte:head>
 
 <div
-	class="flex w-full flex-col items-center p-4 font-sans md:min-h-screen md:justify-center md:p-0 md:pt-4"
+	class="flex w-full flex-col items-center gap-2 p-4 font-sans md:min-h-screen md:justify-center md:p-0 md:pt-4"
 >
-	<div class="flex w-full flex-col items-center gap-1">
+	<div class="flex w-full flex-col items-center gap-2">
 		<div
 			class="flex w-full flex-col items-center justify-center gap-4 rounded-xl border bg-white pb-4 pt-2 md:w-2/3 lg:w-1/3"
 		>
@@ -85,6 +87,12 @@
 						title="Descripción"
 						value={data.fullOrder.order.item.description}
 					/>
+					<OrderInfoStep
+						iconType={IconType.LIST}
+						title="Observaciones"
+						value={data.fullOrder.order.item.observations}
+						valueList={data.fullOrder.order.item.predefinedObservations}
+					/>
 				</div>
 
 				<Button
@@ -103,11 +111,13 @@
 			</div>
 		</div>
 		<a href={`/s/${data.fullOrder.order.shortId}`} target="_blank" class="text-xs">
-			Versión para imprimir
+			<span class="flex items-center gap-1 hover:underline">
+				<Icon type={IconType.PRINTER}></Icon> Versión para imprimir
+			</span>
 		</a>
 	</div>
 
-	<span class="mt-4 text-center text-[0.625rem] text-gray-500">
+	<span class="text-center text-[0.625rem] text-gray-500">
 		Desarrollado por <a class="font-semibold" href="https://balerial-apps.com" target="_blank">
 			balerial-apps.com
 		</a>. {DateTime.now().toFormat('yyyy')}.
