@@ -15,63 +15,40 @@ import {
 	ScanCommandInput
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
-import type { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
-import {
-	ICoreConfiguration,
-	ICoreConfigurationForAWSLambda
-} from '../../configuration/core-configuration.interface';
-import { getClientConfiguration } from '../../configuration/configuration.util';
+import type { IDynamoPaginatedResult } from '../type/result.dynamodb.type';
 import {
 	DynamoDbIndexType,
 	IPrimaryDynamoDbIndex,
 	ISecondaryDynamoDbIndex
-} from './index.dynamodb';
-import { Logger } from 'pino';
-import { getLogger } from '../../logger/logger';
-
-export enum DynamoFilterExpressionWithValue {
-	EQUAL = 'equal',
-	NOT_EQUAL = 'not_equal',
-	CONTAINS = 'contains'
-}
-
-export enum DynamoFilterExpressionWithoutValue {
-	ATTRIBUTE_EXISTS = 'attribute_exists',
-	ATTRIBUTE_NOT_EXISTS = 'attribute_not_exists'
-}
-
-export const DynamoFilterExpression = {
-	...DynamoFilterExpressionWithValue,
-	...DynamoFilterExpressionWithoutValue
-} as const;
-
-export type DynamoFilterExpression =
-	(typeof DynamoFilterExpression)[keyof typeof DynamoFilterExpression];
-
-export type DynamoFilterElement = {
-	attribute: string;
-	expression: DynamoFilterExpression;
-	value: string | number | boolean;
-};
-
-export abstract class DynamoRepository<T> {
-	protected readonly defaultLimit: number = 25;
-	protected client: DynamoDBDocumentClient;
+} from '../type/index.dynamodb.type';
+import pino, { Logger } from 'pino';
+import {
+	DynamoFilterElement,
+	DynamoFilterExpression,
+	DynamoFilterExpressionWithValue,
+	DynamoQueryExpression,
+	DynamoSortQueryElement
+} from '../type/filter.dynamodb.type';
+import { DynamoDbTable } from '../table/table.dynamodb';
+import { AwsCredentialIdentity } from '@smithy/types';
+import {
+	DynamoGetRequest,
+	DynamoGetRequestPaginated,
+	DynamoScanRequest
+} from '../type/request.dynamodb.type';
+export class BalerialDynamoRepository<T> {
+	private readonly defaultLimit: number = 25;
+	private client: DynamoDBDocumentClient;
 	private logger: Logger;
 
-	protected constructor(
-		config: ICoreConfiguration | ICoreConfigurationForAWSLambda,
-		private readonly table: string,
-		protected readonly primaryIndex: IPrimaryDynamoDbIndex,
-		private defaultFilters: DynamoFilterElement[] = []
+	constructor(
+		config: { region?: string; credentials?: AwsCredentialIdentity },
+		private readonly table: DynamoDbTable
 	) {
-		this.logger = getLogger();
-		if (!table) {
-			throw new Error(`Invalid table or partition key name ${table}`);
-		}
+		this.logger = pino();
 
 		try {
-			this.client = DynamoDBDocument.from(new DynamoDBClient(getClientConfiguration(config)), {
+			this.client = DynamoDBDocument.from(new DynamoDBClient(config), {
 				marshallOptions: { removeUndefinedValues: true }
 			});
 		} catch (error: unknown) {
@@ -80,24 +57,20 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async getByIndex(
-		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
-		partitionKeyValue: string | number,
-		includeSortKey: boolean = false,
-		sortKeyValue?: string | number,
-		descendent: boolean = true,
-		filters: DynamoFilterElement[] = []
-	): Promise<T[]> {
-		const queryParams = this.buildQueryForIndex(
-			index,
-			partitionKeyValue,
-			includeSortKey,
-			sortKeyValue,
-			descendent
-		);
+	async getByIndex({
+		indexName,
+		partitionKeyValue,
+		sortQuery,
+		descendent,
+		filters
+	}: DynamoGetRequest): Promise<T[]> {
+		const index = indexName
+			? this.table.getSecondaryIndex(indexName)
+			: this.table.getPrimaryIndex();
+		const queryParams = this.buildQueryForIndex(index, partitionKeyValue, sortQuery, descendent);
 
 		const enrichedQueryParams = this.addFilterAndProjectionExpressions(
-			this.combineAndCleanWithDefultFilterElements(filters, index),
+			this.combineAndCleanWithDefultFilterElements(filters ?? [], index),
 			[],
 			queryParams
 		);
@@ -110,23 +83,21 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async getByIndexPaginated(
-		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
-		partitionKeyValue: string | number,
-		startKey?: Record<string, string | number>,
-		descendent: boolean = true,
-		filters: DynamoFilterElement[] = []
-	): Promise<IPaginatedDtoResult<T>> {
-		const queryParams = this.buildQueryForIndex(
-			index,
-			partitionKeyValue,
-			false,
-			undefined,
-			descendent
-		);
+	async getByIndexPaginated({
+		indexName,
+		partitionKeyValue,
+		startKey,
+		sortQuery,
+		descendent,
+		filters
+	}: DynamoGetRequestPaginated): Promise<IDynamoPaginatedResult<T>> {
+		const index = indexName
+			? this.table.getSecondaryIndex(indexName)
+			: this.table.getPrimaryIndex();
+		const queryParams = this.buildQueryForIndex(index, partitionKeyValue, sortQuery, descendent);
 
 		const enrichedQueryParams = this.addFilterAndProjectionExpressions(
-			this.combineAndCleanWithDefultFilterElements(filters, index),
+			this.combineAndCleanWithDefultFilterElements(filters ?? [], index),
 			[],
 			queryParams
 		);
@@ -139,69 +110,24 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async getBySortingKeyBetween(
-		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
-		partitionKeyValue: string,
-		sortKeyStartValue: string | number,
-		sortKeyEndValue: string | number,
-		descendent: boolean = true,
-		filters: DynamoFilterElement[] = []
-	): Promise<T[]> {
-		if (index.sortKeyName == null) {
-			return [];
-		}
-
-		const params = this.buildQueryForIndexAndSortRange(
-			index,
-			partitionKeyValue,
-			sortKeyStartValue,
-			sortKeyEndValue,
-			descendent
-		);
-
-		const enrichedQueryParams = this.addFilterAndProjectionExpressions(
-			this.combineAndCleanWithDefultFilterElements(filters, index),
-			[],
-			params
-		);
-		try {
-			return this.executeQueryCommandWithoutPagination(enrichedQueryParams);
-		} catch (error: unknown) {
-			this.logError('getBySortingKeyBetween', error);
-			throw error;
-		}
-	}
-
-	protected scan(
-		filterAttributes: DynamoFilterElement[],
-		limit?: number,
-		index?: ISecondaryDynamoDbIndex,
-		startKey?: Record<string, string | number>
-	): Promise<IPaginatedDtoResult<T>>;
-	protected scan(
-		filterAttributes: DynamoFilterElement[],
-		limit?: number,
-		index?: ISecondaryDynamoDbIndex,
-		startKey?: Record<string, string | number>,
-		projectionAttributes?: string[]
-	): Promise<IPaginatedDtoResult<Partial<T>>>;
-	protected async scan(
-		filterAttributes: DynamoFilterElement[],
-		limit?: number,
-		index?: ISecondaryDynamoDbIndex,
-		startKey?: Record<string, string | number>,
-		projectionAttributes?: string[]
-	): Promise<IPaginatedDtoResult<T | Partial<T>>> {
+	async scan({
+		filterAttributes,
+		limit,
+		indexName,
+		startKey,
+		projectionAttributes
+	}: DynamoScanRequest): Promise<IDynamoPaginatedResult<T | Partial<T>>> {
 		const elements: Partial<T>[] = [];
+		const index = indexName ? this.table.getSecondaryIndex(indexName) : undefined;
 		const request: ScanCommandInput = {
-			TableName: this.table,
+			TableName: this.table.getTableName(),
 			Limit: limit,
 			IndexName: index?.indexName,
 			ExclusiveStartKey: startKey
 		};
 
 		const enrichedRequest = this.addFilterAndProjectionExpressions(
-			this.combineAndCleanWithDefultFilterElements(filterAttributes, index),
+			this.combineAndCleanWithDefultFilterElements(filterAttributes ?? [], index),
 			projectionAttributes ?? [],
 			request
 		);
@@ -222,30 +148,31 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async updateFields(
+	async updateFields(
 		partitionKeyValue: string,
 		fieldMap: Map<string, string | number | boolean | undefined>,
 		sortKeyValue?: string | number
 	) {
 		const key: { [x: string]: string | number } = {
-			[this.primaryIndex.partitionKeyName]: partitionKeyValue
+			[this.table.getPrimaryIndex().partitionKeyName]: partitionKeyValue
 		};
 
 		const keys = [...fieldMap.keys()];
 
 		if (
-			keys.includes(this.primaryIndex.partitionKeyName) ||
-			keys.includes(this.primaryIndex.sortKeyName ?? '')
+			keys.includes(this.table.getPrimaryIndex().partitionKeyName) ||
+			keys.includes(this.table.getPrimaryIndex().sortKeyName ?? '')
 		) {
 			throw Error('PK or SK can not be modified');
 		}
 
-		if (this.primaryIndex.sortKeyName && !sortKeyValue) {
+		const sortKeyName = this.table.getPrimaryIndex().sortKeyName;
+		if (sortKeyName && !sortKeyValue) {
 			throw Error("Sort key value can't be null");
 		}
 
-		if (this.primaryIndex.sortKeyName && sortKeyValue) {
-			key[this.primaryIndex.sortKeyName] = sortKeyValue;
+		if (sortKeyName && sortKeyValue) {
+			key[sortKeyName] = sortKeyValue;
 		}
 
 		const updateExpressionParts: string[] = [];
@@ -273,7 +200,7 @@ export abstract class DynamoRepository<T> {
 		const updateExpression = `SET ${updateExpressionParts.join(', ')}`;
 
 		const params: UpdateCommandInput = {
-			TableName: this.table,
+			TableName: this.table.getTableName(),
 			Key: key,
 			UpdateExpression: updateExpression,
 			ExpressionAttributeNames: expressionAttributeNames,
@@ -288,9 +215,9 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async put(dto: T) {
+	async put(dto: T) {
 		const input = {
-			TableName: this.table,
+			TableName: this.table.getTableName(),
 			Item: dto as Record<string, AttributeValue>
 		};
 
@@ -302,14 +229,14 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async updateFullObject(oldDto: T, newDto: T) {
+	async updateFullObject(oldDto: T, newDto: T) {
 		const deleteParams = {
-			TableName: this.table,
+			TableName: this.table.getTableName(),
 			Key: this.extractKeyFromDto(oldDto)
 		};
 
 		const putParams = {
-			TableName: this.table,
+			TableName: this.table.getTableName(),
 			Item: newDto as Record<string, AttributeValue>
 		};
 
@@ -332,7 +259,7 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async batchPut(dtoList: T[]) {
+	async batchPut(dtoList: T[]) {
 		const putRequests = dtoList.map((dto) => ({
 			PutRequest: {
 				Item: dto as Record<string, AttributeValue>
@@ -350,20 +277,21 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async batchDelete(values: { partitionKey: string; sortKey?: string | number }[]) {
+	async batchDelete(values: { partitionKey: string; sortKey?: string | number }[]) {
 		const deleteRequests = values.map((value) => {
 			const key: {
 				[x: string]: string | number;
 			} = {
-				[this.primaryIndex.partitionKeyName]: value.partitionKey
+				[this.table.getPrimaryIndex().partitionKeyName]: value.partitionKey
 			};
 
-			if (this.primaryIndex.sortKeyName && !value.sortKey) {
+			const sortKeyName = this.table.getPrimaryIndex().sortKeyName;
+			if (sortKeyName && !value.sortKey) {
 				throw Error("Sort key value can't be null");
 			}
 
-			if (this.primaryIndex.sortKeyName && value.sortKey) {
-				key[this.primaryIndex.sortKeyName] = value.sortKey;
+			if (sortKeyName && value.sortKey) {
+				key[sortKeyName] = value.sortKey;
 			}
 
 			return {
@@ -414,7 +342,7 @@ export abstract class DynamoRepository<T> {
 	private async executeQueryCommandWithPagination(
 		params: QueryCommandInput,
 		startKey?: Record<string, string | number>
-	): Promise<IPaginatedDtoResult<T>> {
+	): Promise<IDynamoPaginatedResult<T>> {
 		try {
 			params.ExclusiveStartKey = startKey;
 			params.Limit = this.defaultLimit;
@@ -438,7 +366,7 @@ export abstract class DynamoRepository<T> {
 	) {
 		const params = {
 			RequestItems: {
-				[this.table]: requests
+				[this.table.getTableName()]: requests
 			}
 		};
 
@@ -452,8 +380,8 @@ export abstract class DynamoRepository<T> {
 
 	private logError(functionName: string, error: unknown, otherInfo?: object) {
 		this.logger.error(
-			`Error repo ${this.table}, partitionKey ${this.primaryIndex.partitionKeyName}, sortkey ${
-				this.primaryIndex.sortKeyName
+			`Error repo ${this.table.getTableName()}, partitionKey ${this.table.getPrimaryIndex().partitionKeyName}, sortkey ${
+				this.table.getPrimaryIndex().sortKeyName
 			}, and function ${functionName}: ${(error as Error).toString()}`
 		);
 
@@ -464,17 +392,18 @@ export abstract class DynamoRepository<T> {
 
 	private extractKeyFromDto(dto: T): { [x: string]: string | number } {
 		const key = {
-			[this.primaryIndex.partitionKeyName]: (dto as { [key: string]: string | number })[
-				this.primaryIndex.partitionKeyName
+			[this.table.getPrimaryIndex().partitionKeyName]: (dto as { [key: string]: string | number })[
+				this.table.getPrimaryIndex().partitionKeyName
 			] as string | number
 		};
 
-		if (this.primaryIndex.sortKeyName) {
-			key[this.primaryIndex.sortKeyName] = (dto as { [key: string]: string | number })[
-				this.primaryIndex.sortKeyName
-			] as string | number;
+		const sortKeyName = this.table.getPrimaryIndex().sortKeyName;
+		if (sortKeyName) {
+			key[sortKeyName] = (dto as { [key: string]: string | number })[sortKeyName] as
+				| string
+				| number;
 
-			if (key[this.primaryIndex.sortKeyName] == null) {
+			if (key[sortKeyName] == null) {
 				throw Error('Sort key not found');
 			}
 		}
@@ -485,14 +414,13 @@ export abstract class DynamoRepository<T> {
 	private buildQueryForIndex(
 		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
 		partitionKeyValue: string | number,
-		includeSortKey: boolean = false,
-		sortKeyValue?: string | number,
+		sortQuery?: DynamoSortQueryElement,
 		descendent: boolean = true
 	): QueryCommandInput {
-		if (!includeSortKey) {
+		if (sortQuery == null) {
 			return {
 				IndexName: index.type === DynamoDbIndexType.secondary ? index.indexName : undefined,
-				TableName: this.table,
+				TableName: this.table.getTableName(),
 				KeyConditionExpression: '#pk = :pkv',
 				ExpressionAttributeNames: {
 					'#pk': index.partitionKeyName
@@ -503,53 +431,47 @@ export abstract class DynamoRepository<T> {
 				ScanIndexForward: !descendent
 			};
 		} else {
-			if (index.sortKeyName == null || sortKeyValue == null) {
+			if (index.sortKeyName == null) {
 				throw Error(
-					`Sort key names | values are not compatible  ${index.sortKeyName} | ${sortKeyValue}`
+					`Sort key names | values are not compatible  ${index.sortKeyName} | ${sortQuery.value}`
 				);
 			}
+
+			let sortKeyCondition = '';
+			let sortKeyValues = {};
+			if (sortQuery.expression === DynamoQueryExpression.BETWEEN) {
+				if (typeof sortQuery.value !== 'object' || !sortQuery.value.start || !sortQuery.value.end) {
+					throw Error('Sort query value must be an object with start and end properties');
+				}
+				sortKeyCondition = '#sk BETWEEN :skv1 AND :skv2';
+				sortKeyValues = {
+					':skv1': sortQuery.value.start,
+					':skv2': sortQuery.value.end
+				};
+			} else if (sortQuery.expression === DynamoQueryExpression.EQUAL) {
+				sortKeyCondition = '#sk = :skv';
+				sortKeyValues = {
+					':skv': sortQuery.value
+				};
+			} else {
+				throw Error(`Unsupported sort query expression: ${sortQuery.expression}`);
+			}
+
 			return {
 				IndexName: index.type === DynamoDbIndexType.secondary ? index.indexName : undefined,
-				TableName: this.table,
-				KeyConditionExpression: '#pk = :pkv AND #sk = :skv',
+				TableName: this.table.getTableName(),
+				KeyConditionExpression: '#pk = :pkv AND ' + sortKeyCondition,
 				ExpressionAttributeNames: {
 					'#pk': index.partitionKeyName,
 					'#sk': index.sortKeyName
 				},
 				ExpressionAttributeValues: {
 					':pkv': partitionKeyValue,
-					':skv': sortKeyValue
+					...sortKeyValues
 				},
 				ScanIndexForward: !descendent
 			};
 		}
-	}
-
-	private buildQueryForIndexAndSortRange(
-		index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex,
-		partitionKeyValue: string | number,
-		sortKeyValueStartValue: string | number,
-		sortKeyEndValue: string | number,
-		descendent: boolean = true
-	): QueryCommandInput {
-		if (index.sortKeyName == null) {
-			throw Error(`Sort key is required`);
-		}
-		return {
-			IndexName: index.type === DynamoDbIndexType.secondary ? index.indexName : undefined,
-			TableName: this.table,
-			KeyConditionExpression: '#pk = :pkv AND #sk BETWEEN :sksv AND :skev',
-			ExpressionAttributeNames: {
-				'#pk': index.partitionKeyName,
-				'#sk': index.sortKeyName
-			},
-			ExpressionAttributeValues: {
-				':pkv': partitionKeyValue,
-				':sksv': sortKeyValueStartValue,
-				':skev': sortKeyEndValue
-			},
-			ScanIndexForward: !descendent
-		};
 	}
 
 	private combineAndCleanWithDefultFilterElements(
@@ -558,7 +480,7 @@ export abstract class DynamoRepository<T> {
 	): DynamoFilterElement[] {
 		const uniqueElements = new Map<string, DynamoFilterElement>();
 
-		for (const element of [...this.defaultFilters, ...filterElements]) {
+		for (const element of [...this.table.getDefaultFilters(), ...filterElements]) {
 			const key = `${element.attribute}-${element.expression}-${element.value}`;
 			uniqueElements.set(key, element);
 		}
@@ -593,10 +515,10 @@ export abstract class DynamoRepository<T> {
 		attributes.forEach((attribute, index) => {
 			attributesNamesMap.set(
 				attribute.attribute,
-				DynamoRepository.generateAttributeName(attribute.attribute, index)
+				BalerialDynamoRepository.generateAttributeName(attribute.attribute, index)
 			);
 
-			if (DynamoRepository.canAttributeHaveValue(attribute.expression)) {
+			if (BalerialDynamoRepository.canAttributeHaveValue(attribute.expression)) {
 				attributesValueNamesMap.set(attribute.attribute, `:attrValue${index}`);
 			}
 		});
@@ -607,7 +529,7 @@ export abstract class DynamoRepository<T> {
 
 		input.ExpressionAttributeNames = {
 			...(input.ExpressionAttributeNames ?? {}),
-			...DynamoRepository.genetrateAttributeNamesRecord(attributesNamesMap)
+			...BalerialDynamoRepository.genetrateAttributeNamesRecord(attributesNamesMap)
 		};
 
 		if (projectionAttributes.length > 0) {
@@ -619,7 +541,7 @@ export abstract class DynamoRepository<T> {
 		if (attributes.length > 0) {
 			input.FilterExpression = attributes
 				.map((attribute) =>
-					DynamoRepository.generateExpression(
+					BalerialDynamoRepository.generateExpression(
 						attribute.expression,
 						attributesNamesMap.get(attribute.attribute)!,
 						attributesValueNamesMap.get(attribute.attribute)
@@ -678,7 +600,7 @@ export abstract class DynamoRepository<T> {
 		variableName: string,
 		valueName?: string
 	): string {
-		if (DynamoRepository.canAttributeHaveValue(expression) && valueName == null) {
+		if (BalerialDynamoRepository.canAttributeHaveValue(expression) && valueName == null) {
 			throw new Error(`Variable value is required for expression: ${expression}`);
 		}
 

@@ -3,14 +3,19 @@ import {
 	ICoreConfigurationForAWSLambda
 } from '../../configuration/core-configuration.interface';
 import { OrderDto } from '../dto/order.dto';
-import { DynamoFilterElement, DynamoFilterExpression, DynamoRepository } from './dynamo.repository';
-import { OrderDynamoDbIndex } from './index.dynamodb';
+import { BalerialDynamoRepository } from '@balerial/dynamo/repository';
+import { getClientConfiguration } from '../../configuration/configuration.util';
+import { DynamoFilterElement, DynamoFilterExpression } from '@balerial/dynamo/type';
+import { orderTableBuilder, OrderSecondaryIndexNames } from './table/table.builders.dynamodb';
 
-export class PublicOrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
-	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
+export class PublicOrderRepositoryDynamoDb {
+	private repository: BalerialDynamoRepository<OrderDto>;
+
+	constructor(private readonly config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
 		if (config.orderTable == null) {
 			throw Error('Table name orderTable can not be empty');
 		}
+
 		const defaultFilters: DynamoFilterElement[] = [
 			{
 				attribute: 'status',
@@ -18,12 +23,18 @@ export class PublicOrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 				value: 'deleted'
 			}
 		];
-		super(config, config.orderTable, OrderDynamoDbIndex.primaryIndex, defaultFilters);
+
+		this.repository = new BalerialDynamoRepository(
+			getClientConfiguration(config),
+			orderTableBuilder.setTableName(config.orderTable).setDefaultFilters(defaultFilters).build()
+		);
 	}
 
 	public async getOrderByShortId(shortId: string): Promise<OrderDto | null> {
-		const dtos = await this.getByIndex(OrderDynamoDbIndex.shortIdIndex, shortId);
-		const dto = dtos[0] ?? null;
-		return dto;
+		const dtos = await this.repository.getByIndex({
+			indexName: OrderSecondaryIndexNames.ShortId,
+			partitionKeyValue: shortId
+		});
+		return dtos[0] ?? null;
 	}
 }

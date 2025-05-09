@@ -2,13 +2,20 @@ import {
 	ICoreConfiguration,
 	ICoreConfigurationForAWSLambda
 } from '../../configuration/core-configuration.interface';
-
 import type { OrderDto } from '../dto/order.dto';
-import { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
-import { DynamoFilterElement, DynamoFilterExpression, DynamoRepository } from './dynamo.repository';
-import { OrderDynamoDbIndex } from './index.dynamodb';
+import { BalerialDynamoRepository } from '@balerial/dynamo/repository';
+import { getClientConfiguration } from '../../configuration/configuration.util';
+import { orderTableBuilder, OrderSecondaryIndexNames } from './table/table.builders.dynamodb';
+import {
+	DynamoFilterElement,
+	DynamoFilterExpression,
+	DynamoQueryExpression,
+	IDynamoPaginatedResult
+} from '@balerial/dynamo/type';
 
-export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
+export class OrderRepositoryDynamoDb {
+	private repository: BalerialDynamoRepository<OrderDto>;
+
 	constructor(private readonly config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
 		if (config.orderTable == null) {
 			throw Error('Table name orderTable can not be empty');
@@ -25,44 +32,58 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 				value: 'deleted'
 			}
 		];
-		super(config, config.orderTable, OrderDynamoDbIndex.primaryIndex, defaultFilters);
+		this.repository = new BalerialDynamoRepository(
+			getClientConfiguration(config),
+			orderTableBuilder.setTableName(config.orderTable).setDefaultFilters(defaultFilters).build()
+		);
 	}
 
 	public async getOrderById(orderId: string): Promise<OrderDto | null> {
-		const dto = await this.getByIndex(this.primaryIndex, orderId);
-		return dto[0];
+		const dtos = await this.repository.getByIndex({
+			partitionKeyValue: orderId
+		});
+		return dtos[0] ?? null;
 	}
 
 	public async getOrderByShortId(shortId: string): Promise<OrderDto | null> {
-		const dtos = await this.getByIndex(OrderDynamoDbIndex.shortIdIndex, shortId);
+		const dtos = await this.repository.getByIndex({
+			indexName: OrderSecondaryIndexNames.ShortId,
+			partitionKeyValue: shortId
+		});
 		return dtos[0] ?? null;
 	}
 
 	public async getOrderByPublicId(publicId: string): Promise<OrderDto | null> {
-		const dtos = await this.getByIndex(OrderDynamoDbIndex.publicIdIndex, publicId);
+		const dtos = await this.repository.getByIndex({
+			indexName: OrderSecondaryIndexNames.PublicId,
+			partitionKeyValue: publicId
+		});
 		return dtos[0] ?? null;
 	}
 
 	public async getOrdersByCustomerId(customerUuid: string): Promise<OrderDto[]> {
-		const dtos = await this.getByIndex(OrderDynamoDbIndex.customerIndex, customerUuid);
-		return dtos;
+		return this.repository.getByIndex({
+			indexName: OrderSecondaryIndexNames.Customer,
+			partitionKeyValue: customerUuid
+		});
 	}
 
 	public async getOrdersByStatus(status: string): Promise<OrderDto[]> {
-		const dtos = await this.getByIndex(OrderDynamoDbIndex.statusIndex, status);
-		return dtos;
+		return this.repository.getByIndex({
+			indexName: OrderSecondaryIndexNames.Status,
+			partitionKeyValue: status
+		});
 	}
 
 	public async getOrdersByStatusPaginated(
 		status: string,
 		lastOrderPaginationKey?: Record<string, string | number>
-	): Promise<IPaginatedDtoResult<OrderDto>> {
-		const paginationResult = await this.getByIndexPaginated(
-			OrderDynamoDbIndex.statusIndex,
-			status,
-			lastOrderPaginationKey
-		);
-		return paginationResult;
+	): Promise<IDynamoPaginatedResult<OrderDto>> {
+		return this.repository.getByIndexPaginated({
+			indexName: OrderSecondaryIndexNames.Status,
+			partitionKeyValue: status,
+			startKey: lastOrderPaginationKey
+		});
 	}
 
 	public async findOrdersByStatus(status: string, query: string): Promise<OrderDto[]> {
@@ -73,17 +94,11 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 				value: query
 			}
 		];
-
-		const dtos = await this.getByIndex(
-			OrderDynamoDbIndex.statusIndex,
-			status,
-			false,
-			undefined,
-			undefined,
-			filterAttributes
-		);
-
-		return dtos;
+		return this.repository.getByIndex({
+			indexName: OrderSecondaryIndexNames.Status,
+			partitionKeyValue: status,
+			filters: filterAttributes
+		});
 	}
 
 	public async getOrdersBetweenTs(
@@ -91,35 +106,37 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 		startTs: number,
 		endTs: number
 	): Promise<OrderDto[]> {
-		const dtos = await this.getBySortingKeyBetween(
-			OrderDynamoDbIndex.customerIndex,
-			customerUuid,
-			startTs,
-			endTs
-		);
-		return dtos;
+		return this.repository.getByIndex({
+			indexName: OrderSecondaryIndexNames.Customer,
+			partitionKeyValue: customerUuid,
+			sortQuery: {
+				expression: DynamoQueryExpression.BETWEEN,
+				value: { start: startTs, end: endTs }
+			}
+		});
 	}
 
 	public async createOrder(order: OrderDto) {
 		if (order.storeId !== this.config.storeId) {
 			return;
 		}
-
 		if (!order.uuid || !order.customerUuid || !order.timestamp || !order.storeId) {
 			throw new Error('Invalid order data');
 		}
-
-		await this.put(order);
+		await this.repository.put(order);
 	}
 
 	public async setOrderNotified(order: OrderDto) {
 		this.checkOrderStore(order);
-		await this.updateFields(order.uuid, new Map([['notified', order.notified ?? false]]));
+		await this.repository.updateFields(
+			order.uuid,
+			new Map([['notified', order.notified ?? false]])
+		);
 	}
 
 	public async setOrderStatus(order: OrderDto) {
 		this.checkOrderStore(order);
-		await this.updateFields(
+		await this.repository.updateFields(
 			order.uuid,
 			new Map([
 				['location', order.location ?? ''],
@@ -130,17 +147,17 @@ export class OrderRepositoryDynamoDb extends DynamoRepository<OrderDto> {
 
 	public async updateAmountPayed(order: OrderDto) {
 		this.checkOrderStore(order);
-		await this.updateFields(order.uuid, new Map([['amountPayed', order.amountPayed]]));
+		await this.repository.updateFields(order.uuid, new Map([['amountPayed', order.amountPayed]]));
 	}
 
 	public async updateCustomerId(order: OrderDto) {
 		this.checkOrderStore(order);
-		await this.updateFields(order.uuid, new Map([['customerUuid', order.customerUuid]]));
+		await this.repository.updateFields(order.uuid, new Map([['customerUuid', order.customerUuid]]));
 	}
 
 	public async storeOrders(orders: OrderDto[]) {
 		this.checkOrderStore(orders);
-		await this.batchPut(orders);
+		await this.repository.batchPut(orders);
 	}
 
 	private checkOrderStore(dto: OrderDto | OrderDto[]) {

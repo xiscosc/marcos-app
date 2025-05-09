@@ -1,66 +1,88 @@
 import {
 	ICoreConfiguration,
-	ICoreConfigurationForAWSLambda,
-	ICorePublicConfiguration,
-	ICorePublicConfigurationForAWSLambda,
-	PUBLIC_REPOSITORY
+	ICoreConfigurationForAWSLambda
 } from '../../configuration/core-configuration.interface';
 import { InvalidKeyError } from '../../error/invalid-key.error';
 import type { CustomerDto } from '../dto/customer.dto';
-import type { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
-import { DynamoFilterElement, DynamoFilterExpression, DynamoRepository } from './dynamo.repository';
-import { CustomerDynamoDbIndex } from './index.dynamodb';
+import { CustomerSecondaryIndexNames, customerTableBuilder } from './table/table.builders.dynamodb';
+import { BalerialDynamoRepository } from '@balerial/dynamo/repository';
+import { getClientConfiguration } from '../../configuration/configuration.util';
+import {
+	DynamoFilterElement,
+	DynamoFilterExpression,
+	DynamoQueryExpression,
+	IDynamoPaginatedResult
+} from '@balerial/dynamo/type';
 
-export class CustomerRepositoryDynamoDb extends DynamoRepository<CustomerDto> {
+export class CustomerRepositoryDynamoDb {
+	private repository: BalerialDynamoRepository<CustomerDto>;
+
 	constructor(private readonly config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
 		if (config.customerTable == null) {
 			throw Error('Table name customerTable can not be empty');
 		}
-		super(config, config.customerTable, CustomerDynamoDbIndex.primaryIndex);
+
+		const defaultFilters: DynamoFilterElement[] = [
+			{
+				attribute: 'storeId',
+				expression: DynamoFilterExpression.EQUAL,
+				value: config.storeId
+			}
+		];
+
+		this.repository = new BalerialDynamoRepository(
+			getClientConfiguration(config),
+			customerTableBuilder
+				.setTableName(config.customerTable)
+				.setDefaultFilters(defaultFilters)
+				.build()
+		);
 	}
 
 	public async getCustomerById(customerId: string): Promise<CustomerDto | null> {
-		const dto = await this.getByIndex(this.primaryIndex, customerId);
-		return this.filterByStoreId(dto[0]) as CustomerDto | null;
-	}
-
-	public async getPublicCustomerById(customerId: string): Promise<CustomerDto | null> {
-		const dto = await this.getByIndex(this.primaryIndex, customerId);
-		return this.config.storeId === PUBLIC_REPOSITORY ? dto[0] : null;
+		const dto = await this.repository.getByIndex({
+			partitionKeyValue: customerId
+		});
+		return dto[0];
 	}
 
 	public async deleteCustomer(customer: CustomerDto): Promise<void> {
 		this.checkCustomerStore(customer);
-		await this.batchDelete([{ partitionKey: customer.uuid }]);
+		await this.repository.batchDelete([{ partitionKey: customer.uuid }]);
 	}
 
 	public async getAllCustomers(): Promise<CustomerDto[]> {
-		const dtos = await this.getByIndex(CustomerDynamoDbIndex.storeIndex, this.config.storeId);
+		const dtos = await this.repository.getByIndex({
+			partitionKeyValue: this.config.storeId,
+			indexName: CustomerSecondaryIndexNames.Store
+		});
 		return dtos;
 	}
 
 	public async getAllCustomersPaginated(
 		lastCustomerPaginationKey?: Record<string, string | number>
-	): Promise<IPaginatedDtoResult<CustomerDto>> {
-		return this.getByIndexPaginated(
-			CustomerDynamoDbIndex.storeIndex,
-			this.config.storeId,
-			lastCustomerPaginationKey
-		);
+	): Promise<IDynamoPaginatedResult<CustomerDto>> {
+		return this.repository.getByIndexPaginated({
+			indexName: CustomerSecondaryIndexNames.Store,
+			partitionKeyValue: this.config.storeId,
+			startKey: lastCustomerPaginationKey
+		});
 	}
 
 	public async storeCustomers(customers: CustomerDto[]) {
 		this.checkCustomerStore(customers);
-		await this.batchPut(customers);
+		await this.repository.batchPut(customers);
 	}
 
 	public async getCustomerByPhone(phone: string): Promise<CustomerDto | null> {
-		const dto = await await this.getByIndex(
-			CustomerDynamoDbIndex.storeIndex,
-			this.config.storeId,
-			true,
-			phone
-		);
+		const dto = await this.repository.getByIndex({
+			indexName: CustomerSecondaryIndexNames.Store,
+			partitionKeyValue: this.config.storeId,
+			sortQuery: {
+				expression: DynamoQueryExpression.EQUAL,
+				value: phone
+			}
+		});
 		return dto[0] ?? null;
 	}
 
@@ -75,7 +97,7 @@ export class CustomerRepositoryDynamoDb extends DynamoRepository<CustomerDto> {
 			throw new InvalidKeyError('There is already a customer with the same phone');
 		}
 
-		await this.put(customer);
+		await this.repository.put(customer);
 	}
 
 	public async searchCustomer(normalizedQuery: string): Promise<CustomerDto[]> {
@@ -87,28 +109,11 @@ export class CustomerRepositoryDynamoDb extends DynamoRepository<CustomerDto> {
 			}
 		];
 
-		return this.getByIndex(
-			CustomerDynamoDbIndex.storeIndex,
-			this.config.storeId,
-			false,
-			undefined,
-			undefined,
-			filterAttributes
-		);
-	}
-
-	private filterByStoreId(
-		dto: CustomerDto | CustomerDto[] | undefined | null
-	): null | CustomerDto | CustomerDto[] {
-		if (dto == null) {
-			return null;
-		}
-
-		if (Array.isArray(dto)) {
-			return dto.filter((d) => d.storeId === this.config.storeId);
-		}
-
-		return dto.storeId === this.config.storeId ? dto : null;
+		return this.repository.getByIndex({
+			indexName: CustomerSecondaryIndexNames.Store,
+			partitionKeyValue: this.config.storeId,
+			filters: filterAttributes
+		});
 	}
 
 	private checkCustomerStore(dto: CustomerDto | CustomerDto[]) {
