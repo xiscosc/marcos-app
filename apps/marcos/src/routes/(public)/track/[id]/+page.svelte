@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import { OrderUtilities } from '@/shared/order.utilities';
 	import Qr from '@/components/generic/Qr.svelte';
-	import { IconType } from '@/components/generic/icon/icon.enum';
+	import { IconSize, IconType } from '@/components/generic/icon/icon.enum';
 	import { DateTime } from 'luxon';
 	import { orderStatusMap } from '@/shared/mappings/order.mapping';
 	import { getStatusUIInfo } from '@/ui/ui.helper';
@@ -112,7 +112,7 @@
 		</div>
 		<a href={`/s/${data.fullOrder.order.shortId}`} target="_blank" class="text-xs">
 			<span class="flex items-center gap-1 hover:underline">
-				<Icon type={IconType.PRINTER}></Icon> Versión para imprimir
+				<Icon type={IconType.PRINTER} size={IconSize.SMALL}></Icon> Versión para imprimir
 			</span>
 		</a>
 	</div>
