@@ -480,7 +480,7 @@ export class OrderService {
 		const { customAlphabet } = await import('nanoid');
 		const middle = customAlphabet('ABCDEFGHIJKLMNPQRSTUVWXYZ123456789', 4)();
 		const dateStr = DateTime.fromJSDate(createdAt).toFormat('ddMMyyyy');
-		return `${dateStr}/${middle}/${this.config.storeId}`.toUpperCase();
+		return `${dateStr}/${middle}/EXTERNO`.toUpperCase();
 	}
 
 	private async generateOrderAndCalculatedItemFromDto(
