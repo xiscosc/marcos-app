@@ -80,7 +80,7 @@ export class DynamoDbTableBuilder {
 	}
 
 	public setTableName(tableName: string): this {
-		if (tableName.length === 0) {
+		if (tableName == null || tableName.length === 0) {
 			throw new Error('Table name must be set');
 		}
 
