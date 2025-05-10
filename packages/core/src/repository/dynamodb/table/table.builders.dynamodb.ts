@@ -1,4 +1,4 @@
-import { DynamoDbTableBuilder } from '@balerial/dynamo/table';
+import { BalerialDynamoTableBuilder } from '@balerial/dynamo/table';
 import { DynamoDbIndexKeyType } from '@balerial/dynamo/type';
 
 export enum CustomerSecondaryIndexNames {
@@ -22,19 +22,19 @@ export enum OrderSecondaryIndexNames {
 	PublicId = 'publicId'
 }
 
-export const calculatedItemTableBuilder = new DynamoDbTableBuilder().setPrimaryIndex(
+export const calculatedItemTableBuilder = new BalerialDynamoTableBuilder().setPrimaryIndex(
 	'orderUuid',
 	DynamoDbIndexKeyType.string
 );
 
-export const configTableBuilder = new DynamoDbTableBuilder().setPrimaryIndex(
+export const configTableBuilder = new BalerialDynamoTableBuilder().setPrimaryIndex(
 	'storeId',
 	DynamoDbIndexKeyType.string,
 	'id',
 	DynamoDbIndexKeyType.string
 );
 
-export const customerTableBuilder = new DynamoDbTableBuilder()
+export const customerTableBuilder = new BalerialDynamoTableBuilder()
 	.setPrimaryIndex('uuid', DynamoDbIndexKeyType.string)
 	.addSecondaryIndex(
 		CustomerSecondaryIndexNames.Store,
@@ -44,14 +44,14 @@ export const customerTableBuilder = new DynamoDbTableBuilder()
 		DynamoDbIndexKeyType.string
 	);
 
-export const fileTableBuilder = new DynamoDbTableBuilder().setPrimaryIndex(
+export const fileTableBuilder = new BalerialDynamoTableBuilder().setPrimaryIndex(
 	'orderUuid',
 	DynamoDbIndexKeyType.string,
 	'fileUuid',
 	DynamoDbIndexKeyType.string
 );
 
-export const listPricingTableBuilder = new DynamoDbTableBuilder()
+export const listPricingTableBuilder = new BalerialDynamoTableBuilder()
 	.setPrimaryIndex('uuid', DynamoDbIndexKeyType.string)
 	.addSecondaryIndex(
 		ListPricingSecondaryIndexNames.Type,
@@ -61,7 +61,7 @@ export const listPricingTableBuilder = new DynamoDbTableBuilder()
 		DynamoDbIndexKeyType.string
 	);
 
-export const orderAuditTrailTableBuilder = new DynamoDbTableBuilder()
+export const orderAuditTrailTableBuilder = new BalerialDynamoTableBuilder()
 	.setPrimaryIndex('uuid', DynamoDbIndexKeyType.string)
 	.addSecondaryIndex(
 		OrderAuditTrailSecondaryIndexNames.Order,
@@ -78,7 +78,7 @@ export const orderAuditTrailTableBuilder = new DynamoDbTableBuilder()
 		DynamoDbIndexKeyType.number
 	);
 
-export const orderTableBuilder = new DynamoDbTableBuilder()
+export const orderTableBuilder = new BalerialDynamoTableBuilder()
 	.setPrimaryIndex('uuid', DynamoDbIndexKeyType.string)
 	.addSecondaryIndex(
 		OrderSecondaryIndexNames.Customer,

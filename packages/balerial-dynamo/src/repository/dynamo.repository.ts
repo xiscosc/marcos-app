@@ -29,7 +29,7 @@ import {
 	DynamoQueryExpression,
 	DynamoSortQueryElement
 } from '../type/filter.dynamodb.type';
-import { DynamoDbTable } from '../table/table.dynamodb';
+import { BalerialDynamoTable } from '../table/table.dynamodb';
 import { AwsCredentialIdentity } from '@smithy/types';
 import {
 	DynamoGetRequest,
@@ -43,7 +43,7 @@ export class BalerialDynamoRepository<T> {
 
 	constructor(
 		config: { region?: string; credentials?: AwsCredentialIdentity },
-		private readonly table: DynamoDbTable
+		private readonly table: BalerialDynamoTable
 	) {
 		this.logger = pino();
 

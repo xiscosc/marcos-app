@@ -6,13 +6,32 @@ import {
 	DynamoDbIndexKeyType
 } from '../type/index.dynamodb.type';
 
-export class DynamoDbTable {
-	constructor(
+export class BalerialDynamoTable {
+	private constructor(
 		private readonly tableName: string,
 		private primaryIndex: IPrimaryDynamoDbIndex,
 		private secondaryIndexesMap: Map<string, ISecondaryDynamoDbIndex>,
 		private defaultFilters: DynamoFilterElement[]
 	) {}
+
+	public static create(builder: BalerialDynamoTableBuilder): BalerialDynamoTable {
+		const primaryIndex = builder.getPrimaryIndex();
+		const tableName = builder.getTableName();
+
+		if (!primaryIndex) {
+			throw new Error('Primary index must be set');
+		}
+		if (!tableName) {
+			throw new Error('Table name must be set');
+		}
+
+		return new BalerialDynamoTable(
+			tableName,
+			primaryIndex,
+			builder.getSecondaryIndexesMap(),
+			builder.getDefaultFilters()
+		);
+	}
 
 	public getPrimaryIndex(): IPrimaryDynamoDbIndex {
 		return this.primaryIndex;
@@ -39,11 +58,27 @@ export class DynamoDbTable {
 	}
 }
 
-export class DynamoDbTableBuilder {
+export class BalerialDynamoTableBuilder {
 	private primaryIndex?: IPrimaryDynamoDbIndex;
 	private secondaryIndexesMap: Map<string, ISecondaryDynamoDbIndex> = new Map();
 	private tableName?: string;
 	private defaultFilters: DynamoFilterElement[] = [];
+
+	public getPrimaryIndex(): IPrimaryDynamoDbIndex | undefined {
+		return this.primaryIndex;
+	}
+
+	public getSecondaryIndexesMap(): Map<string, ISecondaryDynamoDbIndex> {
+		return this.secondaryIndexesMap;
+	}
+
+	public getTableName(): string | undefined {
+		return this.tableName;
+	}
+
+	public getDefaultFilters(): DynamoFilterElement[] {
+		return this.defaultFilters;
+	}
 
 	public setPrimaryIndex(
 		partitionKeyName: string,
@@ -93,19 +128,7 @@ export class DynamoDbTableBuilder {
 		return this;
 	}
 
-	public build(): DynamoDbTable {
-		if (!this.primaryIndex) {
-			throw new Error('Primary index must be set');
-		}
-		if (!this.tableName) {
-			throw new Error('Table name must be set');
-		}
-
-		return new DynamoDbTable(
-			this.tableName,
-			this.primaryIndex,
-			this.secondaryIndexesMap,
-			this.defaultFilters
-		);
+	public build(): BalerialDynamoTable {
+		return BalerialDynamoTable.create(this);
 	}
 }
