@@ -7,7 +7,6 @@ export enum DynamoDbIndexKeyType {
 	string = 'S',
 	number = 'N'
 }
-
 export interface IDynamoDbIndex {
 	type: DynamoDbIndexType;
 	partitionKeyName: string;

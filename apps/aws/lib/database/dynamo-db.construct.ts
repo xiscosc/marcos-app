@@ -10,11 +10,14 @@ import {
 	calculatedItemTableBuilder,
 	orderAuditTrailTableBuilder
 } from '@marcsimolduressonsardina/core/db';
-import {
-	DynamoDbIndexKeyType,
+
+import BalerialDynamoDefaultExport, {
 	IPrimaryDynamoDbIndex,
 	ISecondaryDynamoDbIndex
 } from '@balerial/dynamo/type';
+
+const DynamoDbIndexKeyType = BalerialDynamoDefaultExport.DynamoDbIndexKeyType;
+type DynamoDbIndexKeyTypeValue = (typeof DynamoDbIndexKeyType)[keyof typeof DynamoDbIndexKeyType];
 
 export function createDynamoTables(scope: Construct, envName: string): DynamoTableSet {
 	return {
@@ -149,7 +152,7 @@ function generateIndexParams(index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIn
 	};
 }
 
-function getAttributeType(type: DynamoDbIndexKeyType): AttributeType {
+function getAttributeType(type: DynamoDbIndexKeyTypeValue): AttributeType {
 	if (type === DynamoDbIndexKeyType.string) return AttributeType.STRING;
 	return AttributeType.NUMBER;
 }
