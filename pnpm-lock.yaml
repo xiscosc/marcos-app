@@ -176,7 +176,7 @@ importers:
         version: link:../../packages/marcos-core
       '@marcsimolduressonsardina/lambda':
         specifier: workspace:*
-        version: link:../../packages/lambda-logic
+        version: link:../../packages/marcos-lambda-logic
       aws-cdk-lib:
         specifier: 2.189.0
         version: 2.189.0(constructs@10.4.2)
@@ -288,43 +288,6 @@ importers:
         specifier: ^8.18.0
         version: 8.18.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2)
 
-  packages/lambda-logic:
-    dependencies:
-      '@marcsimolduressonsardina/core':
-        specifier: workspace:*
-        version: link:../marcos-core
-      luxon:
-        specifier: 3.6.1
-        version: 3.6.1
-      posthog-node:
-        specifier: 4.12.0
-        version: 4.12.0
-    devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-      '@types/aws-lambda':
-        specifier: 8.10.147
-        version: 8.10.147
-      '@types/luxon':
-        specifier: 3.6.2
-        version: 3.6.2
-      aws-lambda:
-        specifier: 1.0.7
-        version: 1.0.7
-      pino:
-        specifier: 9.6.0
-        version: 9.6.0
-      sharp:
-        specifier: 0.34.1
-        version: 0.34.1
-      typescript:
-        specifier: 5.8.3
-        version: 5.8.3
-
   packages/marcos-core:
     dependencies:
       '@aws-sdk/client-s3':
@@ -385,6 +348,43 @@ importers:
       '@types/node':
         specifier: 22.14.0
         version: 22.14.0
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+
+  packages/marcos-lambda-logic:
+    dependencies:
+      '@marcsimolduressonsardina/core':
+        specifier: workspace:*
+        version: link:../marcos-core
+      luxon:
+        specifier: 3.6.1
+        version: 3.6.1
+      posthog-node:
+        specifier: 4.12.0
+        version: 4.12.0
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/aws-lambda':
+        specifier: 8.10.147
+        version: 8.10.147
+      '@types/luxon':
+        specifier: 3.6.2
+        version: 3.6.2
+      aws-lambda:
+        specifier: 1.0.7
+        version: 1.0.7
+      pino:
+        specifier: 9.6.0
+        version: 9.6.0
+      sharp:
+        specifier: 0.34.1
+        version: 0.34.1
       typescript:
         specifier: 5.8.3
         version: 5.8.3
