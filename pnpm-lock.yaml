@@ -229,6 +229,9 @@ importers:
       '@aws-sdk/lib-dynamodb':
         specifier: 3.786.0
         version: 3.786.0(@aws-sdk/client-dynamodb@3.786.0)
+      aws-cdk-lib:
+        specifier: 2.189.0
+        version: 2.189.0(constructs@10.4.2)
       lodash:
         specifier: 4.17.21
         version: 4.17.21

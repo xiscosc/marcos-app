@@ -1,4 +1,4 @@
-import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import type { DynamoTableSet } from '../types.js';
 import {
@@ -11,13 +11,8 @@ import {
 	orderAuditTrailTableBuilder
 } from '@marcsimolduressonsardina/core/db';
 
-import BalerialDynamoDefaultExport, {
-	IPrimaryDynamoDbIndex,
-	ISecondaryDynamoDbIndex
-} from '@balerial/dynamo/type';
-
-const DynamoDbIndexKeyType = BalerialDynamoDefaultExport.DynamoDbIndexKeyType;
-type DynamoDbIndexKeyTypeValue = (typeof DynamoDbIndexKeyType)[keyof typeof DynamoDbIndexKeyType];
+import { IPrimaryDynamoDbIndex, ISecondaryDynamoDbIndex } from '@balerial/dynamo/type';
+import { generateCdkIndexParams } from '@balerial/dynamo/tools';
 
 export function createDynamoTables(scope: Construct, envName: string): DynamoTableSet {
 	return {
@@ -119,7 +114,7 @@ function createTable(
 ): Table {
 	return new Table(scope, `${tableName}-table`, {
 		tableName,
-		...generateIndexParams(index),
+		...generateCdkIndexParams(index),
 		billingMode: BillingMode.PAY_PER_REQUEST,
 		pointInTimeRecoverySpecification: {
 			pointInTimeRecoveryEnabled: envName === 'prod'
@@ -131,28 +126,7 @@ function addSecondaryIndexes(indexes: ISecondaryDynamoDbIndex[], table: Table) {
 	indexes.forEach((index) => {
 		table.addGlobalSecondaryIndex({
 			indexName: index.indexName,
-			...generateIndexParams(index)
+			...generateCdkIndexParams(index)
 		});
 	});
-}
-
-function generateIndexParams(index: IPrimaryDynamoDbIndex | ISecondaryDynamoDbIndex) {
-	return {
-		partitionKey: {
-			name: index.partitionKeyName,
-			type: getAttributeType(index.partitionKeyType)
-		},
-		sortKey:
-			index.sortKeyName == null || index.sortKeyType == null
-				? undefined
-				: {
-						name: index.sortKeyName,
-						type: getAttributeType(index.sortKeyType)
-					}
-	};
-}
-
-function getAttributeType(type: DynamoDbIndexKeyTypeValue): AttributeType {
-	if (type === DynamoDbIndexKeyType.string) return AttributeType.STRING;
-	return AttributeType.NUMBER;
 }

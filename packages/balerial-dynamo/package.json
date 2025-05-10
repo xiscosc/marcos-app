@@ -4,7 +4,8 @@
 	"exports": {
 		"./type": "./src/type/index.ts",
 		"./table": "./src/table/table.dynamodb.ts",
-		"./repository": "./src/repository/dynamo.repository.ts"
+		"./repository": "./src/repository/dynamo.repository.ts",
+		"./tools": "./src/tools/cdk.tools.ts"
 	},
 	"scripts": {
 		"lint": "eslint .",
@@ -23,6 +24,7 @@
 	"dependencies": {
 		"@aws-sdk/client-dynamodb": "3.786.0",
 		"@aws-sdk/lib-dynamodb": "3.786.0",
+		"aws-cdk-lib": "2.189.0",
 		"lodash": "4.17.21",
 		"pino": "9.6.0"
 	}
