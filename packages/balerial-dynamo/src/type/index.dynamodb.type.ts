@@ -1,5 +1,3 @@
-import { ScalarAttributeType } from '@aws-sdk/client-dynamodb';
-
 export enum DynamoDbIndexType {
 	primary = 'PRIMARY',
 	secondary = 'SECONDARY'
