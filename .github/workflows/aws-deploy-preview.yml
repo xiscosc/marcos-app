@@ -25,10 +25,10 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Download Sharp Layer
-        run: curl -L https://github.com/pH200/sharp-layer/releases/latest/download/release-arm64.zip --output apps/aws/sharp-layer.zip
+        run: curl -L https://github.com/pH200/sharp-layer/releases/latest/download/release-arm64.zip --output apps/marcos-aws/sharp-layer.zip
 
       - name: Install
-        run: pnpm i --prefix apps/aws
+        run: pnpm i --prefix apps/marcos-aws
 
       - name: Configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -38,7 +38,7 @@ jobs:
           aws-region: 'eu-central-1'
 
       - name: Bootstrap
-        run: pnpm cdk bootstrap
+        run: pnpm run --prefix apps/marcos-aws cdk bootstrap
         env:
           CDK_ENV_NAME: dev
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
@@ -46,7 +46,7 @@ jobs:
           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
 
       - name: Diff stack
-        run: pnpm cdk diff
+        run: pnpm run --prefix apps/marcos-aws cdk diff
         env:
           CDK_ENV_NAME: dev
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
@@ -54,7 +54,7 @@ jobs:
           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
 
       - name: Deploy stack
-        run: pnpm cdk deploy --all --require-approval never
+        run: pnpm run --prefix apps/marcos-aws cdk deploy --all --require-approval never
         env:
           CDK_ENV_NAME: dev
           ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}

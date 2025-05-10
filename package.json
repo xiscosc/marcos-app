@@ -6,8 +6,7 @@
 		"dev": "turbo dev",
 		"lint": "turbo lint",
 		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
-		"sync-deps": "syncpack fix-mismatches",
-		"cdk": "pnpm run --prefix apps/aws cdk"
+		"sync-deps": "syncpack fix-mismatches"
 	},
 	"devDependencies": {
 		"@tsconfig/node20": "20.1.4",
