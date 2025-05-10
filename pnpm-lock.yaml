@@ -30,61 +30,6 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
 
-  apps/aws:
-    dependencies:
-      '@balerial/dynamo':
-        specifier: workspace:*
-        version: link:../../packages/balerial-dynamo
-      '@marcsimolduressonsardina/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@marcsimolduressonsardina/lambda':
-        specifier: workspace:*
-        version: link:../../packages/lambda-logic
-      aws-cdk-lib:
-        specifier: 2.189.0
-        version: 2.189.0(constructs@10.4.2)
-      aws-lambda:
-        specifier: 1.0.7
-        version: 1.0.7
-      constructs:
-        specifier: 10.4.2
-        version: 10.4.2
-      dotenv:
-        specifier: 16.4.7
-        version: 16.4.7
-      source-map-support:
-        specifier: 0.5.21
-        version: 0.5.21
-    devDependencies:
-      '@aws-sdk/client-dynamodb':
-        specifier: 3.786.0
-        version: 3.786.0
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@types/aws-lambda':
-        specifier: 8.10.149
-        version: 8.10.149
-      '@types/eslint':
-        specifier: 9.6.1
-        version: 9.6.1
-      '@types/node':
-        specifier: 22.13.4
-        version: 22.13.4
-      aws-cdk:
-        specifier: 2.1007.0
-        version: 2.1007.0
-      esbuild:
-        specifier: 0.25.0
-        version: 0.25.0
-      tsx:
-        specifier: 4.19.3
-        version: 4.19.3
-      typescript:
-        specifier: 5.8.3
-        version: 5.8.3
-
   apps/marcos:
     dependencies:
       '@auth/sveltekit':
@@ -92,7 +37,7 @@ importers:
         version: 1.8.0(@sveltejs/kit@2.20.5(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.10)(vite@6.2.6(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.6.1)))(svelte@5.25.10)(vite@6.2.6(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.6.1)))(svelte@5.25.10)
       '@marcsimolduressonsardina/core':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/marcos-core
       '@sveltejs/adapter-auto':
         specifier: 6.0.0
         version: 6.0.0(@sveltejs/kit@2.20.5(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.10)(vite@6.2.6(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.6.1)))(svelte@5.25.10)(vite@6.2.6(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.6.1)))
@@ -221,6 +166,61 @@ importers:
         specifier: 3.24.2
         version: 3.24.2
 
+  apps/marcos-aws:
+    dependencies:
+      '@balerial/dynamo':
+        specifier: workspace:*
+        version: link:../../packages/balerial-dynamo
+      '@marcsimolduressonsardina/core':
+        specifier: workspace:*
+        version: link:../../packages/marcos-core
+      '@marcsimolduressonsardina/lambda':
+        specifier: workspace:*
+        version: link:../../packages/lambda-logic
+      aws-cdk-lib:
+        specifier: 2.189.0
+        version: 2.189.0(constructs@10.4.2)
+      aws-lambda:
+        specifier: 1.0.7
+        version: 1.0.7
+      constructs:
+        specifier: 10.4.2
+        version: 10.4.2
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      source-map-support:
+        specifier: 0.5.21
+        version: 0.5.21
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: 3.786.0
+        version: 3.786.0
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@types/aws-lambda':
+        specifier: 8.10.149
+        version: 8.10.149
+      '@types/eslint':
+        specifier: 9.6.1
+        version: 9.6.1
+      '@types/node':
+        specifier: 22.13.4
+        version: 22.13.4
+      aws-cdk:
+        specifier: 2.1007.0
+        version: 2.1007.0
+      esbuild:
+        specifier: 0.25.0
+        version: 0.25.0
+      tsx:
+        specifier: 4.19.3
+        version: 4.19.3
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+
   packages/balerial-dynamo:
     dependencies:
       '@aws-sdk/client-dynamodb':
@@ -255,7 +255,77 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
 
-  packages/core:
+  packages/eslint-config:
+    devDependencies:
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.18.0
+        version: 8.18.0(@typescript-eslint/parser@8.18.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2))(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2)
+      '@typescript-eslint/parser':
+        specifier: ^8.18.0
+        version: 8.18.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2)
+      eslint:
+        specifier: ^9.15.0
+        version: 9.17.0(jiti@2.4.2)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@9.17.0(jiti@2.4.2))
+      eslint-plugin-only-warn:
+        specifier: ^1.1.0
+        version: 1.1.0
+      eslint-plugin-svelte:
+        specifier: ^2.46.1
+        version: 2.46.1(eslint@9.17.0(jiti@2.4.2))(svelte@5.25.10)(ts-node@10.9.2(@types/node@22.14.0)(typescript@5.7.2))
+      eslint-plugin-turbo:
+        specifier: ^2.3.0
+        version: 2.3.3(eslint@9.17.0(jiti@2.4.2))
+      globals:
+        specifier: ^15.12.0
+        version: 15.13.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.7.2
+      typescript-eslint:
+        specifier: ^8.18.0
+        version: 8.18.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2)
+
+  packages/lambda-logic:
+    dependencies:
+      '@marcsimolduressonsardina/core':
+        specifier: workspace:*
+        version: link:../marcos-core
+      luxon:
+        specifier: 3.6.1
+        version: 3.6.1
+      posthog-node:
+        specifier: 4.12.0
+        version: 4.12.0
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/aws-lambda':
+        specifier: 8.10.147
+        version: 8.10.147
+      '@types/luxon':
+        specifier: 3.6.2
+        version: 3.6.2
+      aws-lambda:
+        specifier: 1.0.7
+        version: 1.0.7
+      pino:
+        specifier: 9.6.0
+        version: 9.6.0
+      sharp:
+        specifier: 0.34.1
+        version: 0.34.1
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+
+  packages/marcos-core:
     dependencies:
       '@aws-sdk/client-s3':
         specifier: 3.782.0
@@ -315,76 +385,6 @@ importers:
       '@types/node':
         specifier: 22.14.0
         version: 22.14.0
-      typescript:
-        specifier: 5.8.3
-        version: 5.8.3
-
-  packages/eslint-config:
-    devDependencies:
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.18.0
-        version: 8.18.0(@typescript-eslint/parser@8.18.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2))(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2)
-      '@typescript-eslint/parser':
-        specifier: ^8.18.0
-        version: 8.18.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2)
-      eslint:
-        specifier: ^9.15.0
-        version: 9.17.0(jiti@2.4.2)
-      eslint-config-prettier:
-        specifier: ^9.1.0
-        version: 9.1.0(eslint@9.17.0(jiti@2.4.2))
-      eslint-plugin-only-warn:
-        specifier: ^1.1.0
-        version: 1.1.0
-      eslint-plugin-svelte:
-        specifier: ^2.46.1
-        version: 2.46.1(eslint@9.17.0(jiti@2.4.2))(svelte@5.25.10)(ts-node@10.9.2(@types/node@22.14.0)(typescript@5.7.2))
-      eslint-plugin-turbo:
-        specifier: ^2.3.0
-        version: 2.3.3(eslint@9.17.0(jiti@2.4.2))
-      globals:
-        specifier: ^15.12.0
-        version: 15.13.0
-      typescript:
-        specifier: ^5.6.3
-        version: 5.7.2
-      typescript-eslint:
-        specifier: ^8.18.0
-        version: 8.18.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2)
-
-  packages/lambda-logic:
-    dependencies:
-      '@marcsimolduressonsardina/core':
-        specifier: workspace:*
-        version: link:../core
-      luxon:
-        specifier: 3.6.1
-        version: 3.6.1
-      posthog-node:
-        specifier: 4.12.0
-        version: 4.12.0
-    devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-      '@types/aws-lambda':
-        specifier: 8.10.147
-        version: 8.10.147
-      '@types/luxon':
-        specifier: 3.6.2
-        version: 3.6.2
-      aws-lambda:
-        specifier: 1.0.7
-        version: 1.0.7
-      pino:
-        specifier: 9.6.0
-        version: 9.6.0
-      sharp:
-        specifier: 0.34.1
-        version: 0.34.1
       typescript:
         specifier: 5.8.3
         version: 5.8.3
@@ -1485,10 +1485,6 @@ packages:
     resolution: {integrity: sha512-8smPlwhga22pwl23fM5ew4T9vfLUCeFXlcqNOCD5M5h8VmNPNUE9j6bQSuRXpDSV11L/E/SwEBQuW8hr6+nS1A==}
     engines: {node: '>=18.0.0'}
 
-  '@smithy/core@3.2.0':
-    resolution: {integrity: sha512-k17bgQhVZ7YmUvA8at4af1TDpl0NDMBuBKJl8Yg0nrefwmValU+CnA5l/AriVdQNthU/33H3nK71HrLgqOPr1Q==}
-    engines: {node: '>=18.0.0'}
-
   '@smithy/core@3.3.0':
     resolution: {integrity: sha512-r6gvs5OfRq/w+9unPm7B3po4rmWaGh0CIL/OwHntGGux7+RhOOZLGuurbeMgWV6W55ZuyMTypJLeH0vn/ZRaWQ==}
     engines: {node: '>=18.0.0'}
@@ -1553,16 +1549,8 @@ packages:
     resolution: {integrity: sha512-hAfEXm1zU+ELvucxqQ7I8SszwQ4znWMbNv6PLMndN83JJN41EPuS93AIyh2N+gJ6x8QFhzSO6b7q2e6oClDI8A==}
     engines: {node: '>=18.0.0'}
 
-  '@smithy/middleware-endpoint@4.1.0':
-    resolution: {integrity: sha512-xhLimgNCbCzsUppRTGXWkZywksuTThxaIB0HwbpsVLY5sceac4e1TZ/WKYqufQLaUy+gUSJGNdwD2jo3cXL0iA==}
-    engines: {node: '>=18.0.0'}
-
   '@smithy/middleware-endpoint@4.1.1':
     resolution: {integrity: sha512-z5RmcHxjvScL+LwEDU2mTNCOhgUs4lu5PGdF1K36IPRmUHhNFxNxgenSB7smyDiYD4vdKQ7CAZtG5cUErqib9w==}
-    engines: {node: '>=18.0.0'}
-
-  '@smithy/middleware-retry@4.1.0':
-    resolution: {integrity: sha512-2zAagd1s6hAaI/ap6SXi5T3dDwBOczOMCSkkYzktqN1+tzbk1GAsHNAdo/1uzxz3Ky02jvZQwbi/vmDA6z4Oyg==}
     engines: {node: '>=18.0.0'}
 
   '@smithy/middleware-retry@4.1.2':
@@ -1601,10 +1589,6 @@ packages:
     resolution: {integrity: sha512-v6w8wnmZcVXjfVLjxw8qF7OwESD9wnpjp0Dqry/Pod0/5vcEA3qxCr+BhbOHlxS8O+29eLpT3aagxXGwIoEk7Q==}
     engines: {node: '>=18.0.0'}
 
-  '@smithy/service-error-classification@4.0.2':
-    resolution: {integrity: sha512-LA86xeFpTKn270Hbkixqs5n73S+LVM0/VZco8dqd+JT75Dyx3Lcw/MraL7ybjmz786+160K8rPOmhsq0SocoJQ==}
-    engines: {node: '>=18.0.0'}
-
   '@smithy/service-error-classification@4.0.3':
     resolution: {integrity: sha512-FTbcajmltovWMjj3tksDQdD23b2w6gH+A0DYA1Yz3iSpjDj8fmkwy62UnXcWMy4d5YoMoSyLFHMfkEVEzbiN8Q==}
     engines: {node: '>=18.0.0'}
@@ -1615,10 +1599,6 @@ packages:
 
   '@smithy/signature-v4@5.0.2':
     resolution: {integrity: sha512-Mz+mc7okA73Lyz8zQKJNyr7lIcHLiPYp0+oiqiMNc/t7/Kf2BENs5d63pEj7oPqdjaum6g0Fc8wC78dY1TgtXw==}
-    engines: {node: '>=18.0.0'}
-
-  '@smithy/smithy-client@4.2.0':
-    resolution: {integrity: sha512-Qs65/w30pWV7LSFAez9DKy0Koaoh3iHhpcpCCJ4waj/iqwsuSzJna2+vYwq46yBaqO5ZbP9TjUsATUNxrKeBdw==}
     engines: {node: '>=18.0.0'}
 
   '@smithy/smithy-client@4.2.1':
@@ -1657,16 +1637,8 @@ packages:
     resolution: {integrity: sha512-L1RBVzLyfE8OXH+1hsJ8p+acNUSirQnWQ6/EgpchV88G6zGBTDPdXiiExei6Z1wR2RxYvxY/XLw6AMNCCt8H3w==}
     engines: {node: '>=18.0.0'}
 
-  '@smithy/util-defaults-mode-browser@4.0.8':
-    resolution: {integrity: sha512-ZTypzBra+lI/LfTYZeop9UjoJhhGRTg3pxrNpfSTQLd3AJ37r2z4AXTKpq1rFXiiUIJsYyFgNJdjWRGP/cbBaQ==}
-    engines: {node: '>=18.0.0'}
-
   '@smithy/util-defaults-mode-browser@4.0.9':
     resolution: {integrity: sha512-B8j0XsElvyhv6+5hlFf6vFV/uCSyLKcInpeXOGnOImX2mGXshE01RvPoGipTlRpIk53e6UfYj7WdDdgbVfXDZw==}
-    engines: {node: '>=18.0.0'}
-
-  '@smithy/util-defaults-mode-node@4.0.8':
-    resolution: {integrity: sha512-Rgk0Jc/UDfRTzVthye/k2dDsz5Xxs9LZaKCNPgJTRyoyBoeiNCnHsYGOyu1PKN+sDyPnJzMOz22JbwxzBp9NNA==}
     engines: {node: '>=18.0.0'}
 
   '@smithy/util-defaults-mode-node@4.0.9':
@@ -1683,10 +1655,6 @@ packages:
 
   '@smithy/util-middleware@4.0.2':
     resolution: {integrity: sha512-6GDamTGLuBQVAEuQ4yDQ+ti/YINf/MEmIegrEeg7DdB/sld8BX1lqt9RRuIcABOhAGTA50bRbPzErez7SlDtDQ==}
-    engines: {node: '>=18.0.0'}
-
-  '@smithy/util-retry@4.0.2':
-    resolution: {integrity: sha512-Qryc+QG+7BCpvjloFLQrmlSd0RsVRHejRXd78jNO3+oREueCjwG1CCEH1vduw/ZkM1U9TztwIKVIi3+8MJScGg==}
     engines: {node: '>=18.0.0'}
 
   '@smithy/util-retry@4.0.3':
@@ -4164,7 +4132,7 @@ snapshots:
       '@aws-sdk/util-user-agent-node': 3.782.0
       '@aws-sdk/xml-builder': 3.775.0
       '@smithy/config-resolver': 4.1.0
-      '@smithy/core': 3.2.0
+      '@smithy/core': 3.3.0
       '@smithy/eventstream-serde-browser': 4.0.2
       '@smithy/eventstream-serde-config-resolver': 4.1.0
       '@smithy/eventstream-serde-node': 4.0.2
@@ -4175,24 +4143,24 @@ snapshots:
       '@smithy/invalid-dependency': 4.0.2
       '@smithy/md5-js': 4.0.2
       '@smithy/middleware-content-length': 4.0.2
-      '@smithy/middleware-endpoint': 4.1.0
-      '@smithy/middleware-retry': 4.1.0
+      '@smithy/middleware-endpoint': 4.1.1
+      '@smithy/middleware-retry': 4.1.2
       '@smithy/middleware-serde': 4.0.3
       '@smithy/middleware-stack': 4.0.2
       '@smithy/node-config-provider': 4.0.2
       '@smithy/node-http-handler': 4.0.4
       '@smithy/protocol-http': 5.1.0
-      '@smithy/smithy-client': 4.2.0
+      '@smithy/smithy-client': 4.2.1
       '@smithy/types': 4.2.0
       '@smithy/url-parser': 4.0.2
       '@smithy/util-base64': 4.0.0
       '@smithy/util-body-length-browser': 4.0.0
       '@smithy/util-body-length-node': 4.0.0
-      '@smithy/util-defaults-mode-browser': 4.0.8
-      '@smithy/util-defaults-mode-node': 4.0.8
+      '@smithy/util-defaults-mode-browser': 4.0.9
+      '@smithy/util-defaults-mode-node': 4.0.9
       '@smithy/util-endpoints': 3.0.2
       '@smithy/util-middleware': 4.0.2
-      '@smithy/util-retry': 4.0.2
+      '@smithy/util-retry': 4.0.3
       '@smithy/util-stream': 4.2.0
       '@smithy/util-utf8': 4.0.0
       '@smithy/util-waiter': 4.0.3
@@ -4519,9 +4487,9 @@ snapshots:
       '@aws-sdk/signature-v4-multi-region': 3.775.0
       '@aws-sdk/types': 3.775.0
       '@aws-sdk/util-format-url': 3.775.0
-      '@smithy/middleware-endpoint': 4.1.0
+      '@smithy/middleware-endpoint': 4.1.1
       '@smithy/protocol-http': 5.1.0
-      '@smithy/smithy-client': 4.2.0
+      '@smithy/smithy-client': 4.2.1
       '@smithy/types': 4.2.0
       tslib: 2.8.1
 
@@ -5188,17 +5156,6 @@ snapshots:
       '@smithy/util-middleware': 4.0.2
       tslib: 2.8.1
 
-  '@smithy/core@3.2.0':
-    dependencies:
-      '@smithy/middleware-serde': 4.0.3
-      '@smithy/protocol-http': 5.1.0
-      '@smithy/types': 4.2.0
-      '@smithy/util-body-length-browser': 4.0.0
-      '@smithy/util-middleware': 4.0.2
-      '@smithy/util-stream': 4.2.0
-      '@smithy/util-utf8': 4.0.0
-      tslib: 2.8.1
-
   '@smithy/core@3.3.0':
     dependencies:
       '@smithy/middleware-serde': 4.0.3
@@ -5301,17 +5258,6 @@ snapshots:
       '@smithy/types': 4.2.0
       tslib: 2.8.1
 
-  '@smithy/middleware-endpoint@4.1.0':
-    dependencies:
-      '@smithy/core': 3.3.0
-      '@smithy/middleware-serde': 4.0.3
-      '@smithy/node-config-provider': 4.0.2
-      '@smithy/shared-ini-file-loader': 4.0.2
-      '@smithy/types': 4.2.0
-      '@smithy/url-parser': 4.0.2
-      '@smithy/util-middleware': 4.0.2
-      tslib: 2.8.1
-
   '@smithy/middleware-endpoint@4.1.1':
     dependencies:
       '@smithy/core': 3.3.0
@@ -5322,18 +5268,6 @@ snapshots:
       '@smithy/url-parser': 4.0.2
       '@smithy/util-middleware': 4.0.2
       tslib: 2.8.1
-
-  '@smithy/middleware-retry@4.1.0':
-    dependencies:
-      '@smithy/node-config-provider': 4.0.2
-      '@smithy/protocol-http': 5.1.0
-      '@smithy/service-error-classification': 4.0.2
-      '@smithy/smithy-client': 4.2.1
-      '@smithy/types': 4.2.0
-      '@smithy/util-middleware': 4.0.2
-      '@smithy/util-retry': 4.0.3
-      tslib: 2.8.1
-      uuid: 9.0.1
 
   '@smithy/middleware-retry@4.1.2':
     dependencies:
@@ -5393,10 +5327,6 @@ snapshots:
       '@smithy/types': 4.2.0
       tslib: 2.8.1
 
-  '@smithy/service-error-classification@4.0.2':
-    dependencies:
-      '@smithy/types': 4.2.0
-
   '@smithy/service-error-classification@4.0.3':
     dependencies:
       '@smithy/types': 4.2.0
@@ -5415,16 +5345,6 @@ snapshots:
       '@smithy/util-middleware': 4.0.2
       '@smithy/util-uri-escape': 4.0.0
       '@smithy/util-utf8': 4.0.0
-      tslib: 2.8.1
-
-  '@smithy/smithy-client@4.2.0':
-    dependencies:
-      '@smithy/core': 3.3.0
-      '@smithy/middleware-endpoint': 4.1.1
-      '@smithy/middleware-stack': 4.0.2
-      '@smithy/protocol-http': 5.1.0
-      '@smithy/types': 4.2.0
-      '@smithy/util-stream': 4.2.0
       tslib: 2.8.1
 
   '@smithy/smithy-client@4.2.1':
@@ -5475,30 +5395,12 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@smithy/util-defaults-mode-browser@4.0.8':
-    dependencies:
-      '@smithy/property-provider': 4.0.2
-      '@smithy/smithy-client': 4.2.1
-      '@smithy/types': 4.2.0
-      bowser: 2.11.0
-      tslib: 2.8.1
-
   '@smithy/util-defaults-mode-browser@4.0.9':
     dependencies:
       '@smithy/property-provider': 4.0.2
       '@smithy/smithy-client': 4.2.1
       '@smithy/types': 4.2.0
       bowser: 2.11.0
-      tslib: 2.8.1
-
-  '@smithy/util-defaults-mode-node@4.0.8':
-    dependencies:
-      '@smithy/config-resolver': 4.1.0
-      '@smithy/credential-provider-imds': 4.0.2
-      '@smithy/node-config-provider': 4.0.2
-      '@smithy/property-provider': 4.0.2
-      '@smithy/smithy-client': 4.2.1
-      '@smithy/types': 4.2.0
       tslib: 2.8.1
 
   '@smithy/util-defaults-mode-node@4.0.9':
@@ -5523,12 +5425,6 @@ snapshots:
 
   '@smithy/util-middleware@4.0.2':
     dependencies:
-      '@smithy/types': 4.2.0
-      tslib: 2.8.1
-
-  '@smithy/util-retry@4.0.2':
-    dependencies:
-      '@smithy/service-error-classification': 4.0.2
       '@smithy/types': 4.2.0
       tslib: 2.8.1
 
