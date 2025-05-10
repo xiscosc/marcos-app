@@ -33,69 +33,78 @@ export function createDynamoTables(scope: Construct, envName: string): DynamoTab
 }
 
 function createCustomerTable(scope: Construct, envName: string): Table {
-	const tableIndexes = customerTableBuilder.buildIndexes();
-	const table = createTable(scope, envName, `${envName}-customer-v2`, tableIndexes.primaryIndex);
+	const balerialTable = customerTableBuilder.setTableName(`${envName}-customer-v2`).build();
+	const table = createTable(
+		scope,
+		envName,
+		`${envName}-customer-v2`,
+		balerialTable.getPrimaryIndex()
+	);
 
-	addSecondaryIndexes(tableIndexes.secondaryIndexes, table);
+	addSecondaryIndexes(balerialTable.getSecondaryIndexes(), table);
 	return table;
 }
 
 function createConfigTable(scope: Construct, envName: string): Table {
-	const tableIndexes = configTableBuilder.buildIndexes();
-	const table = createTable(scope, envName, `${envName}-config`, tableIndexes.primaryIndex);
+	const balerialTable = configTableBuilder.setTableName(`${envName}-config`).build();
+	const table = createTable(scope, envName, `${envName}-config`, balerialTable.getPrimaryIndex());
 
-	addSecondaryIndexes(tableIndexes.secondaryIndexes, table);
+	addSecondaryIndexes(balerialTable.getSecondaryIndexes(), table);
 	return table;
 }
 
 function createFileTable(scope: Construct, envName: string): Table {
-	const tableIndexes = fileTableBuilder.buildIndexes();
-	const table = createTable(scope, envName, `${envName}-file`, tableIndexes.primaryIndex);
-	addSecondaryIndexes(tableIndexes.secondaryIndexes, table);
+	const balerialTable = fileTableBuilder.setTableName(`${envName}-file`).build();
+	const table = createTable(scope, envName, `${envName}-file`, balerialTable.getPrimaryIndex());
+	addSecondaryIndexes(balerialTable.getSecondaryIndexes(), table);
 	return table;
 }
 
 function createOrderTable(scope: Construct, envName: string): Table {
-	const tableIndexes = orderTableBuilder.buildIndexes();
-	const table = createTable(scope, envName, `${envName}-order-v2`, tableIndexes.primaryIndex);
-	addSecondaryIndexes(tableIndexes.secondaryIndexes, table);
+	const balerialTable = orderTableBuilder.setTableName(`${envName}-order-v2`).build();
+	const table = createTable(scope, envName, `${envName}-order-v2`, balerialTable.getPrimaryIndex());
+	addSecondaryIndexes(balerialTable.getSecondaryIndexes(), table);
 	return table;
 }
 
 function createListPricingTable(scope: Construct, envName: string): Table {
-	const tableIndexes = listPricingTableBuilder.buildIndexes();
+	const balerialTable = listPricingTableBuilder.setTableName(`${envName}-list-pricing-v2`).build();
 	const table = createTable(
 		scope,
 		envName,
 		`${envName}-list-pricing-v2`,
-		tableIndexes.primaryIndex
+		balerialTable.getPrimaryIndex()
 	);
-	addSecondaryIndexes(tableIndexes.secondaryIndexes, table);
+	addSecondaryIndexes(balerialTable.getSecondaryIndexes(), table);
 	return table;
 }
 
 function createCalculatedItemOrderTable(scope: Construct, envName: string): Table {
-	const tableIndexes = calculatedItemTableBuilder.buildIndexes();
+	const balerialTable = calculatedItemTableBuilder
+		.setTableName(`${envName}-calculated-item-order`)
+		.build();
 	const table = createTable(
 		scope,
 		envName,
 		`${envName}-calculated-item-order`,
-		tableIndexes.primaryIndex
+		balerialTable.getPrimaryIndex()
 	);
-	addSecondaryIndexes(tableIndexes.secondaryIndexes, table);
+	addSecondaryIndexes(balerialTable.getSecondaryIndexes(), table);
 	return table;
 }
 
 function createOrderAuditTrailTable(scope: Construct, envName: string): Table {
-	const tableIndexes = orderAuditTrailTableBuilder.buildIndexes();
+	const balerialTable = orderAuditTrailTableBuilder
+		.setTableName(`${envName}-order-audit-trail-v3`)
+		.build();
 	const table = createTable(
 		scope,
 		envName,
 		`${envName}-order-audit-trail-v3`,
-		tableIndexes.primaryIndex
+		balerialTable.getPrimaryIndex()
 	);
 
-	addSecondaryIndexes(tableIndexes.secondaryIndexes, table);
+	addSecondaryIndexes(balerialTable.getSecondaryIndexes(), table);
 	return table;
 }
 

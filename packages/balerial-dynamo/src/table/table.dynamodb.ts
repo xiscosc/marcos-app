@@ -108,15 +108,4 @@ export class DynamoDbTableBuilder {
 			this.defaultFilters
 		);
 	}
-
-	public buildIndexes() {
-		if (!this.primaryIndex) {
-			throw new Error('Primary index must be set');
-		}
-
-		return {
-			primaryIndex: this.primaryIndex,
-			secondaryIndexes: Array.from(this.secondaryIndexesMap.values())
-		};
-	}
 }
