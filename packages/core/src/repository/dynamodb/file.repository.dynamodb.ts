@@ -3,57 +3,79 @@ import {
 	ICoreConfigurationForAWSLambda
 } from '../../configuration/core-configuration.interface';
 import type { FileDto } from '../dto/file.dto';
-import { DynamoRepository } from './dynamo.repository';
-import { FileDynamoDbIndex } from './index.dynamodb';
+import { BalerialDynamoRepository } from '@balerial/dynamo/repository';
+import { getClientConfiguration } from '../../configuration/configuration.util';
+import { fileTableBuilder } from './table/table.builders.dynamodb';
+import {
+	DynamoFilterElement,
+	DynamoFilterExpression,
+	DynamoQueryExpression
+} from '@balerial/dynamo/type';
 
-export class FileRepositoryDynamoDb extends DynamoRepository<FileDto> {
-	constructor(config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
+export class FileRepositoryDynamoDb {
+	private repository: BalerialDynamoRepository<FileDto>;
+
+	constructor(private readonly config: ICoreConfiguration | ICoreConfigurationForAWSLambda) {
 		if (config.fileTable == null) {
 			throw Error('Table name fileTable can not be empty');
 		}
-		super(config, config.fileTable, FileDynamoDbIndex.primaryIndex);
+
+		this.repository = new BalerialDynamoRepository(
+			getClientConfiguration(config),
+			fileTableBuilder.setTableName(config.fileTable).build()
+		);
 	}
 
 	public async createFile(file: FileDto) {
-		await this.put(file);
+		await this.repository.put(file);
 	}
 
 	public async getFile(orderUuid: string, fileUuid: string): Promise<FileDto | null> {
-		const dtos = await this.getByIndex(this.primaryIndex, orderUuid, true, fileUuid);
+		const dtos = await this.repository.getByIndex({
+			partitionKeyValue: orderUuid,
+			sortQuery: {
+				expression: DynamoQueryExpression.EQUAL,
+				value: fileUuid
+			}
+		});
 		return dtos[0] ?? null;
 	}
 
 	public async getFilesByOrder(orderUuid: string): Promise<FileDto[]> {
-		return await this.getByIndex(this.primaryIndex, orderUuid);
+		return await this.repository.getByIndex({
+			partitionKeyValue: orderUuid
+		});
 	}
 
 	public async deleteFile(orderUuid: string, fileUuid: string) {
-		await this.batchDelete([{ partitionKey: orderUuid, sortKey: fileUuid }]);
+		await this.repository.batchDelete([{ partitionKey: orderUuid, sortKey: fileUuid }]);
 	}
 
 	public async getOptimizedPhotoFileOriginalKeys(): Promise<Partial<FileDto>[]> {
-		const filterExpression = '#n0 = :v0 AND attribute_exists(#n1) AND attribute_exists(#n2)';
-		const projectionExpression = '#n3';
+		const filters: DynamoFilterElement[] = [
+			{
+				attribute: 'type',
+				expression: DynamoFilterExpression.EQUAL,
+				value: 'photo'
+			},
+			{
+				attribute: 'optimizedKey',
+				expression: DynamoFilterExpression.ATTRIBUTE_EXISTS,
+				value: true
+			},
+			{
+				attribute: 'thumbnailKey',
+				expression: DynamoFilterExpression.ATTRIBUTE_EXISTS,
+				value: true
+			}
+		];
 
-		const attributeNames = {
-			'#n0': 'type',
-			'#n1': 'optimizedKey',
-			'#n2': 'thumbnailKey',
-			'#n3': 'key'
-		};
-
-		const attributeValues = {
-			':v0': 'photo'
-		};
-
-		const dtos = await this.scan(
-			filterExpression,
-			attributeNames,
-			attributeValues,
-			projectionExpression
-		);
-
-		return dtos;
+		const projections = ['key'];
+		const dtos = await this.repository.scan({
+			filterAttributes: filters,
+			projectionAttributes: projections
+		});
+		return dtos.elements;
 	}
 
 	public async deleteFiles(files: FileDto[]) {
@@ -61,6 +83,6 @@ export class FileRepositoryDynamoDb extends DynamoRepository<FileDto> {
 			partitionKey: f.orderUuid,
 			sortKey: f.fileUuid
 		}));
-		await this.batchDelete(deleteInfo);
+		await this.repository.batchDelete(deleteInfo);
 	}
 }

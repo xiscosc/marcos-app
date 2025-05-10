@@ -14,9 +14,7 @@ import { DateTime } from 'luxon';
 import { OrderAuditTrailService } from './order-audit-trail.service';
 import {
 	ICoreConfiguration,
-	ICoreConfigurationForAWSLambda,
-	ICorePublicConfiguration,
-	ICorePublicConfigurationForAWSLambda
+	ICoreConfigurationForAWSLambda
 } from '../configuration/core-configuration.interface';
 import {
 	CalculatedItem,
@@ -345,35 +343,6 @@ export class OrderService {
 		]);
 	}
 
-	static async getPublicOrder(
-		config: ICorePublicConfiguration | ICorePublicConfigurationForAWSLambda,
-		publicId: string
-	): Promise<FullOrder | null> {
-		const repo = OrderRepositoryDynamoDb.createPublicRepository(config);
-		const orderDto = await repo.getOrderByShortId(publicId);
-		if (orderDto) {
-			const publicCustomer = await CustomerService.getPublicCustomerForPublicOrder(
-				orderDto,
-				config
-			);
-			if (publicCustomer == null) return null;
-			const order = OrderService.fromDto(orderDto, publicCustomer);
-			const publicCalculatedItemService = new CalculatedItemService(
-				config,
-				new PricingService(config)
-			);
-			const calculatedItem = await publicCalculatedItemService.getCalculatedItem(order.id);
-			if (calculatedItem == null) return null;
-			return {
-				order,
-				calculatedItem,
-				totals: OrderService.getTotalsForOrder(order, calculatedItem)
-			};
-		}
-
-		return null;
-	}
-
 	static validateOrderId(orderId?: string): boolean {
 		return uuidValidate(orderId);
 	}
@@ -644,7 +613,7 @@ export class OrderService {
 		};
 	}
 
-	private static fromDto(dto: OrderDto, customer: Customer): Order {
+	public static fromDto(dto: OrderDto, customer: Customer): Order {
 		return {
 			id: dto.uuid,
 			shortId: dto.shortId,
@@ -659,6 +628,17 @@ export class OrderService {
 			location: dto.location ?? '',
 			notified: dto.notified ?? false,
 			publicId: dto.publicId
+		};
+	}
+
+	public static getTotalsForOrder(order: Order, calculatedItem: CalculatedItem): OrderTotals {
+		const totalsBase = OrderService.getTotals(calculatedItem);
+		const remainingAmount = totalsBase.total - order.amountPayed;
+
+		return {
+			...totalsBase,
+			payed: remainingAmount <= 0,
+			remainingAmount
 		};
 	}
 
@@ -776,17 +756,6 @@ export class OrderService {
 			total,
 			discountNotAllowedPresent:
 				calculatedItem.parts.some((part) => !part.discountAllowed) && calculatedItem.discount > 0
-		};
-	}
-
-	private static getTotalsForOrder(order: Order, calculatedItem: CalculatedItem): OrderTotals {
-		const totalsBase = OrderService.getTotals(calculatedItem);
-		const remainingAmount = totalsBase.total - order.amountPayed;
-
-		return {
-			...totalsBase,
-			payed: remainingAmount <= 0,
-			remainingAmount
 		};
 	}
 }

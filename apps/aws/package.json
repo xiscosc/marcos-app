@@ -26,6 +26,7 @@
 		"dotenv": "16.4.7",
 		"source-map-support": "0.5.21",
 		"@marcsimolduressonsardina/core": "workspace:*",
-		"@marcsimolduressonsardina/lambda": "workspace:*"
+		"@marcsimolduressonsardina/lambda": "workspace:*",
+		"@balerial/dynamo": "workspace:*"
 	}
 }

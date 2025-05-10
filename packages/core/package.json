@@ -6,7 +6,7 @@
 		"./type": "./src/types/index.ts",
 		"./service": "./src/service/index.ts",
 		"./dto": "./src/service/dto/order-creation.dto.ts",
-		"./db": "./src/repository/dynamodb/index.dynamodb.ts",
+		"./db": "./src/repository/dynamodb/table/table.builders.dynamodb.ts",
 		"./error": "./src/error/index.ts",
 		"./config": "./src/configuration/core-configuration.interface.ts",
 		"./data": "./src/data/mold-price.loader.ts",
@@ -31,9 +31,8 @@
 		"typescript": "5.8.3"
 	},
 	"dependencies": {
-		"@aws-sdk/client-dynamodb": "3.786.0",
+		"@balerial/dynamo": "workspace:*",
 		"@aws-sdk/client-s3": "3.782.0",
-		"@aws-sdk/lib-dynamodb": "3.786.0",
 		"@aws-sdk/s3-request-presigner": "3.782.0",
 		"lodash": "4.17.21",
 		"luxon": "3.6.1",

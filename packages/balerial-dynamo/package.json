@@ -1,0 +1,29 @@
+{
+	"name": "@balerial/dynamo",
+	"version": "1.0.0",
+	"exports": {
+		"./type": "./src/type/index.ts",
+		"./table": "./src/table/table.dynamodb.ts",
+		"./repository": "./src/repository/dynamo.repository.ts"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"format": "prettier --write ."
+	},
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@repo/eslint-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"typescript": "5.8.3",
+		"@types/lodash": "4.17.16",
+		"@smithy/types": "4.2.0"
+	},
+	"dependencies": {
+		"@aws-sdk/client-dynamodb": "3.786.0",
+		"@aws-sdk/lib-dynamodb": "3.786.0",
+		"lodash": "4.17.21",
+		"pino": "9.6.0"
+	}
+}

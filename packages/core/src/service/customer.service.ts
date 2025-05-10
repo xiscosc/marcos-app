@@ -3,12 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { InvalidDataError } from '../error/invalid-data.error';
 import { CustomerRepositoryDynamoDb } from '../repository/dynamodb/customer.repository.dynamodb';
 import type { CustomerDto } from '../repository/dto/customer.dto';
-import type { OrderDto } from '../repository/dto/order.dto';
 import {
 	ICoreConfiguration,
-	ICoreConfigurationForAWSLambda,
-	ICorePublicConfiguration,
-	ICorePublicConfigurationForAWSLambda
+	ICoreConfigurationForAWSLambda
 } from '../configuration/core-configuration.interface';
 import { Customer } from '../types/customer.type';
 import { SearchUtilities } from '../utilities/search.utilities';
@@ -115,17 +112,13 @@ export class CustomerService {
 		return customer;
 	}
 
-	public static async getPublicCustomerForPublicOrder(
-		order: OrderDto,
-		config: ICorePublicConfiguration | ICorePublicConfigurationForAWSLambda
-	): Promise<Customer | null> {
-		const repo = CustomerRepositoryDynamoDb.createPublicRepository(config);
-		const customerDto = await repo.getPublicCustomerById(order.customerUuid);
-		if (customerDto && customerDto.storeId === order.storeId) {
-			return CustomerService.fromDto(customerDto);
-		}
-
-		return null;
+	public static fromDto(dto: CustomerDto): Customer {
+		return {
+			id: dto.uuid,
+			name: dto.name,
+			phone: dto.phone,
+			storeId: dto.storeId
+		};
 	}
 
 	private static validate(customer: Customer) {
@@ -138,15 +131,6 @@ export class CustomerService {
 		if (!phoneRegex.test(customer.phone)) {
 			throw new InvalidDataError('Invalid phone format');
 		}
-	}
-
-	private static fromDto(dto: CustomerDto): Customer {
-		return {
-			id: dto.uuid,
-			name: dto.name,
-			phone: dto.phone,
-			storeId: dto.storeId
-		};
 	}
 
 	private static toDto(customer: Customer): CustomerDto {
